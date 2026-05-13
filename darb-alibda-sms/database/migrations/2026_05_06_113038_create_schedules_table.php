@@ -13,16 +13,37 @@ return new class extends Migration
     {
         Schema::create('schedules', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('section_id')->constrained('sections')->cascadeOnDelete();
             $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
             $table->foreignId('teacher_id')->constrained('teachers')->cascadeOnDelete();
             $table->foreignId('term_id')->constrained('terms')->cascadeOnDelete();
-            $table->enum('day', ['sun','mon','tue','wed','thu']);
-            $table->time('start_time');
-            $table->time('end_time');
+
+            // ✅ ربط الحصة بفترة زمنية ثابتة على مستوى المدرسة
+            $table->foreignId('time_slot_id')
+                  ->constrained('time_slots')
+                  ->cascadeOnDelete();
+
+            $table->enum('day', ['sun', 'mon', 'tue', 'wed', 'thu']);
+
             $table->timestamps();
 
+            // 📈 فهرس للأداء
             $table->index(['section_id', 'teacher_id']);
+
+            // 🔒 منع تضارب الجدول الدراسي:
+
+            // 1️⃣ المعلم لا يمكن أن يكون في حصتين في نفس الوقت
+            $table->unique(
+                ['teacher_id', 'term_id', 'day', 'time_slot_id'],
+                'unique_teacher_per_slot'
+            );
+
+            // 2️⃣ الشعبة لا يمكن أن يكون لها حصتان في نفس الوقت
+            $table->unique(
+                ['section_id', 'term_id', 'day', 'time_slot_id'],
+                'unique_section_per_slot'
+            );
         });
     }
 

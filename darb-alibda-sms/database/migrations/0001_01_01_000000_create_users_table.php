@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('phone')->unique()->nullable();
             $table->string('avatar')->nullable();
@@ -23,8 +23,6 @@ return new class extends Migration
             $table->foreignId('role_id')->nullable()->constrained('roles')->nullOnDelete();
             $table->rememberToken();
             $table->timestamps();
-            $table->index(['email', 'phone']);
-            $table->index('role_id');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name'); // الأول - الثاني...
             $table->string('level'); // ابتدائي - إعدادي - ثانوي
-            $table->integer('capacity')->default(30);
             $table->timestamps();
         });
     }

@@ -18,8 +18,6 @@ return new class extends Migration
             $table->enum('type', ['written', 'oral', 'practical'])->default('written');
             $table->integer('full_mark')->default(100);
             $table->integer('pass_mark')->default(50);
-            $table->string('level'); // ابتدائي - إعدادي - ثانوي
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
