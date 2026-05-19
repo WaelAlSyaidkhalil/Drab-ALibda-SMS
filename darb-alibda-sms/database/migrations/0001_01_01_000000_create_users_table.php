@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('phone')->unique()->nullable();
             $table->string('avatar')->nullable();
             $table->string('password');
+            $table->boolean('is_active')->default(true);
             $table->text('fcm_token')->nullable();
             $table->foreignId('role_id')->nullable()->constrained('roles')->nullOnDelete();
             $table->rememberToken();

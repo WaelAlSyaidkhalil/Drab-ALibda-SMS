@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('title');
             $table->text('body');
             $table->enum('audience', ['all', 'teachers', 'parents', 'students']);
-            $table->string('image')->nullable();
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });

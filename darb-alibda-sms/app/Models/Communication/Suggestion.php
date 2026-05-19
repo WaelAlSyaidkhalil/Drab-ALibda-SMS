@@ -5,6 +5,8 @@ namespace App\Models\Communication;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\Filterable;
+use App\Models\Traits\HasAttachments;
+use App\Models\Communication\Attachment;
 use App\Models\Auth\User;
 use Illuminate\Support\Carbon;
 
@@ -25,7 +27,7 @@ use Illuminate\Support\Carbon;
  */
 class Suggestion extends Model
 {
-    use Filterable;
+    use Filterable, HasAttachments;
 
     protected $fillable = [
         'user_id',

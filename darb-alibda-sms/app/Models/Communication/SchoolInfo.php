@@ -4,6 +4,8 @@ namespace App\Models\Communication;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Traits\Filterable;
+use App\Models\Traits\HasAttachments;
+use App\Models\Communication\Attachment;
 use Illuminate\Support\Carbon;
 
 /**
@@ -15,7 +17,6 @@ use Illuminate\Support\Carbon;
  * @property string|null $email       بريد المدرسة
  * @property string|null $phone       هاتف المدرسة
  * @property string|null $address     عنوان المدرسة
- * @property string|null $logo_url    رابط الشعار
  * @property string|null $about       نبذة عن المدرسة
  * @property string|null $vision      الرؤية
  * @property string|null $mission     الرسالة
@@ -24,14 +25,13 @@ use Illuminate\Support\Carbon;
  */
 class SchoolInfo extends Model
 {
-    use Filterable;
+    use Filterable, HasAttachments;
 
     protected $fillable = [
         'school_name',
         'email',
         'phone',
         'address',
-        'logo_url',
         'about',
         'vision',
         'mission',

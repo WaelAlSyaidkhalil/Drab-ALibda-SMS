@@ -21,7 +21,8 @@ use Illuminate\Support\Carbon;
  * @property string $first_name        الاسم الأول
  * @property string $last_name         الاسم الأخير
  * @property string|null $specialization التخصص (رياضيات، عربي...)
- * @property string|null $qualification المؤهل العلمي
+ * @property string|null $national_id  الرقم الوطني
+ * @property string|null $registry_number رقم التسجيل
  * @property string|null $phone        رقم الهاتف
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -38,12 +39,21 @@ class Teacher extends Model
         'user_id',
         'first_name',
         'last_name',
+        'national_id',
+        'registry_number',
         'specialization',
-        'qualification',
-        'phone',
+        'employee_number',
+        'hire_date',
+        'employment_type',
+        'grade',
+        'address',
+        'phone_alt',
+        'experience_years',
     ];
 
     protected $casts = [
+        'hire_date' => 'date',
+        'experience_years' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
