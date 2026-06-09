@@ -3,8 +3,9 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Factory;
-use App\Models\User;
+use App\Models\Auth\User;
 
 class FirebaseService
 {
@@ -13,7 +14,14 @@ class FirebaseService
     public function __construct()
     {
         // تهيئة المصنع مرة واحدة عند استدعاء الخدمة
-        $factory = (new Factory)->withServiceAccount(config('firebase.credentials.file'));
+        $credentials = config('firebase.projects.'.config('firebase.default').'.credentials');
+
+        if ($credentials) {
+            $factory = (new Factory)->withServiceAccount($credentials);
+        } else {
+            $factory = new Factory();
+        }
+
         $this->messaging = $factory->createMessaging();
     }
 

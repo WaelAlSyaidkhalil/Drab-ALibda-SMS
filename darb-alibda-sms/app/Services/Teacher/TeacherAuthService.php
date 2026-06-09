@@ -2,6 +2,8 @@
 
 namespace App\Services\Teacher;
 
+use App\Events\Teacher\TeacherLoginFailed;
+use App\Events\Teacher\TeacherLoggedIn;
 use App\Repositories\Teacher\TeacherAuthRepository;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
@@ -24,6 +26,7 @@ class TeacherAuthService
 
         if (! $user || ! $user->isTeacher() || ! $user->is_active) {
             RateLimiter::hit($this->throttleKey($data['phone'], $ip));
+            event(new TeacherLoginFailed($data['phone'], $ip, 'teacher_not_active_or_not_found'));
 
             throw ValidationException::withMessages([
                 'phone' => 'رقم الجوال غير مسجل كمعلم نشط. تأكد من أنك تستخدم بيانات الحساب الصحيحة.',
@@ -32,17 +35,27 @@ class TeacherAuthService
 
         if (! Hash::check($data['password'], $user->password)) {
             RateLimiter::hit($this->throttleKey($data['phone'], $ip));
+            event(new TeacherLoginFailed($data['phone'], $ip, 'invalid_password'));
 
             throw ValidationException::withMessages([
-                'phone' => 'بيانات الجوال أو كلمة المرور غير صحيحة.',
+                'password' => 'كلمة المرور خاطئة. حاول مرة أخرى.',
             ]);
         }
 
         RateLimiter::clear($this->throttleKey($data['phone'], $ip));
 
+        if (! empty($data['fcm_token'])) {
+            $user->fcm_token = $data['fcm_token'];
+            $user->save();
+        }
+
+        $token = $user->createToken('teacher-api-token')->plainTextToken;
+
+        event(new TeacherLoggedIn($user, $ip));
+
         return [
             'user' => $user,
-            'token' => $user->createToken('teacher-api-token')->plainTextToken,
+            'token' => $token,
         ];
     }
 

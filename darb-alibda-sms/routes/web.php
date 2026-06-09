@@ -8,7 +8,6 @@ Route::get('/', function () {
 });
 
 
-
 Route::get('/test-firebase', function () {
     try {
         $factory = (new Factory)->withServiceAccount(config('firebase.projects.app.credentials'));

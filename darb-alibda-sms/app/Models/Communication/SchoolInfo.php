@@ -17,9 +17,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $email       بريد المدرسة
  * @property string|null $phone       هاتف المدرسة
  * @property string|null $address     عنوان المدرسة
- * @property string|null $about       نبذة عن المدرسة
- * @property string|null $vision      الرؤية
- * @property string|null $mission     الرسالة
+ * @property string|null $description وصف المدرسة
+ * @property string|null $website     موقع المدرسة
  * @property Carbon $created_at
  * @property Carbon $updated_at
  */
@@ -27,15 +26,21 @@ class SchoolInfo extends Model
 {
     use Filterable, HasAttachments;
 
+    protected $table = 'school_info';
+
     protected $fillable = [
-        'school_name',
-        'email',
-        'phone',
+        'name',
+        'description',
         'address',
-        'about',
-        'vision',
-        'mission',
+        'phone',
+        'email',
+        'website',
     ];
+
+    public function getSchoolNameAttribute(): string
+    {
+        return $this->name;
+    }
 
     protected $casts = [
         'created_at' => 'datetime',
@@ -57,12 +62,14 @@ class SchoolInfo extends Model
     /**
      * تحديث أو إنشاء معلومات المدرسة
      *
-     * @param array $data
+     * @param array $attributes
+     * @param array $values
      * @return static
      */
-    public static function updateOrCreate(array $data): static
+    public static function updateOrCreate(array $attributes, array $values = []): static
     {
         $info = self::first();
+        $data = array_merge($attributes, $values);
 
         if ($info) {
             $info->update($data);
