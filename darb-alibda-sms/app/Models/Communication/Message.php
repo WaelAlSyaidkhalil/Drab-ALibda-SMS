@@ -15,7 +15,7 @@ use App\Models\Auth\User;
  * @property int $conversation_id      FK → conversations
  * @property int $sender_id            FK → users
  * @property string $message           نص الرسالة
- * @property \Illuminate\Support\Carbon|null $read_at تاريخ قراءة الرسالة
+ * @property bool $is_read             هل تم قراءة الرسالة
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  * 
@@ -30,11 +30,11 @@ class Message extends Model
         'conversation_id',
         'sender_id',
         'message',
-        'read_at',
+        'is_read',
     ];
 
     protected $casts = [
-        'read_at' => 'datetime',
+        'is_read' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -71,7 +71,7 @@ class Message extends Model
      */
     public function scopeRead($query)
     {
-        return $query->whereNotNull('read_at');
+        return $query->where('is_read', true);
     }
 
     /**
@@ -82,7 +82,7 @@ class Message extends Model
      */
     public function scopeUnread($query)
     {
-        return $query->whereNull('read_at');
+        return $query->where('is_read', false);
     }
 
     /**
@@ -106,11 +106,11 @@ class Message extends Model
      */
     public function markAsRead(): bool
     {
-        if ($this->read_at) {
+        if ($this->is_read) {
             return false;
         }
 
-        return $this->update(['read_at' => now()]);
+        return $this->update(['is_read' => true]);
     }
 
     /**
@@ -120,7 +120,7 @@ class Message extends Model
      */
     public function isRead(): bool
     {
-        return $this->read_at !== null;
+        return $this->is_read;
     }
 
     // ────── Accessors ──────

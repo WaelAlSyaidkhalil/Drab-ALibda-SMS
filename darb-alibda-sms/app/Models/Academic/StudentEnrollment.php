@@ -135,7 +135,7 @@ class StudentEnrollment extends Model
     public function scopeInClass($query, int $classId)
     {
         return $query->whereHas('section', function ($q) use ($classId) {
-            $q->where('school_class_id', $classId);
+            $q->where('class_id', $classId);
         });
     }
 

@@ -28,6 +28,8 @@ class Attendance extends Model
 {
     use Filterable;
 
+    protected $table = 'attendance';
+
     protected $fillable = [
         'schedule_id',
         'student_id',

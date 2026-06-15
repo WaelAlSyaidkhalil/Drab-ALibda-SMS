@@ -51,7 +51,7 @@ class SchoolClass extends Model
      */
     public function sections(): HasMany
     {
-        return $this->hasMany(Section::class);
+        return $this->hasMany(Section::class, 'class_id');
     }
 
     /**
@@ -64,7 +64,7 @@ class SchoolClass extends Model
         return $this->belongsToMany(
             Subject::class,
             'class_subject',
-            'school_class_id',
+            'class_id',
             'subject_id'
         );
     }
@@ -136,7 +136,7 @@ class SchoolClass extends Model
     public function getStudentCountAttribute(): int
     {
         return StudentEnrollment::whereHas('section', function ($q) {
-            $q->where('school_class_id', $this->id);
+            $q->where('class_id', $this->id);
         })
         ->where('status', 'active')
         ->count();

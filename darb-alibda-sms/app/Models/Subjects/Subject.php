@@ -66,7 +66,7 @@ class Subject extends Model
             SchoolClass::class,
             'class_subject',
             'subject_id',
-            'school_class_id'
+            'class_id'
         );
     }
 

@@ -17,10 +17,9 @@ use Illuminate\Support\Carbon;
  * تمثل مجموعة من الطلاب في نفس الصف ونفس السنة الدراسية
  *
  * @property int $id
- * @property int $school_class_id      FK → classes
+ * @property int $class_id            FK → classes
  * @property string $name              اسم الشعبة (أ، ب، ج...)
  * @property int $capacity             السعة القصوى للطلاب
- * @property string $academic_year     السنة الدراسية (2025-2026)
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
@@ -34,10 +33,9 @@ class Section extends Model
     use Filterable, HasAcademicYear;
 
     protected $fillable = [
-        'school_class_id',
+        'class_id',
         'name',
         'capacity',
-        'academic_year',
     ];
 
     protected $casts = [
@@ -55,7 +53,7 @@ class Section extends Model
      */
     public function schoolClass(): BelongsTo
     {
-        return $this->belongsTo(SchoolClass::class);
+        return $this->belongsTo(SchoolClass::class, 'class_id');
     }
 
     /**

@@ -145,6 +145,21 @@ class User extends Authenticatable
     // ────── Scopes ──────
 
     /**
+     * الأخبار التي قرأها هذا المستخدم
+     * 
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function readNews(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(
+            \App\Models\Communication\News::class,
+            'news_reads',
+            'user_id',
+            'news_id'
+        )->withTimestamps();
+    }
+
+    /**
      * المستخدمون المفعلون فقط
      * 
      * @param \Illuminate\Database\Eloquent\Builder $query
