@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('terms', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // الفصل الأول - الفصل الثاني
+            $table->string('type'); // first_term - second_term
             $table->string('academic_year'); // مثل: 2025-2026
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

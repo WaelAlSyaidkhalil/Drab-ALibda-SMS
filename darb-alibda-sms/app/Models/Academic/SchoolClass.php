@@ -2,6 +2,7 @@
 
 namespace App\Models\Academic;
 
+use App\Enums\ClassType;
 use App\Models\Subjects\Subject;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -15,8 +16,7 @@ use Illuminate\Support\Carbon;
  * يمثل الصفوف الدراسية (الأول الابتدائي، الثاني الإعدادي... إلخ)
  *
  * @property int $id
- * @property string $name              اسم الصف (الأول الابتدائي، الثاني الإعدادي)
- * @property int $grade_level          مستوى الصف (1-12)
+ * @property ClassType $type           نوع الصف (primary_first ... secondary_third)
  * @property string|null $description  وصف إضافي
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -31,13 +31,12 @@ class SchoolClass extends Model
     protected $table = 'classes'; // اسم الجدول (لتجنب تضارب مع كلمة Class المحجوزة)
 
     protected $fillable = [
-        'name',
-        'grade_level',
+        'type',
         'description',
     ];
 
     protected $casts = [
-        'grade_level' => 'int',
+        'type' => ClassType::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -80,7 +79,8 @@ class SchoolClass extends Model
      */
     public function scopeGradeLevel($query, int $level)
     {
-        return $query->where('grade_level', $level);
+        $types = array_filter(ClassType::cases(), fn (ClassType $type) => $type->gradeLevel() === $level);
+        return $query->whereIn('type', array_map(fn (ClassType $type) => $type->value, $types));
     }
 
     /**
@@ -91,7 +91,7 @@ class SchoolClass extends Model
      */
     public function scopePrimary($query)
     {
-        return $query->whereBetween('grade_level', [1, 6]);
+        return $query->whereIn('type', ClassType::primaryValues());
     }
 
     /**
@@ -102,7 +102,7 @@ class SchoolClass extends Model
      */
     public function scopeMiddle($query)
     {
-        return $query->whereBetween('grade_level', [7, 9]);
+        return $query->whereIn('type', ClassType::middleValues());
     }
 
     /**
@@ -113,10 +113,40 @@ class SchoolClass extends Model
      */
     public function scopeSecondary($query)
     {
-        return $query->whereBetween('grade_level', [10, 12]);
+        return $query->whereIn('type', ClassType::secondaryValues());
     }
 
     // ────── Accessors ──────
+
+    /**
+     * اسم الصف بالعربية
+     *
+     * @return string
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->type?->label() ?? 'غير معروف';
+    }
+
+    /**
+     * مستوى الصف الرقمي
+     *
+     * @return int|null
+     */
+    public function getGradeLevelAttribute(): ?int
+    {
+        return $this->type?->gradeLevel();
+    }
+
+    /**
+     * المرحلة الدراسية
+     *
+     * @return string|null
+     */
+    public function getStageAttribute(): ?string
+    {
+        return $this->type?->stage();
+    }
 
     /**
      * عدد الشعب في هذا الصف

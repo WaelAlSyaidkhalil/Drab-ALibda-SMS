@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('classes', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // الأول - الثاني...
-            $table->string('level'); // ابتدائي - إعدادي - ثانوي
+            $table->string('type'); // primary_first ... secondary_third
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }

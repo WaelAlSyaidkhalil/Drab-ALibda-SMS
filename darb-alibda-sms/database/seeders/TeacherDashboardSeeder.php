@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ClassType;
+use App\Enums\TermType;
 use App\Models\Academic\SchoolClass;
 use App\Models\Academic\Section;
 use App\Models\Academic\Student;
@@ -39,8 +41,8 @@ class TeacherDashboardSeeder extends Seeder
         }
 
         $schoolClass = SchoolClass::firstOrCreate(
-            ['name' => 'الصف الأول', 'level' => 'ابتدائي'],
-            ['name' => 'الصف الأول', 'level' => 'ابتدائي']
+            ['type' => ClassType::PRIMARY_FIRST->value],
+            ['type' => ClassType::PRIMARY_FIRST->value]
         );
 
         $section = Section::firstOrCreate(
@@ -52,8 +54,10 @@ class TeacherDashboardSeeder extends Seeder
         );
 
         $term = Term::firstOrCreate(
-            ['name' => 'الفصل الأول', 'academic_year' => '2025-2026'],
+            ['type' => TermType::FIRST_TERM->value, 'academic_year' => '2025-2026'],
             [
+                'type' => TermType::FIRST_TERM->value,
+                'academic_year' => '2025-2026',
                 'start_date' => '2025-09-01',
                 'end_date' => '2026-01-31',
                 'is_active' => true,

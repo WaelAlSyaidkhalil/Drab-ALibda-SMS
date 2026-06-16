@@ -2,6 +2,7 @@
 
 namespace App\Models\Subjects;
 
+use App\Enums\TermType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,11 +15,11 @@ use App\Models\Schedule\Schedule;
  * يمثل الفصلين الدراسيين (الفصل الأول والثاني) في السنة الدراسية
  * 
  * @property int $id
- * @property int $number             رقم الفصل (1 أو 2)
+ * @property TermType $type           نوع الفصل (first_term أو second_term)
  * @property string $academic_year   السنة الدراسية (2025-2026)
  * @property \Illuminate\Support\Carbon|null $start_date تاريخ البداية
  * @property \Illuminate\Support\Carbon|null $end_date   تاريخ النهاية
- * @property string|null $name       الاسم (الفصل الأول، الفصل الثاني)
+ * @property bool $is_active          هل الفصل نشط
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  * 
@@ -30,15 +31,15 @@ class Term extends Model
     use Filterable, HasAcademicYear;
 
     protected $fillable = [
-        'number',
+        'type',
         'academic_year',
         'start_date',
         'end_date',
-        'name',
+        'is_active',
     ];
 
     protected $casts = [
-        'number' => 'int',
+        'type' => TermType::class,
         'start_date' => 'date',
         'end_date' => 'date',
         'created_at' => 'datetime',
@@ -82,7 +83,7 @@ class Term extends Model
      */
     public function scopeFirst($query)
     {
-        return $query->where('number', 1);
+        return $query->where('type', TermType::FIRST_TERM->value);
     }
 
     /**
@@ -93,7 +94,7 @@ class Term extends Model
      */
     public function scopeSecond($query)
     {
-        return $query->where('number', 2);
+        return $query->where('type', TermType::SECOND_TERM->value);
     }
 
     /**
@@ -165,11 +166,7 @@ class Term extends Model
      */
     public function getTermNameAttribute(): string
     {
-        return $this->name ?? match ($this->number) {
-            1 => 'الفصل الأول',
-            2 => 'الفصل الثاني',
-            default => "الفصل {$this->number}",
-        };
+        return $this->type?->label() ?? 'غير معروف';
     }
 
     /**
