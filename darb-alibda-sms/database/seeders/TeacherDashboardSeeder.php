@@ -77,7 +77,6 @@ class TeacherDashboardSeeder extends Seeder
         $timeSlot = TimeSlot::firstOrCreate(
             ['period_number' => 1],
             [
-                'name' => 'الحصة الأولى',
                 'start_time' => '08:00:00',
                 'end_time' => '08:45:00',
             ]

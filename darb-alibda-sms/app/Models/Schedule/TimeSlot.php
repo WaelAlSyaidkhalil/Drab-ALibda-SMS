@@ -14,7 +14,6 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $period_number        رقم الحصة (1، 2، 3...)
- * @property string|null $name         اسم الحصة (الحصة الأولى)
  * @property Carbon $start_time وقت البداية
  * @property Carbon $end_time   وقت النهاية
  * @property Carbon $created_at
@@ -28,7 +27,6 @@ class TimeSlot extends Model
 
     protected $fillable = [
         'period_number',
-        'name',
         'start_time',
         'end_time',
     ];
@@ -124,8 +122,7 @@ class TimeSlot extends Model
      */
     public function getFullNameAttribute(): string
     {
-        $name = $this->name ?? "الحصة {$this->period_number}";
-        return "{$name} ({$this->display_time})";
+        return "{$this->name} ({$this->display_time})";
     }
 
     /**
@@ -146,4 +143,6 @@ class TimeSlot extends Model
 
         return "{$hours}h {$mins}m";
     }
+
+    
 }

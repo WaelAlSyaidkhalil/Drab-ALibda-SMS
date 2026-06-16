@@ -4,8 +4,8 @@ namespace App\Enums;
 
 enum TermType: string
 {
-    case FIRST_TERM = 'first_term';
-    case SECOND_TERM = 'second_term';
+    case FIRST_TERM = 'First_Term';
+    case SECOND_TERM = 'Second_Term';
 
     public function label(): string
     {

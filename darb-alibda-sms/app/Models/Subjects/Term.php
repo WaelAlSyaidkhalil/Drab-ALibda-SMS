@@ -39,7 +39,7 @@ class Term extends Model
     ];
 
     protected $casts = [
-        'type' => TermType::class,
+        'type' => 'string',
         'start_date' => 'date',
         'end_date' => 'date',
         'created_at' => 'datetime',
@@ -166,7 +166,27 @@ class Term extends Model
      */
     public function getTermNameAttribute(): string
     {
-        return $this->type?->label() ?? 'غير معروف';
+        return $this->termType()?->label() ?? 'غير معروف';
+    }
+
+    /**
+     * احصل على قيمة TermType من النص المخزن.
+     *
+     * @return TermType|null
+     */
+    public function termType(): TermType|null
+    {
+        if (!is_string($this->type) || $this->type === '') {
+            return null;
+        }
+
+        $normalized = str_replace(' ', '_', mb_strtolower($this->type));
+
+        return match ($normalized) {
+            'first_term' => TermType::FIRST_TERM,
+            'second_term' => TermType::SECOND_TERM,
+            default => null,
+        };
     }
 
     /**
@@ -201,6 +221,6 @@ class Term extends Model
         $start = $this->start_date->format('d/m/Y');
         $end = $this->end_date->format('d/m/Y');
 
-        return "{$start} إلى {$end}";
+        return "{$start} - {$end}";
     }
 }

@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Enums;
+
+enum TimeSlotNumber: int
+{
+    case FIRST = 1;
+    case SECOND = 2;
+    case THIRD = 3;
+    case FOURTH = 4;
+    case FIFTH = 5;
+    case SIXTH = 6;
+    case SEVENTH = 7;
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::FIRST => 'الأولى',
+            self::SECOND => 'الثانية',
+            self::THIRD => 'الثالثة',
+            self::FOURTH => 'الرابعة',
+            self::FIFTH => 'الخامسة',
+            self::SIXTH => 'السادسة',
+            self::SEVENTH => 'السابعة',
+        };
+    }
+
+    public function fullName(): string
+    {
+        return "الحصة {$this->label()}";
+    }
+}

@@ -14,11 +14,8 @@ return new class extends Migration
         Schema::create('time_slots', function (Blueprint $table) {
             $table->id();
 
-            $table->integer('period_number')->unique();
+            $table->enum('period_number', [1, 2, 3, 4, 5, 6, 7])->unique();
             // رقم الحصة (1, 2, 3, ... حتى 7)
-
-            $table->string('name')->nullable();
-            // اسم الحصة (اختياري): "الحصة الأولى"، "الحصة الثانية"...
 
             $table->time('start_time');
             // وقت البداية (مثلاً 08:00)

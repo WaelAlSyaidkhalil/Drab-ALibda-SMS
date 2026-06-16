@@ -17,7 +17,6 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property ClassType $type           نوع الصف (primary_first ... secondary_third)
- * @property string|null $description  وصف إضافي
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
@@ -32,7 +31,6 @@ class SchoolClass extends Model
 
     protected $fillable = [
         'type',
-        'description',
     ];
 
     protected $casts = [
@@ -170,5 +168,10 @@ class SchoolClass extends Model
         })
         ->where('status', 'active')
         ->count();
+    }
+
+    public function getTypeName(): string
+    {
+        return $this->type?->label() ?? 'غير معروف';
     }
 }
