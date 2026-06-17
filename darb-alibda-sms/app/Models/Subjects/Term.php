@@ -19,7 +19,6 @@ use App\Models\Schedule\Schedule;
  * @property string $academic_year   السنة الدراسية (2025-2026)
  * @property \Illuminate\Support\Carbon|null $start_date تاريخ البداية
  * @property \Illuminate\Support\Carbon|null $end_date   تاريخ النهاية
- * @property bool $is_active          هل الفصل نشط
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  * 
@@ -35,7 +34,6 @@ class Term extends Model
         'academic_year',
         'start_date',
         'end_date',
-        'is_active',
     ];
 
     protected $casts = [
@@ -212,7 +210,7 @@ class Term extends Model
      * 
      * @return string
      */
-    public function getDurationTextAttribute(): string
+    public function getDurationAttribute(): string
     {
         if (!$this->start_date || !$this->end_date) {
             return 'غير محدد';
