@@ -44,4 +44,9 @@ enum MarkResult: string
     {
         return $this !== self::PENDING;
     }
+
+    public static function getValues(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }

@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\MarkResult;
+use App\Enums\StudentStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -33,20 +35,14 @@ return new class extends Migration
                   // تاريخ التسجيل في الشعبة
 
             $table->enum('status', [
-                'active',      // مسجّل حالياً
-                'promoted',    // نجح وانتقل للصف التالي
-                'repeated',    // راسب يعيد السنة
-                'transferred', // انتقل لمدرسة أخرى
-                'graduated',   // تخرج (بعد الثالث الثانوي)
-                'withdrawn'    // انسحب
-            ])->default('active');
+                StudentStatus::getValues() // active, graduated, dropped
+            ])->default(StudentStatus::ACTIVE);
+                  // حالة التسجيل (نشط، تخرج، منقطع)
 
             // 🏆 النتيجة النهائية للسنة
-            $table->enum('final_result', [
-                'pass',     // ناجح
-                'fail',     // راسب
-                'pending'   // قيد الانتظار (لم تُحسب بعد)
-            ])->default('pending');
+            $table->enum('final_result', MarkResult::getValues()
+            )->default(MarkResult::PENDING);
+                  // النتيجة النهائية للسنة (مقبول، راسب، معلق)
 
             $table->float('final_average')->nullable();
                   // المعدل النهائي للسنة

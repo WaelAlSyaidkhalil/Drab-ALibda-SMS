@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\ClassType;
+use App\Enums\DayOfWeek;
 use App\Enums\TermType;
 use App\Models\Academic\SchoolClass;
 use App\Models\Academic\Section;
@@ -68,7 +69,7 @@ class TeacherDashboardSeeder extends Seeder
             ['code' => 'MAT101'],
             [
                 'name' => 'الرياضيات',
-                'type' => 'written',
+                'description' => 'مادة الرياضيات للصف الأول الابتدائي',
                 'full_mark' => 100,
                 'pass_mark' => 50,
             ]
@@ -89,7 +90,7 @@ class TeacherDashboardSeeder extends Seeder
                 'teacher_id' => $teacher->id,
                 'term_id' => $term->id,
                 'time_slot_id' => $timeSlot->id,
-                'day' => 'mon',
+                'day' => DayOfWeek::MONDAY->value,
             ]
         );
 

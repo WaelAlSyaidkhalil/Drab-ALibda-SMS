@@ -2,6 +2,7 @@
 
 namespace App\Models\Schedule;
 
+use App\Enums\TimeSlotNumber;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Traits\Filterable;
@@ -13,7 +14,7 @@ use Illuminate\Support\Carbon;
  * يمثل أوقات الحصص الثابتة على مستوى المدرسة
  *
  * @property int $id
- * @property int $period_number        رقم الحصة (1، 2، 3...)
+ * @property TimeSlotNumber $period_number        رقم الحصة (1، 2، 3...)
  * @property Carbon $start_time وقت البداية
  * @property Carbon $end_time   وقت النهاية
  * @property Carbon $created_at
@@ -32,7 +33,7 @@ class TimeSlot extends Model
     ];
 
     protected $casts = [
-        'period_number' => 'int',
+        'period_number' => TimeSlotNumber::class,
         'start_time' => 'datetime:H:i',
         'end_time' => 'datetime:H:i',
         'created_at' => 'datetime',
@@ -116,13 +117,13 @@ class TimeSlot extends Model
     }
 
     /**
-     * اسم الحصة مع الوقت
+     * اسم الحصة
      *
      * @return string
      */
     public function getFullNameAttribute(): string
     {
-        return "{$this->name} ({$this->display_time})";
+        return $this->period_number->label();
     }
 
     /**

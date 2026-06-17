@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\AudienceType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('body');
-            $table->enum('audience', ['all', 'teachers', 'parents', 'students']);
+            $table->enum('audience', AudienceType::getValues());
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });

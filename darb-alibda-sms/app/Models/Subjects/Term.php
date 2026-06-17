@@ -39,7 +39,7 @@ class Term extends Model
     ];
 
     protected $casts = [
-        'type' => 'string',
+        'type' => TermType::class,
         'start_date' => 'date',
         'end_date' => 'date',
         'created_at' => 'datetime',
@@ -166,7 +166,7 @@ class Term extends Model
      */
     public function getTermNameAttribute(): string
     {
-        return $this->termType()?->label() ?? 'غير معروف';
+        return $this->type->label();
     }
 
     /**

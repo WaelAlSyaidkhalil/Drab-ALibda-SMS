@@ -33,4 +33,9 @@ enum Gender: string
             self::FEMALE => 'هي',
         };
     }
+
+    public static function getValues(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }

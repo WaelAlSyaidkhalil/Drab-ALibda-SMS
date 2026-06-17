@@ -2,6 +2,7 @@
 
 namespace App\Models\Subjects;
 
+use App\Enums\SubjectComponentType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,12 +15,11 @@ use App\Models\Subjects\Subject;
  * يمثل أنواع التقييم للمادة (كتابي، شفهي، وظائف... إلخ)
  * 
  * @property int $id
+ * @property string|null $description  وصف المكون
  * @property int $subject_id           FK → subjects
- * @property string $name              اسم المكون (كتابي، شفهي، وظائف)
+ * @property SubjectComponent $type              اسم المكون (كتابي، شفهي، وظائف)
  * @property float $out_of             الدرجة العليا (مثلاً 20)
- * @property float $weight             وزن المكون في الحساب (مثلاً 0.5 = 50%)
- * @property int $order                ترتيب المكون
- * @property string|null $description  وصف
+ * @property int $order                    ترتيب المكون في قائمة المكونات
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
  * 
@@ -32,16 +32,15 @@ class SubjectComponent extends Model
 
     protected $fillable = [
         'subject_id',
-        'name',
-        'out_of',
-        'weight',
-        'order',
         'description',
+        'type',
+        'out_of',
+        'order',
     ];
 
     protected $casts = [
         'out_of' => 'float',
-        'weight' => 'float',
+        'type' => SubjectComponentType::class,
         'order' => 'int',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -94,39 +93,8 @@ class SubjectComponent extends Model
         return $query->orderBy('order');
     }
 
-    // ────── Methods ──────
-
-    /**
-     * التحقق من صحة الوزن
-     * 
-     * @return bool
-     */
-    public function isValidWeight(): bool
-    {
-        return $this->weight >= 0 && $this->weight <= 1;
-    }
-
-    /**
-     * حساب النسبة المئوية للمكون
-     * 
-     * @return float
-     */
-    public function getPercentage(): float
-    {
-        return $this->weight * 100;
-    }
 
     // ────── Accessors ──────
-
-    /**
-     * عرض الوزن كنسبة مئوية
-     * 
-     * @return string
-     */
-    public function getWeightPercentageAttribute(): string
-    {
-        return round($this->weight * 100) . '%';
-    }
 
     /**
      * عرض الدرجة الكاملة
@@ -145,6 +113,59 @@ class SubjectComponent extends Model
      */
     public function getDetailAttribute(): string
     {
-        return "{$this->name} ({$this->weight_percentage}) - {$this->out_of_display}";
+        return "{$this->type} - {$this->out_of_display}";
     }
+
+
+    // ────── Methods ──────
+
+    /**
+     * Get the components for this subject
+     */
+    public function components(): HasMany
+    {
+        return $this->hasMany(SubjectComponent::class);
+    }
+
+    /**
+     * Check if the sum of component marks equals the full mark
+     */
+    public function isComponentsSumValid(): bool
+    {
+        $totalComponentsMarks = $this->components()->sum('out_of');
+        return $totalComponentsMarks == $this->full_mark;
+    }
+
+    /**
+     * Get the sum of component marks
+     */
+    public function getComponentsTotalAttribute(): int
+    {
+        return $this->components()->sum('out_of');
+    }
+
+    /**
+     * Get the difference between full mark and components total
+     */
+    public function getComponentsDifferenceAttribute(): int
+    {
+        return $this->full_mark - $this->getComponentsTotalAttribute();
+    }
+
+    /**
+     * Check if components total is greater than full mark
+     */
+    public function isComponentsSumExceeding(): bool
+    {
+        return $this->getComponentsTotalAttribute() > $this->full_mark;
+    }
+
+    /**
+     * Check if components total is less than full mark
+     */
+    public function isComponentsSumLess(): bool
+    {
+        return $this->getComponentsTotalAttribute() < $this->full_mark;
+    }
+
 }

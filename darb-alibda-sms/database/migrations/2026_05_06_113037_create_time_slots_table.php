@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TimeSlotNumber;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,7 +15,7 @@ return new class extends Migration
         Schema::create('time_slots', function (Blueprint $table) {
             $table->id();
 
-            $table->enum('period_number', [1, 2, 3, 4, 5, 6, 7])->unique();
+            $table->enum('period_number', TimeSlotNumber::getValues());
             // رقم الحصة (1, 2, 3, ... حتى 7)
 
             $table->time('start_time');

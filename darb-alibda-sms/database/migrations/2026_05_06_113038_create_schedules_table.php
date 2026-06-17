@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\DayOfWeek;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -24,7 +25,7 @@ return new class extends Migration
                   ->constrained('time_slots')
                   ->cascadeOnDelete();
 
-            $table->enum('day', ['sun', 'mon', 'tue', 'wed', 'thu']);
+            $table->enum('day', DayOfWeek::getValues());
 
             $table->timestamps();
 

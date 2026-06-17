@@ -18,6 +18,7 @@ use Illuminate\Support\Carbon;
  * @property string $name              اسم المادة (رياضيات، عربي...)
  * @property string|null $description  وصف المادة
  * @property int|null $pass_mark       الحد الأدنى للنجاح (افتراضياً 50)
+ * @property int|null $full_mark       العلامة الكاملة للمادة (افتراضياً 100)
  * @property string|null $code         رمز المادة (MAT001)
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -34,11 +35,13 @@ class Subject extends Model
         'name',
         'description',
         'pass_mark',
+        'full_mark',
         'code',
     ];
 
-    protected $casts = [
+    protected $ts = [
         'pass_mark' => 'int',
+        'full_mark' => 'int',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

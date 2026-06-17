@@ -2,6 +2,7 @@
 
 namespace App\Models\Schedule;
 
+use App\Enums\DayOfWeek;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,6 @@ use App\Models\Academic\Section;
 use App\Models\Academic\Teacher;
 use App\Models\Subjects\Subject;
 use App\Models\Subjects\Term;
-use App\Enums\DayOfWeek;
 use Illuminate\Support\Carbon;
 
 /**

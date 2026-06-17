@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Gender;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -27,7 +28,7 @@ return new class extends Migration
             $table->string('national_id')->nullable()->unique();
             $table->string('registry_number')->nullable()->unique();
             $table->date('birth_date')->nullable();
-            $table->enum('gender', ['male', 'female']);
+            $table->enum('gender', Gender::getValues());
             $table->timestamps();
         });
     }

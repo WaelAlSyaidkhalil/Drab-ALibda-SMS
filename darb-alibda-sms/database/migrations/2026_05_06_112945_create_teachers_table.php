@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Enums\Gender;
 
 return new class extends Migration
 {
@@ -21,7 +22,7 @@ return new class extends Migration
             $table->string('father_name')->nullable();
             $table->string('mother_name')->nullable();
             $table->date('birth_date')->nullable();
-            $table->enum('gender', ['male', 'female']);
+            $table->enum('gender', Gender::getValues());
 
             // معلومات رسمية
             $table->string('national_id')->unique();

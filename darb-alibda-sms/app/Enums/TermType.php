@@ -22,4 +22,9 @@ enum TermType: string
             self::SECOND_TERM => 2,
         };
     }
+
+    public static function getValues(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }

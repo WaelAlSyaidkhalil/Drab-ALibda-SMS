@@ -9,11 +9,11 @@ namespace App\Enums;
  */
 enum DayOfWeek: string
 {
-    case SUNDAY = 'sun';
-    case MONDAY = 'mon';
-    case TUESDAY = 'tue';
-    case WEDNESDAY = 'wed';
-    case THURSDAY = 'thu';
+    case SUNDAY = 'Sun';
+    case MONDAY = 'Mon';
+    case TUESDAY = 'Tue';
+    case WEDNESDAY = 'Wed';
+    case THURSDAY = 'Thu';
 
     /**
      * الوصف البشري لليوم
@@ -49,5 +49,10 @@ enum DayOfWeek: string
             self::WEDNESDAY => 4,
             self::THURSDAY => 5,
         };
+    }
+
+    public static function getValues(): array
+    {
+        return array_column(self::cases(), 'value');
     }
 }

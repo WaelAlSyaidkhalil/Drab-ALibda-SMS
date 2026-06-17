@@ -46,4 +46,9 @@ enum StudentStatus: string
     {
         return in_array($this, [self::TRANSFERRED, self::GRADUATED, self::WITHDRAWN]);
     }
+
+    public static function getValues(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }

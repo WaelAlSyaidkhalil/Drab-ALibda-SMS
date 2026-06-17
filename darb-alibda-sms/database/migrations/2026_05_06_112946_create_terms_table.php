@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TermType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('terms', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['First_Term', 'Second_Term']); // first_term - second_term
+            $table->enum('type', TermType::getValues()); // first_term - second_term
             $table->string('academic_year'); // مثل: 2025-2026
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();

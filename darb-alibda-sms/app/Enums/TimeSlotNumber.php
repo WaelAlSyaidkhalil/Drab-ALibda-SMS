@@ -15,18 +15,18 @@ enum TimeSlotNumber: int
     public function label(): string
     {
         return match ($this) {
-            self::FIRST => 'الأولى',
-            self::SECOND => 'الثانية',
-            self::THIRD => 'الثالثة',
-            self::FOURTH => 'الرابعة',
-            self::FIFTH => 'الخامسة',
-            self::SIXTH => 'السادسة',
-            self::SEVENTH => 'السابعة',
+            self::FIRST => 'الحصة الأولى',
+            self::SECOND => 'الحصة الثانية',
+            self::THIRD => 'الحصة الثالثة',
+            self::FOURTH => 'الحصة الرابعة',
+            self::FIFTH => 'الحصة الخامسة',
+            self::SIXTH => 'الحصة السادسة',
+            self::SEVENTH => 'الحصة السابعة',
         };
     }
-
-    public function fullName(): string
+    
+    public static function getvalues(): array
     {
-        return "الحصة {$this->label()}";
+        return array_column(self::cases(), 'value');
     }
 }

@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('code')->unique();
-            $table->enum('type', ['written', 'oral', 'practical'])->default('written');
-            $table->integer('full_mark')->default(100);
+            $table->text('description')->nullable();
             $table->integer('pass_mark')->default(50);
+            $table->integer('full_mark')->default(100);
+            $table->string('code')->unique();
             $table->timestamps();
         });
     }

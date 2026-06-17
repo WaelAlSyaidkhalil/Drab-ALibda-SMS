@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\MarkResult;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -44,7 +45,7 @@ return new class extends Migration
             $table->float('yearly_mark')->nullable();
             // العلامة السنوية النهائية = متوسط الفصلين
 
-            $table->enum('result', ['pass', 'fail', 'pending'])->default('pending');
+            $table->enum('result', MarkResult::getValues())->default(MarkResult::PENDING);
             // نتيجة الطالب في هذه المادة
 
             $table->timestamps();
