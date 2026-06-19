@@ -16,6 +16,7 @@ enum StudentStatus: string
     case GRADUATED = 'graduated';     // تخرج
     case WITHDRAWN = 'withdrawn';     // انسحب
 
+    
     /**
      * الوصف البشري للحالة
      */
@@ -50,5 +51,14 @@ enum StudentStatus: string
     public static function getValues(): array
     {
         return array_column(self::cases(), 'value');
+    }
+
+    public static function options(): array
+    {
+        return collect(self::cases())
+            ->mapWithKeys(fn (self $case) => [
+                $case->value => $case->value,
+            ])
+            ->toArray();
     }
 }

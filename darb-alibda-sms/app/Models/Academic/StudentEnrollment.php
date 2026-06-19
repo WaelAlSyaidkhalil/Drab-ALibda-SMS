@@ -2,6 +2,7 @@
 
 namespace App\Models\Academic;
 
+use App\Enums\MarkResult;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -86,9 +87,9 @@ class StudentEnrollment extends Model
      *
      * @return HasMany
      */
-    public function marks(): HasMany
+    public function studentMarks(): HasMany
     {
-        return $this->hasMany(StudentMark::class);
+        return $this->hasMany(StudentMark::class, 'enrollment_id');
     }
 
     /**
@@ -96,9 +97,9 @@ class StudentEnrollment extends Model
      *
      * @return HasMany
      */
-    public function subjectResults(): HasMany
+    public function studentSubjectResults(): HasMany
     {
-        return $this->hasMany(StudentSubjectResult::class);
+        return $this->hasMany(StudentSubjectResult::class, 'enrollment_id');
     }
 
     // ────── Scopes ──────
@@ -226,9 +227,9 @@ class StudentEnrollment extends Model
      *
      * @return int
      */
-    public function getSubjectCountAttribute(): int
+    public function getStudentSubjectCountAttribute(): int
     {
-        return $this->subjectResults()->count();
+        return $this->studentSubjectResults()->count();
     }
 
     /**
@@ -243,5 +244,48 @@ class StudentEnrollment extends Model
         }
 
         return number_format($this->final_average, 2) . ' / 100';
+    }
+
+
+    /**
+     * حساب المعدل النهائي من نتائج المواد
+     * 
+     * @return float|null
+     */
+    public function calculateFinalAverage(): float|null
+    {
+        $results = $this->studentSubjectResults()->get();
+
+        if ($results->isEmpty()) {
+            return null;
+        }
+
+        foreach ($results as $result) {
+            if ($result->yearly_mark === null) {
+                return null; // إذا كانت أي مادة لم تُحسب بعد، لا يمكن حساب المعدل النهائي
+            }
+        }
+
+        $total = $results->sum('yearly_mark');
+        $count = $results->count();
+
+        return $count > 0 ? round($total / $count, 2) : null;
+    }
+
+
+    /**
+     * تحديث النتيجة بناءً على المعدل النهائي
+     * 
+     * @return MarkResult|null
+     */
+    public function calculateResult(): string|null
+    {
+        if ($this->final_average === null) {
+            return MarkResult::PENDING->value;
+        }
+
+        return $this->final_average >= config('school.passing_mark') 
+            ? MarkResult::PASS->value
+            : MarkResult::FAIL->value;
     }
 }

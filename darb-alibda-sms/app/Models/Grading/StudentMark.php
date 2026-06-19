@@ -15,9 +15,9 @@ use App\Models\Subjects\Term;
  * يخزن علامة الطالب في كل مكون من مكونات المادة
  * 
  * @property int $id
- * @property int $enrollment_id        FK → student_enrollments
+ * @property int $enrollment_id        FK → enrollments
  * @property int $subject_id           FK → subjects
- * @property int $component_id         FK → subject_components
+ * @property int $subject_component_id         FK → subject_components
  * @property int $term_id              FK → terms
  * @property float $mark               العلامة (0-100 أو حسب النطاق المحدد)
  * @property \Illuminate\Support\Carbon $created_at
@@ -35,7 +35,7 @@ class StudentMark extends Model
     protected $fillable = [
         'enrollment_id',
         'subject_id',
-        'component_id',
+        'subject_component_id',
         'term_id',
         'mark',
     ];
@@ -73,7 +73,7 @@ class StudentMark extends Model
      * 
      * @return BelongsTo
      */
-    public function component(): BelongsTo
+    public function subjectComponent(): BelongsTo
     {
         return $this->belongsTo(SubjectComponent::class);
     }
@@ -135,7 +135,7 @@ class StudentMark extends Model
      */
     public function scopeForComponent($query, int $componentId)
     {
-        return $query->where('component_id', $componentId);
+        return $query->where('subject_component_id', $componentId);
     }
 
     /**
@@ -171,11 +171,11 @@ class StudentMark extends Model
      */
     public function getPercentage(): float
     {
-        if ($this->component->out_of === 0) {
+        if ($this->subjectComponent->out_of === 0) {
             return 0;
         }
 
-        return round(($this->mark / $this->component->out_of) * 100, 2);
+        return round(($this->mark / $this->subjectComponent->out_of) * 100, 2);
     }
 
     /**
@@ -217,7 +217,7 @@ class StudentMark extends Model
      */
     public function getMarkDisplayAttribute(): string
     {
-        return round($this->mark, 2) . ' / ' . $this->component->out_of;
+        return round($this->mark, 2) . ' / ' . $this->subjectComponent->out_of;
     }
 
     /**

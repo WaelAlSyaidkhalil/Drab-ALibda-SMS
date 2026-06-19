@@ -183,7 +183,7 @@ class Term extends Model
         return match ($normalized) {
             'first_term' => TermType::FIRST_TERM,
             'second_term' => TermType::SECOND_TERM,
-            default => null,
+            default => 'unknown',
         };
     }
 

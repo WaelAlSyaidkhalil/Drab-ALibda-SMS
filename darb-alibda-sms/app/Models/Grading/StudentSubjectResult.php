@@ -8,13 +8,15 @@ use App\Models\Traits\Filterable;
 use App\Models\Academic\StudentEnrollment;
 use App\Models\Subjects\Subject;
 use App\Enums\MarkResult;
+use App\Observers\Admin\StudentSubjectResultObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 /**
  * نموذج نتائج الطالب في المواد
  * يمثل كشف العلامات السنوي — يتم تحديثه تلقائياً من student_marks
  * 
  * @property int $id
- * @property int $enrollment_id        FK → student_enrollments
+ * @property int $enrollment_id        FK → enrollments
  * @property int $subject_id           FK → subjects
  * @property float|null $term1_mark    علامة الفصل الأول (مجموع المكونات)
  * @property float|null $term2_mark    علامة الفصل الثاني (مجموع المكونات)
@@ -26,6 +28,8 @@ use App\Enums\MarkResult;
  * @property-read StudentEnrollment $enrollment
  * @property-read Subject $subject
  */
+
+#[ObservedBy([StudentSubjectResultObserver::class])]
 class StudentSubjectResult extends Model
 {
     use Filterable;

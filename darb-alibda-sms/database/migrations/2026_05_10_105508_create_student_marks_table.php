@@ -28,7 +28,7 @@ return new class extends Migration
                   ->constrained('subjects')
                   ->cascadeOnDelete();
 
-            $table->foreignId('component_id')
+            $table->foreignId('subject_component_id')
                   ->constrained('subject_components')
                   ->cascadeOnDelete();
                   // المكوّن (كتابي / شفهي / وظائف...)
@@ -45,7 +45,7 @@ return new class extends Migration
 
             // 🔒 علامة واحدة فقط لكل (تسجيل + مكوّن + فصل)
             $table->unique(
-                ['enrollment_id', 'component_id', 'term_id'],
+                ['enrollment_id', 'subject_component_id', 'term_id'],
                 'unique_mark_per_component'
             );
 

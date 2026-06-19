@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Enums\ClassType;
 use App\Enums\DayOfWeek;
+use App\Enums\MarkResult;
+use App\Enums\SubjectComponentType;
 use App\Enums\TermType;
 use App\Models\Academic\SchoolClass;
 use App\Models\Academic\Section;
@@ -15,6 +17,8 @@ use App\Models\Communication\AbsenceJustification;
 use App\Models\Communication\Conversation;
 use App\Models\Communication\Message;
 use App\Models\Communication\News;
+use App\Models\Grading\StudentMark;
+use App\Models\Grading\StudentSubjectResult;
 use App\Models\Schedule\Attendance;
 use App\Models\Schedule\Schedule;
 use App\Models\Schedule\TimeSlot;
@@ -61,7 +65,6 @@ class TeacherDashboardSeeder extends Seeder
                 'academic_year' => '2025-2026',
                 'start_date' => '2025-09-01',
                 'end_date' => '2026-01-31',
-                'is_active' => true,
             ]
         );
 
@@ -72,6 +75,15 @@ class TeacherDashboardSeeder extends Seeder
                 'description' => 'مادة الرياضيات للصف الأول الابتدائي',
                 'full_mark' => 100,
                 'pass_mark' => 50,
+            ]
+        );
+
+        $subjectComponent = $subject->components()->firstOrCreate(
+            ['type' => SubjectComponentType::WRITTEN->value],
+            [
+                'type' => SubjectComponentType::WRITTEN->value,
+                'out_of' => 70,
+                'order' => 1,
             ]
         );
 
@@ -111,6 +123,29 @@ class TeacherDashboardSeeder extends Seeder
                 'enrollment_date' => '2025-09-01',
                 'status' => 'active',
                 'final_result' => 'pending',
+            ]
+        );
+
+        StudentSubjectResult::firstOrCreate(
+            ['subject_id' => $subject->id, 'enrollment_id' => $student1->enrollments()->first()->id],
+            [
+                'subject_id' => 1,
+                'enrollment_id' => 1,
+                'term1_mark' => 65,
+                'term2_mark' => 70,
+                'result' => MarkResult::PASS->value,
+            ]
+        );
+
+        StudentMark::firstOrCreate(
+            [
+                'enrollment_id' => 1,
+                'subject_component_id' => $subjectComponent->id,
+                'subject_id' => $subject->id,
+                'term_id' => $term->id,
+            ],
+            [
+                'mark' => 65,
             ]
         );
 

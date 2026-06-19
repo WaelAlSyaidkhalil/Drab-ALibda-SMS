@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
 
             // ✅ تم نقل section_id إلى جدول student_enrollments
             // لتتبع تاريخ الطالب عبر السنوات الدراسية المختلفة
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('father_name')->nullable();
             $table->string('mother_name')->nullable();
             $table->string('national_id')->nullable()->unique();
-            $table->string('registry_number')->nullable()->unique();
+            $table->string('registry_number')->unique();
             $table->date('birth_date')->nullable();
             $table->enum('gender', Gender::getValues());
             $table->timestamps();
