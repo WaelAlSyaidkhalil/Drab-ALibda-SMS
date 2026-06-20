@@ -68,7 +68,7 @@ class TeacherDashboardSeeder extends Seeder
             ]
         );
 
-        $subject = Subject::firstOrCreate(
+        $subject1 = Subject::firstOrCreate(
             ['code' => 'MAT101'],
             [
                 'name' => 'الرياضيات',
@@ -78,7 +78,37 @@ class TeacherDashboardSeeder extends Seeder
             ]
         );
 
-        $subjectComponent = $subject->components()->firstOrCreate(
+        $subject2 = Subject::firstOrCreate(
+            ['code' => 'ARAB101'],
+            [
+                'name' => 'اللغة العربية',
+                'description' => 'مادة اللغة العربية للصف الأول الابتدائي',
+                'full_mark' => 100,
+                'pass_mark' => 50,
+            ]
+        );
+
+        $subject3 = Subject::firstOrCreate(
+            ['code' => 'SCI101'],
+            [
+                'name' => 'العلوم',
+                'description' => 'مادة العلوم للصف الأول الابتدائي',
+                'full_mark' => 100,
+                'pass_mark' => 50,
+            ]
+        );
+
+        $subject4 = Subject::firstOrCreate(
+            ['code' => 'ENG101'],
+            [
+                'name' => 'اللغة الإنجليزية',
+                'description' => 'مادة اللغة الإنجليزية للصف الأول الابتدائي',
+                'full_mark' => 100,
+                'pass_mark' => 50,
+            ]
+        );
+
+        $subjectComponent = $subject1->components()->firstOrCreate(
             ['type' => SubjectComponentType::WRITTEN->value],
             [
                 'type' => SubjectComponentType::WRITTEN->value,
@@ -87,7 +117,7 @@ class TeacherDashboardSeeder extends Seeder
             ]
         );
 
-        $timeSlot = TimeSlot::firstOrCreate(
+        $timeSlot1 = TimeSlot::firstOrCreate(
             ['period_number' => 1],
             [
                 'start_time' => '08:00:00',
@@ -95,14 +125,80 @@ class TeacherDashboardSeeder extends Seeder
             ]
         );
 
-        $schedule = Schedule::firstOrCreate(
+        $timeSlot2 = TimeSlot::firstOrCreate(
+            ['period_number' => 2],
+            [
+                'start_time' => '08:45:00',
+                'end_time' => '09:30:00',
+            ]
+        );
+
+        $timeSlot3 = TimeSlot::firstOrCreate(
+            ['period_number' => 3],
+            [
+                'start_time' => '09:30:00',
+                'end_time' => '10:15:00',
+            ]
+        );
+
+        $timeSlot4 = TimeSlot::firstOrCreate(
+            ['period_number' => 4],
+            [
+                'start_time' => '10:15:00',
+                'end_time' => '11:00:00',
+            ]
+        );
+
+        $timeSlot5 = TimeSlot::firstOrCreate(
+            ['period_number' => 5],
+            [
+                'start_time' => '11:00:00',
+                'end_time' => '11:45:00',
+            ]
+        );
+        
+
+        $schedule1 = Schedule::firstOrCreate(
             [
                 'section_id' => $section->id,
-                'subject_id' => $subject->id,
+                'subject_id' => $subject1->id,
                 'teacher_id' => $teacher->id,
                 'term_id' => $term->id,
-                'time_slot_id' => $timeSlot->id,
+                'time_slot_id' => $timeSlot1->id,
                 'day' => DayOfWeek::MONDAY->value,
+            ]
+        );
+
+        $schedule2 = Schedule::firstOrCreate(
+            [
+                'section_id' => $section->id,
+                'subject_id' => $subject2->id,
+                'teacher_id' => $teacher->id,
+                'term_id' => $term->id,
+                'time_slot_id' => $timeSlot2->id,
+                'day' => DayOfWeek::TUESDAY->value,
+            ]
+        );
+
+        $schedule3 = Schedule::firstOrCreate(
+            [
+                'section_id' => $section->id,
+                'subject_id' => $subject3->id,
+                'teacher_id' => $teacher->id,
+                'term_id' => $term->id,
+                'time_slot_id' => $timeSlot3->id,
+                'day' => DayOfWeek::WEDNESDAY->value,
+            ]
+        );
+
+        $schedule4 = Schedule::firstOrCreate(
+            [
+                'section_id' => $section->id,
+                'subject_id' => $subject4->id,
+                'teacher_id' => $teacher->id,
+                'term_id' => $term->id,
+                'time_slot_id' => $timeSlot4->id,
+                'day' => DayOfWeek::THURSDAY->value,
             ]
         );
 
@@ -127,7 +223,7 @@ class TeacherDashboardSeeder extends Seeder
         );
 
         StudentSubjectResult::firstOrCreate(
-            ['subject_id' => $subject->id, 'enrollment_id' => $student1->enrollments()->first()->id],
+            ['subject_id' => $subject1->id, 'enrollment_id' => $student1->enrollments()->first()->id],
             [
                 'subject_id' => 1,
                 'enrollment_id' => 1,
@@ -141,7 +237,7 @@ class TeacherDashboardSeeder extends Seeder
             [
                 'enrollment_id' => 1,
                 'subject_component_id' => $subjectComponent->id,
-                'subject_id' => $subject->id,
+                'subject_id' => $subject1->id,
                 'term_id' => $term->id,
             ],
             [
@@ -152,7 +248,7 @@ class TeacherDashboardSeeder extends Seeder
         Attendance::updateOrCreate(
             [
                 'student_id' => $student1->id,
-                'schedule_id' => $schedule->id,
+                'schedule_id' => $schedule1->id,
                 'date' => Carbon::today()->toDateString(),
             ],
             ['status' => 'present']
@@ -161,7 +257,7 @@ class TeacherDashboardSeeder extends Seeder
         Attendance::updateOrCreate(
             [
                 'student_id' => $student2->id,
-                'schedule_id' => $schedule->id,
+                'schedule_id' => $schedule1->id,
                 'date' => Carbon::today()->toDateString(),
             ],
             ['status' => 'absent']
