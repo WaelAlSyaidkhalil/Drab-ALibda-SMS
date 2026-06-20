@@ -21,6 +21,7 @@
 
                     @foreach ($timeSlots as $slot)
                         <th class="slot-header">
+                            <div>{{ $slot->full_name }}</div>
                             <div class="slot-time">{{ $slot->start_time->format('H:i') }} - {{ $slot->end_time->format('H:i') }}</div>
                         </th>
                     @endforeach
