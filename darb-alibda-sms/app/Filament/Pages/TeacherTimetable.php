@@ -4,12 +4,13 @@ namespace App\Filament\Pages;
 
 use App\Enums\DayOfWeek;
 use App\Models\Academic\Teacher;
+use App\Models\Schedule\Schedule;
 use App\Models\Schedule\TimeSlot;
+use App\Models\Subjects\Term;
 use BackedEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -36,32 +37,50 @@ class TeacherTimetable extends Page implements HasForms
 
     public function mount(): void
     {
-        $this->teacherId = Teacher::query()->value('id');
+        $defaultTeacherId = Teacher::query()->value('id');
+        $defaultTermId = Term::query()->value('id');
+
+        $this->teacherId = $defaultTeacherId;
 
         $this->form->fill([
-            'teacherId' => $this->teacherId,
+            'teacherId' => $defaultTeacherId,
+            'term_id' => $defaultTermId,
         ]);
     }
 
     public function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Select::make('teacherId')
-                    ->label('Teacher')
-                    ->options(
-                        Teacher::query()
-                            ->get()
-                            ->pluck('full_name', 'id')
-                    )
-                    ->searchable()
-                    ->live()
-                    ->afterStateUpdated(
-                        fn ($state) => $this->teacherId = $state
-                    )
-                    ->required(),
-            ])
-            ->statePath('data');
+        return $schema->components([
+
+            Select::make('teacherId')
+                ->label('Teacher')
+                ->options(
+                    Teacher::query()
+                        ->get()
+                        ->mapWithKeys(fn ($teacher) => [
+                            $teacher->id => $teacher->getFullNameAttribute(),
+                        ])
+                )
+                ->searchable()
+                ->live()
+                ->afterStateUpdated(fn ($state) => $this->teacherId = $state)
+                ->required(),
+
+            Select::make('term_id')
+                ->label('Term')
+                ->options(
+                    Term::query()
+                        ->get()
+                        ->mapWithKeys(fn ($term) => [
+                            $term->id => $term->getAcademicYearAndTermAttribute(),
+                        ])
+                )
+                ->searchable()
+                ->live()
+                ->afterStateUpdated(fn ($state) => $this->data['term_id'] = $state)
+                ->required(),
+        ])
+        ->statePath('data');
     }
 
     public function getDays(): array
@@ -86,18 +105,22 @@ class TeacherTimetable extends Page implements HasForms
             }
         }
 
-        if (! $this->teacherId) {
+        $termId = $this->data['term_id'] ?? null;
+
+        if (! $this->teacherId || ! $termId) {
             return $grid;
         }
 
-        $teacher = Teacher::with([
-            'schedules.subject',
-            'schedules.section',
-        ])->find($this->teacherId);
+        $schedules = Schedule::forTeacher($this->teacherId)
+            ->where('term_id', $termId)
+            ->with(['subject', 'section.schoolClass'])
+            ->get();
 
-        foreach ($teacher?->schedules ?? [] as $schedule) {
-            $grid[$schedule->day->value][$schedule->time_slot_id] = $schedule;
+        foreach ($schedules as $schedule) {
+            $dayKey = $schedule->day->value ?? $schedule->day;
+            $grid[$dayKey][$schedule->time_slot_id] = $schedule;
         }
+
         return $grid;
     }
 }

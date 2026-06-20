@@ -168,23 +168,13 @@ class Term extends Model
     }
 
     /**
-     * احصل على قيمة TermType من النص المخزن.
-     *
-     * @return TermType|null
+     * عرض السنة الدراسية والفصل معاً
+     * 
+     * @return string
      */
-    public function termType(): TermType|null
+    public function getAcademicYearAndTermAttribute(): string
     {
-        if (!is_string($this->type) || $this->type === '') {
-            return null;
-        }
-
-        $normalized = str_replace(' ', '_', mb_strtolower($this->type));
-
-        return match ($normalized) {
-            'first_term' => TermType::FIRST_TERM,
-            'second_term' => TermType::SECOND_TERM,
-            default => 'unknown',
-        };
+        return "{$this->academic_year} - {$this->getTermNameAttribute()}";
     }
 
     /**
