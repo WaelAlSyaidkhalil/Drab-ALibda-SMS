@@ -118,7 +118,6 @@ class TeacherDashboardSeeder extends Seeder
         );
 
         $timeSlot1 = TimeSlot::firstOrCreate(
-            ['period_number' => 1],
             [
                 'start_time' => '08:00:00',
                 'end_time' => '08:45:00',
@@ -126,7 +125,6 @@ class TeacherDashboardSeeder extends Seeder
         );
 
         $timeSlot2 = TimeSlot::firstOrCreate(
-            ['period_number' => 2],
             [
                 'start_time' => '08:45:00',
                 'end_time' => '09:30:00',
@@ -134,7 +132,6 @@ class TeacherDashboardSeeder extends Seeder
         );
 
         $timeSlot3 = TimeSlot::firstOrCreate(
-            ['period_number' => 3],
             [
                 'start_time' => '09:30:00',
                 'end_time' => '10:15:00',
@@ -142,7 +139,6 @@ class TeacherDashboardSeeder extends Seeder
         );
 
         $timeSlot4 = TimeSlot::firstOrCreate(
-            ['period_number' => 4],
             [
                 'start_time' => '10:15:00',
                 'end_time' => '11:00:00',
@@ -150,7 +146,6 @@ class TeacherDashboardSeeder extends Seeder
         );
 
         $timeSlot5 = TimeSlot::firstOrCreate(
-            ['period_number' => 5],
             [
                 'start_time' => '11:00:00',
                 'end_time' => '11:45:00',

@@ -1,18 +1,16 @@
 <?php
 
-namespace App\Filament\Pages;
+namespace App\Filament\Pages\Scheduling;
 
 use App\Enums\DayOfWeek;
 use App\Models\Academic\Section;
-use App\Models\Academic\Teacher;
 use App\Models\Schedule\Schedule;
 use App\Models\Schedule\TimeSlot;
-use App\Models\Subjects\Subject;
 use App\Models\Subjects\Term;
+use App\Models\Subjects\Subject;
+use App\Models\Academic\Teacher;
 use BackedEnum;
 use Filament\Actions\Action;
-use Filament\Actions\Concerns\InteractsWithActions;
-use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -21,24 +19,26 @@ use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 
-class TeacherTimetable extends Page implements HasForms, HasActions
+class Timetable extends Page implements HasForms
 {
     use InteractsWithForms;
-    use InteractsWithActions;
 
-    protected string $view = 'filament.pages.teacher-timetable';
-    protected static BackedEnum|string|null $navigationIcon = Heroicon::TableCells;
-    protected static \UnitEnum|string|null $navigationGroup = 'Teacher Management';
+    protected string $view = 'filament.pages.scheduling.timetable';
+
+    protected static \UnitEnum|string|null $navigationGroup = 'Scheduling';
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::TableCells;
+    protected static ?string $navigationLabel = 'Timetable';
     protected static ?int $navigationSort = 2;
-    protected static bool $shouldRegisterNavigation = true;
-    protected static ?string $navigationLabel = 'Teacher Timetable';
+
     public ?array $data = [];
-    public array $grid = [];
-    public ?int $teacherId = null;
+
     public ?int $termId = null;
+    public ?int $sectionId = null;
+
+    public array $grid = [];
+
     public ?string $selectedDay = null;
     public ?int $selectedSlotId = null;
-    
 
     public function mount(): void
     {
@@ -46,48 +46,41 @@ class TeacherTimetable extends Page implements HasForms, HasActions
         $this->grid = $this->buildEmptyGrid();
     }
 
+    /* ================= FORM ================= */
+
     public function form(Schema $schema): Schema
     {
         return $schema->components([
 
-            Select::make('teacherId')
-                ->label('Teacher')
-                ->options(
-                    Teacher::query()
-                        ->get()
-                        ->mapWithKeys(fn ($teacher) => [
-                            $teacher->id => $teacher->getFullNameAttribute(),
-                        ])
-                )
-                ->searchable()
-                ->live()
-                ->afterStateUpdated(fn ($state) => tap($this, function () use ($state) {
-                    $this->teacherId = $state;
-                    $this->loadGrid();
-                }))
-                ->required(),
-
-            Select::make('term_id')
+            Select::make('termId')
                 ->label('Term')
-                ->options(
-                    Term::query()
-                        ->get()
-                        ->mapWithKeys(fn ($term) => [
-                            $term->id => $term->getAcademicYearAndTermAttribute(),
-                        ])
-                )
+                ->options(Term::all()->mapWithKeys(fn ($t) => [
+                    $t->id => $t->academicYearAndTerm,
+                ]))
                 ->searchable()
                 ->live()
                 ->afterStateUpdated(fn ($state) => tap($this, function () use ($state) {
                     $this->termId = $state;
                     $this->loadGrid();
-                }))
-                ->required(),
+                })),
+
+            Select::make('sectionId')
+                ->label('Section')
+                ->options(
+                    Section::query()->get()->mapWithKeys(fn ($s) => [
+                        $s->id => $s->schoolClass->type->label() . ' - ' . $s->name,
+                    ])
+                )
+                ->searchable()
+                ->live()
+                ->afterStateUpdated(fn ($state) => tap($this, function () use ($state) {
+                    $this->sectionId = $state;
+                    $this->loadGrid();
+                })),
         ])
         ->columns(3)
         ->statePath('data');
     }
-
 
     /* ================= GRID ================= */
 
@@ -95,23 +88,23 @@ class TeacherTimetable extends Page implements HasForms, HasActions
     {
         $this->grid = $this->buildEmptyGrid();
 
-        if (! $this->termId || ! $this->teacherId) {
+        if (! $this->termId || ! $this->sectionId) {
             return;
         }
 
         $schedules = Schedule::query()
             ->where('term_id', $this->termId)
-            ->where('teacher_id', $this->teacherId)
-            ->with(['subject', 'section'])
+            ->where('section_id', $this->sectionId)
+            ->with(['subject', 'teacher'])
             ->get();
 
         foreach ($schedules as $schedule) {
             $this->grid[$schedule->day->value][$schedule->time_slot_id] = [
                 'id' => $schedule->id,
                 'subject' => $schedule->subject?->name,
-                'section' => $schedule->section?->full_name,
+                'teacher' => $schedule->teacher?->full_name,
                 'subject_id' => $schedule->subject_id,
-                'section_id' => $schedule->section_id,
+                'teacher_id' => $schedule->teacher_id,
             ];
         }
     }
@@ -129,45 +122,14 @@ class TeacherTimetable extends Page implements HasForms, HasActions
         return $grid;
     }
 
-    public function getDays(): array
+    public function getDays()
     {
         return DayOfWeek::cases();
     }
 
     public function getTimeSlots()
     {
-        return TimeSlot::query()
-            ->orderBy('start_time')
-            ->get();
-    }
-
-    public function getGrid(): array
-    {
-        $grid = [];
-
-        foreach ($this->getDays() as $day) {
-            foreach ($this->getTimeSlots() as $slot) {
-                $grid[$day->value][$slot->id] = null;
-            }
-        }
-
-        $termId = $this->data['term_id'] ?? null;
-
-        if (! $this->teacherId || ! $termId) {
-            return $grid;
-        }
-
-        $schedules = Schedule::forTeacher($this->teacherId)
-            ->where('term_id', $termId)
-            ->with(['subject', 'section.schoolClass'])
-            ->get();
-
-        foreach ($schedules as $schedule) {
-            $dayKey = $schedule->day->value ?? $schedule->day;
-            $grid[$dayKey][$schedule->time_slot_id] = $schedule;
-        }
-
-        return $grid;
+        return TimeSlot::query()->orderBy('start_time')->get();
     }
 
     /* ================= CELL CLICK ================= */
@@ -184,14 +146,14 @@ class TeacherTimetable extends Page implements HasForms, HasActions
 
         $schedule = Schedule::query()
             ->where('term_id', $this->termId)
-            ->where('teacher_id', $this->teacherId)
+            ->where('section_id', $this->sectionId)
             ->where('day', $day)
             ->where('time_slot_id', $slotId)
             ->first();
 
         $this->mountAction('editCell', [
             'subject_id' => $schedule?->subject_id,
-            'section_id' => $schedule?->section_id,
+            'teacher_id' => $schedule?->teacher_id,
         ]);
     }
 
@@ -203,17 +165,17 @@ class TeacherTimetable extends Page implements HasForms, HasActions
             Action::make('editCell')
                 ->label('Save Schedule')
                 ->modalHeading('Schedule Editor')
-                ->schema([
+                ->form([
                     Select::make('subject_id')
                         ->label('Subject')
                         ->options(Subject::pluck('name', 'id'))
                         ->searchable()
                         ->required(),
 
-                    Select::make('section_id')
-                        ->label('Section')
-                        ->options(Section::all()->mapwithKeys(fn ($section) => [
-                            $section->id => $section->full_name,
+                    Select::make('teacher_id')
+                        ->label('Teacher')
+                        ->options(Teacher::all()->mapWithKeys(fn ($t) => [
+                            $t->id => $t->full_name,
                         ]))
                         ->searchable()
                         ->required(),
@@ -223,13 +185,13 @@ class TeacherTimetable extends Page implements HasForms, HasActions
                     Schedule::updateOrCreate(
                         [
                             'term_id' => $this->termId,
-                            'teacher_id' => $this->teacherId,
+                            'section_id' => $this->sectionId,
                             'day' => $this->selectedDay,
                             'time_slot_id' => $this->selectedSlotId,
                         ],
                         [
                             'subject_id' => $data['subject_id'],
-                            'section_id' => $data['section_id'],
+                            'teacher_id' => $data['teacher_id'],
                         ]
                     );
 
@@ -239,12 +201,12 @@ class TeacherTimetable extends Page implements HasForms, HasActions
                     $this->selectedSlotId = null;
                     
                 })->hidden(fn() => !$this->selectedDay || !$this->selectedSlotId),
-        ];  
+        ];
     }
 
     private function ensureContextSelected(): bool
     {
-        return $this->termId && $this->teacherId;
+        return $this->termId && $this->sectionId;
     }
 
     private function notifyMissingContext(): void
@@ -255,5 +217,4 @@ class TeacherTimetable extends Page implements HasForms, HasActions
             ->danger()
             ->send();
     }
-
 }

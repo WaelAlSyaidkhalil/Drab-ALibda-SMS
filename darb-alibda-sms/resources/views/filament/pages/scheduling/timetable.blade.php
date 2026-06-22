@@ -5,16 +5,16 @@
     </div>
 
     @php
-        $days = $this->getDays(); // Sun → Thu (5 days)
-        $timeSlots = $this->getTimeSlots(); // 7 slots only
-        $grid = $this->getGrid(); // 2D array: [day][time_slot_id] => schedule
+        $days = $this->getDays();
+        $timeSlots = $this->getTimeSlots();
+        $grid = $this->grid ?? [];
     @endphp
 
     <div class="timetable-wrapper">
 
         <table class="timetable">
 
-            <!-- HEADER: TIME SLOTS (7 columns) -->
+            {{-- ================= HEADER ================= --}}
             <thead>
                 <tr>
                     <th class="day-header">Day</th>
@@ -22,34 +22,49 @@
                     @foreach ($timeSlots as $slot)
                         <th class="slot-header">
                             <div>{{ $slot->full_name }}</div>
-                            <small class="slot-time">{{ $slot->display_time }}</small>
+                            <small>
+                                {{ $slot->display_time }}
+                            </small>
                         </th>
                     @endforeach
                 </tr>
             </thead>
 
-            <!-- BODY: DAYS (5 rows) -->
+            {{-- ================= BODY ================= --}}
             <tbody>
 
                 @foreach ($days as $day)
                     <tr>
 
-                        <!-- DAY COLUMN -->
+                        {{-- DAY LABEL --}}
                         <td class="day-cell">
-                            {{ $day }}
+                            {{ $day->value }}
                         </td>
 
-                        <!-- 7 EMPTY TIME SLOTS -->
+                        {{-- TIME SLOTS --}}
                         @foreach ($timeSlots as $slot)
-                            <td class="cell" wire:click="openCell('{{ $day }}', {{ $slot->id }})">
-                                <div class="cell-content">
-                                    @if(isset($grid[$day->value][$slot->id]))
-                                        <div class="subject">{{ $grid[$day->value][$slot->id]->subject->name ?? '' }}</div>
-                                        <div class="section">{{ $grid[$day->value][$slot->id]->section->full_name ?? '' }}</div>
-                                    @else
-                                        <div class="empty">__</div>
-                                    @endif 
-                                </div>
+
+                            @php
+                                $cell = $grid[$day->value][$slot->id] ?? null;
+                            @endphp
+
+                            {{-- ENTIRE CELL IS CLICKABLE --}}
+                            <td class="cell" wire:click="openCell('{{ $day->value }}', {{ $slot->id }})">
+                                @if ($cell)
+                                    <div class="cell-content">
+                                        <div class="subject">
+                                            {{ $cell['subject'] }}
+                                        </div>
+
+                                        <div class="teacher">
+                                            {{ $cell['teacher'] }}
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="cell-content empty">
+                                        —
+                                    </div>
+                                @endif
                             </td>
                         @endforeach
                     </tr>
@@ -61,6 +76,7 @@
 
     </div>
 
+    {{-- ================= STYLES ================= --}}
     <style>
 
         .timetable-wrapper {
@@ -142,7 +158,7 @@
             font-size: 15px;
         }
 
-        .section {
+        .teacher {
             font-size: 12px;
             color: var(--gray-400);
         }
@@ -161,5 +177,6 @@
             background: var(--gray-800);
         }
 
-</style>
+    </style>
+
 </x-filament-panels::page>

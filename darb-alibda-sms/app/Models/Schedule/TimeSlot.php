@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Traits\Filterable;
 use App\Models\Schedule\Schedule;
+use App\Observers\Admin\TimeSlotObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Support\Carbon;
 
 /**
@@ -22,6 +24,8 @@ use Illuminate\Support\Carbon;
  *
  * @property-read \Illuminate\Database\Eloquent\Collection $schedules
  */
+
+#[ObservedBy([TimeSlotObserver::class])]
 class TimeSlot extends Model
 {
     use Filterable;
@@ -136,7 +140,7 @@ class TimeSlot extends Model
         $minutes = $this->getDurationInMinutes();
 
         if ($minutes < 60) {
-            return "{$minutes} دقيقة";
+            return "{$minutes} min";
         }
 
         $hours = intdiv($minutes, 60);
