@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Academic\Teacher;
 use App\Models\Auth\Role;
 use App\Models\Auth\User;
+use App\Services\Admin\GeneratePasswordService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -13,7 +14,7 @@ class TeacherSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
+    public function run(GeneratePasswordService $generatePasswordService): void
     {
         $teacherRole = Role::firstWhere('name', 'teacher');
 
@@ -37,7 +38,6 @@ class TeacherSeeder extends Seeder
                 'grade' => 'A',
                 'address' => 'الرياض',
                 'phone_alt' => '0501111122',
-                'experience_years' => 5,
             ],
             [
                 'email' => 'teacher2@example.com',
@@ -54,7 +54,6 @@ class TeacherSeeder extends Seeder
                 'grade' => 'B',
                 'address' => 'جدة',
                 'phone_alt' => '0502222233',
-                'experience_years' => 3,
             ],
         ];
 
@@ -66,7 +65,7 @@ class TeacherSeeder extends Seeder
                     'email' => $teacherData['email'],
                     'phone' => $teacherData['phone'],
                     'role_id' => $teacherRole->id,
-                    'password' => Hash::make('password'),
+                    'password' => $generatePasswordService->generatePassword(),
                 ]
             );
 
@@ -84,7 +83,6 @@ class TeacherSeeder extends Seeder
                     'grade' => $teacherData['grade'],
                     'address' => $teacherData['address'],
                     'phone_alt' => $teacherData['phone_alt'],
-                    'experience_years' => $teacherData['experience_years'],
                 ]
             );
         }

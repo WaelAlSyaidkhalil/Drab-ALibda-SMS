@@ -208,12 +208,12 @@ class Student extends Model
             $parts[] = $this->first_name;
         }
 
-        if (!empty($this->last_name)) {
-            $parts[] = $this->last_name;
-        }
-
         if (!empty($this->father_name)) {
             $parts[] = $this->father_name;
+        }
+        
+        if (!empty($this->last_name)) {
+            $parts[] = $this->last_name;
         }
 
         return implode(' ', $parts) ?: 'بدون اسم';

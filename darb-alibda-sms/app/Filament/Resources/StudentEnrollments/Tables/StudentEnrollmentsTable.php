@@ -4,11 +4,9 @@ namespace App\Filament\Resources\StudentEnrollments\Tables;
 
 use App\Enums\MarkResult;
 use App\Enums\StudentStatus;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -79,7 +77,6 @@ class StudentEnrollmentsTable
                     ->relationship('student', 'first_name'),
             ])
             ->actions([
-                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])

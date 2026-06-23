@@ -1,6 +1,6 @@
 <x-filament-panels::page>
     <form wire:submit="save" class="flex flex-col gap-6">
-        {{ $this->form }}
+        {{ $this->form->columns(2) }}
 
         <x-filament::button type="submit" style="margin-top: 40px; display: block; width: 10%;">
             Save

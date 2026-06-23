@@ -2,24 +2,19 @@
 
 namespace App\Filament\Resources\Attendances;
 
-use App\Filament\Resources\Attendances\Pages\CreateAttendance;
-use App\Filament\Resources\Attendances\Pages\EditAttendance;
 use App\Filament\Resources\Attendances\Pages\ListAttendances;
 use App\Filament\Resources\Attendances\Schemas\AttendanceForm;
 use App\Filament\Resources\Attendances\Tables\AttendancesTable;
 use App\Models\Schedule\Attendance;
-use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Override;
 
 class AttendanceResource extends Resource
 {
     protected static ?string $model = Attendance::class;
-
-    protected static ?string $recordTitleAttribute = 'id';
 
     protected static bool $shouldRegisterNavigation = false;
     /**
@@ -43,6 +38,11 @@ class AttendanceResource extends Resource
             );
     }
 
+    public static function getRecordTitle(?\Illuminate\Database\Eloquent\Model $record): string
+    {
+        return $record?->student?->first_name ?? 'Unknown Student';
+    }
+
     public static function form(Schema $schema): Schema
     {
         return AttendanceForm::configure($schema);
@@ -62,8 +62,6 @@ class AttendanceResource extends Resource
     {
         return [
             'index' => ListAttendances::route('/'),
-            'edit' => EditAttendance::route('/{record}/edit'),
         ];
     }
-    
 }

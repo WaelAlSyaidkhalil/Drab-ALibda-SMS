@@ -39,8 +39,7 @@ class SubjectForm
                         Textarea::make('description')
                             ->rows(3)
                             ->columnSpanFull(),
-                    ])
-                    ->columns(2),
-            ]);
+                    ])->columns(2)
+            ])->columns(1);
     }
 }

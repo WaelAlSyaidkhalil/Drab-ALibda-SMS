@@ -111,7 +111,7 @@
 }
 </style>
 
-    {{ $this->form }}
+    {{ $this->form->columns(3) }}
 
     <div wire:ignore class="mt-6">
         <div id="calendar" style="min-height: 600px"></div>

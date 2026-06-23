@@ -45,8 +45,11 @@ class ScheduleResource extends Resource
     {
         return [
             'index' => ListSchedules::route('/'),
-            'create' => CreateSchedule::route('/create'),
-            'edit' => EditSchedule::route('/{record}/edit'),
         ];
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }

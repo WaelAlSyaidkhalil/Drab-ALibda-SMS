@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Subjects\RelationManagers;
 
-use App\Enums\ComponentType;
 use App\Enums\SubjectComponentType;
 use Closure;
 use Filament\Actions\CreateAction;
@@ -25,13 +24,11 @@ class ComponentsRelationManager extends RelationManager
         return $schema
             ->schema([
                 Select::make('type')
-                    ->label('نوع المكون')
                     ->options(SubjectComponentType::getWithArabic())
                     ->required()
                     ->native(false),
 
                 TextInput::make('out_of')
-                    ->label('الدرجة العليا')
                     ->numeric()
                     ->required()
                     ->minValue(0)
@@ -59,14 +56,12 @@ class ComponentsRelationManager extends RelationManager
                     ]),
 
                 TextInput::make('order')
-                    ->label('الترتيب')
                     ->numeric()
                     ->required()
                     ->default(1)
                     ->minValue(1),
 
                 Textarea::make('description')
-                    ->label('الوصف')
                     ->rows(3)
                     ->columnSpanFull(),
             ]);

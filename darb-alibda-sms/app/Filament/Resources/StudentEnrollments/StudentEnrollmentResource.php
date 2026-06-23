@@ -52,7 +52,6 @@ class StudentEnrollmentResource extends Resource
         return [
             'index' => ListStudentEnrollments::route('/'),
             'create' => CreateStudentEnrollment::route('/create'),
-            'view' => ViewStudentEnrollment::route('/{record}'),
             'edit' => EditStudentEnrollment::route('/{record}/edit'),
         ];
     }

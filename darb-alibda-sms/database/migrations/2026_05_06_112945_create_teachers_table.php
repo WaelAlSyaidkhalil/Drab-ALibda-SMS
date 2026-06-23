@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
 
             // معلومات شخصية
             $table->string('first_name');
@@ -33,13 +33,13 @@ return new class extends Migration
             $table->date('hire_date')->nullable();
             $table->string('employment_type')->nullable();
             $table->string('grade')->nullable();
+            $table->string('specialization')->nullable();
+            $table->integer('experience_years')->default(0);
 
             // معلومات تواصل
             $table->string('address')->nullable();
             $table->string('phone_alt')->nullable();
             
-            $table->string('specialization')->nullable();
-            $table->integer('experience_years')->default(0);
             
             $table->timestamps();
         });

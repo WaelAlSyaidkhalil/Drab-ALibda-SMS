@@ -2,12 +2,10 @@
 
 namespace App\Filament\Resources\Students\Tables;
 
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
+use App\Enums\Gender;
 use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
@@ -21,55 +19,43 @@ class StudentsTable
                 TextColumn::make('full_name')
                     ->searchable([
                         'first_name',
-                        'last_name',
                         'father_name',
+                        'last_name',
                     ])
                     ->sortable(),
 
                 TextColumn::make('registry_number')
                     ->searchable(),
 
-                TextColumn::make('national_id')
-                    ->placeholder('N/A')
-                    ->searchable()
-                    ->toggleable(),
-
                 TextColumn::make('gender')
-                    ->formatStateUsing(fn (string $state) => match ($state) {
-                        'male' => 'ذكر',
-                        'female' => 'أنثى',
-                        default => $state,
-                    })
+                    ->formatStateUsing(fn (string $state) => $state instanceof Gender ? $state->value : $state)
                     ->badge(),
 
                 TextColumn::make('age')
+                    ->getStateUsing(fn ($record) => $record->birth_date? now()->diff($record->birth_date)->format('%y') : null)
+                    ->placeholder('N/A')
                     ->sortable(),
 
                 TextColumn::make('parent.name')
                     ->searchable()
                     ->toggleable(),
 
-                TextColumn::make('created_at')
-                    ->date('Y-m-d')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
+                TextColumn::make('user.is_active')
+                    ->getStateUsing(fn ($record) => $record->user?->is_active ? 'active' : 'inactive')
+                    ->badge()
+                    ->color(fn ($record) => $record->user?->is_active ? 'success' : 'danger')
+                    ])
             ->filters([
+                Filter::make('is_active')
+                    ->label('Active')
+                    ->query(fn ($query) => $query->whereHas('user', fn ($q) => $q->where('is_active', true))),
+
                 SelectFilter::make('gender')
-                    ->options([
-                        'male' => 'ذكر',
-                        'female' => 'أنثى',
-                    ]),
+                    ->options(Gender::options()),
             ])
             ->actions([
-                ViewAction::make()
-                    ->icon('heroicon-o-eye'),
-
                 EditAction::make()
                     ->icon('heroicon-o-pencil'),
-
-                DeleteAction::make()
-                    ->icon('heroicon-o-trash'),
             ])
             ->defaultSort('created_at', 'desc');
     }

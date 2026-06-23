@@ -14,7 +14,6 @@ class AttendanceForm
     {
         return $schema
             ->schema([
-
                 Select::make('student_id')
                     ->relationship('student', 'first_name')
                     ->getOptionLabelFromRecordUsing(

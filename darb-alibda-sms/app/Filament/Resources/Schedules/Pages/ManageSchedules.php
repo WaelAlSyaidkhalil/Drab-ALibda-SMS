@@ -16,9 +16,4 @@ class ManageSchedules extends ManageRecords
             CreateAction::make()
         ];
     }
-
-    public function getTitle(): string
-    {
-        return 'الجداول الدراسية';
-    }
 }

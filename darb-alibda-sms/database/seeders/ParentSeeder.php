@@ -4,15 +4,15 @@ namespace Database\Seeders;
 
 use App\Models\Auth\Role;
 use App\Models\Auth\User;
+use App\Services\Admin\GeneratePasswordService;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class ParentSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
-    public function run(): void
+    public function run(GeneratePasswordService $generatePasswordService): void
     {
         $parentRole = Role::firstWhere('name', 'parent');
 
@@ -27,7 +27,7 @@ class ParentSeeder extends Seeder
                 'email' => 'parent1@example.com',
                 'phone' => '0503333333',
                 'role_id' => $parentRole->id,
-                'password' => Hash::make('password'),
+                'password' => $generatePasswordService->generatePassword(),
             ]
         );
 
@@ -38,7 +38,7 @@ class ParentSeeder extends Seeder
                 'email' => 'parent2@example.com',
                 'phone' => '0504444444',
                 'role_id' => $parentRole->id,
-                'password' => Hash::make('password'),
+                'password' => $generatePasswordService->generatePassword(),
             ]
         );
     }

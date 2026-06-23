@@ -17,6 +17,8 @@ use App\Models\Academic\Teacher;
 use App\Models\Communication\Conversation;
 use App\Models\Communication\Message;
 use App\Enums\UserRole;
+use App\Observers\Admin\UserObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 /**
  * نموذج المستخدم
@@ -50,12 +52,11 @@ class User extends Authenticatable
      * الحقول القابلة للتعبئة
      */
     protected $fillable = [
+        'name',
         'role_id',
         'email',
         'phone',
         'password',
-        'first_name',
-        'last_name',
         'avatar',
         'fcm_token',
         'is_active',
@@ -65,7 +66,6 @@ class User extends Authenticatable
      * الحقول المخفية عند التحويل إلى JSON
      */
     protected $hidden = [
-        'password',
         'remember_token',
     ];
 
@@ -74,7 +74,6 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
         'is_active' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

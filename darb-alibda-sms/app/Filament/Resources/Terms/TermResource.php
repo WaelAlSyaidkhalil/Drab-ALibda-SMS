@@ -17,10 +17,7 @@ use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\TextInput;
-use Filament\Actions\ViewAction;
-use Filament\Forms\Components\Builder;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 
@@ -111,7 +108,6 @@ class TermResource extends Resource
                     })
             ])
             ->recordActions([
-                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])
