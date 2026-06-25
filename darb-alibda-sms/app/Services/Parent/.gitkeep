@@ -1,1 +1,7 @@
-# Placeholder for Parent services
+<?php
+
+namespace App\Services\Parent;
+
+class ParentService
+{
+}

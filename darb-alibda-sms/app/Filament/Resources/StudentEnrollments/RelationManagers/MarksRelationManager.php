@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Students\RelationManagers;
+namespace App\Filament\Resources\StudentEnrollments\RelationManagers;
 
 use App\Enums\MarkResult;
 use App\Enums\SubjectComponentType;
