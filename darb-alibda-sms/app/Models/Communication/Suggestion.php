@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\Filterable;
 use App\Models\Traits\HasAttachments;
-use App\Models\Communication\Attachment;
 use App\Models\Auth\User;
 use Illuminate\Support\Carbon;
 
@@ -16,8 +15,7 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $user_id             FK → users
  * @property string $title            عنوان الاقتراح
- * @property string $description      تفاصيل الاقتراح
- * @property string $category         فئة الاقتراح
+ * @property string $body             تفاصيل الاقتراح
  * @property bool $is_acknowledged    هل تم إقرار الاقتراح
  * @property string|null $feedback    التعليق على الاقتراح
  * @property Carbon $created_at
@@ -32,8 +30,7 @@ class Suggestion extends Model
     protected $fillable = [
         'user_id',
         'title',
-        'description',
-        'category',
+        'body',
         'is_acknowledged',
         'feedback',
     ];

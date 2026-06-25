@@ -6,6 +6,7 @@ use Filament\Tables\Table;
 use App\Enums\Gender;
 use App\Models\Academic\Teacher;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -40,17 +41,17 @@ class TeachersTable
                     ->sortable()
                     ->placeholder('N/A'),
                 
-                TextColumn::make('user.is_active')
+                IconColumn::make('user.is_active')
                     ->label('Active')
-                    ->formatStateUsing(fn (bool $state) => $state ? 'active' : 'inactive')
-                    ->badge()
-                    ->color(fn(bool $state) => $state ? 'success' : 'danger')
+                    ->boolean()
             ])
             ->filters([
                 Filter::make('is_active')
                     ->label('Active')
                     ->query(fn(Builder $query) => $query->whereHas('user', fn($q) => $q->where('is_active', true))),
-
+                Filter::make('is_inactive')
+                    ->label('Inactive')
+                    ->query(fn(Builder $query) => $query->whereHas('user', fn($q) => $q->where('is_active', false))),
                 SelectFilter::make('employment_type')
                     ->options(
                         fn() => Teacher::query()

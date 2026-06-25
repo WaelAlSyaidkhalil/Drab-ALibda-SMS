@@ -41,7 +41,7 @@ class StudentForm
                         DatePicker::make('birth_date')
                             ->native(false)
                             ->maxDate(now()),
-                    ]),
+                    ])->columns(2),
                 Section::make('Parent account Details')
                     ->relationship('parent')
                     ->schema([
@@ -71,7 +71,7 @@ class StudentForm
                             ->label('Role')
                             ->placeholder('Parent')
                             ->disabled(),
-                    ]),
+                    ])->columns(2),
 
                 Section::make('Oficial Details')
                     ->schema([
@@ -84,7 +84,7 @@ class StudentForm
                             ->placeholder('Ex: STU001')
                             ->unique(ignoreRecord: true)
                             ->maxLength(50),
-                    ]),
+                    ])->columns(2),
                 Section::make('Status')
                     ->relationship('parent')
                     ->schema([
@@ -92,6 +92,6 @@ class StudentForm
                             ->label('Is Active')
                             ->default(true),
                     ]),
-            ]);
+            ])->columns(1);
     }
 }
