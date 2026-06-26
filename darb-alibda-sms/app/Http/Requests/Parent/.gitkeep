@@ -1,1 +1,13 @@
-# Placeholder for Parent Form Request classes
+<?php
+
+namespace App\Http\Requests\Parent;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class ParentBaseRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+}
