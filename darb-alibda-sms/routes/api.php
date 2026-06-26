@@ -55,6 +55,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('parent/children/{student}/schedule', [ScheduleController::class, 'show']);
     Route::get('parent/children/{student}/grades', [GradesController::class, 'show']);
     Route::get('parent/children/{student}/attendance', [AttendanceController::class, 'show']);
+    Route::get('parent/children/{student}/attendance/report', [AttendanceController::class, 'report']);
+    Route::get('parent/children/{student}/attendance/monthly/{month}/{year}', [AttendanceController::class, 'monthlyStats']);
     Route::post('parent/excuse-requests', [ExcuseRequestController::class, 'store']);
     Route::get('parent/excuse-requests', [ExcuseRequestController::class, 'index']);
     Route::get('parent/excuse-requests/{id}', [ExcuseRequestController::class, 'show']);
