@@ -237,10 +237,10 @@ class StudentEnrollment extends Model
      *
      * @return string
      */
-    public function getFinalAverageDisplayAttribute(): string
+    public function getFinalAverageDisplayAttribute(): string | null
     {
         if ($this->final_average === null) {
-            return 'لم يُحسب بعد';
+            return null;
         }
 
         return number_format($this->final_average, 2) . ' / 100';

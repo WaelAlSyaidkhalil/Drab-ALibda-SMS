@@ -54,17 +54,6 @@ class TeacherForm
                             ->options(Gender::options())
                             ->required(),
                     ]),
-                Section::make('Official Information')
-                    ->columns(2)
-                    ->schema([
-                        TextInput::make('registry_number')
-                            ->label('Registry Number'),
-
-                        TextInput::make('national_id')
-                            ->label('National ID')
-                            ->required()
-                            ->unique(ignoreRecord: true),
-                    ]),
                 Section::make('Account Details')
                     ->columns(2)
                     ->relationship('user')
@@ -120,6 +109,17 @@ class TeacherForm
                             ->minValue(0)
                             ->default(0),
                     ]),
+                Section::make('Official Information')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('registry_number')
+                            ->label('Registry Number'),
+
+                        TextInput::make('national_id')
+                            ->label('National ID')
+                            ->required()
+                            ->unique(ignoreRecord: true),
+                    ]),
                 Section::make('Contact Information')
                     ->columns(2)
                     ->schema([
@@ -130,7 +130,14 @@ class TeacherForm
                         TextInput::make('phone_alt')
                             ->label('Alternative Phone')
                             ->tel(),
-                    ])
+                    ]),
+                Section::make('Status')
+                    ->relationship('user')
+                    ->schema([
+                        Toggle::make('is_active')
+                            ->label('Is Active')
+                            ->default(true),
+                    ]),
             ]);
     }
 }

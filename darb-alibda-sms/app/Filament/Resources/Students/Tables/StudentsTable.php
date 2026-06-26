@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Students\Tables;
 
 use App\Enums\Gender;
 use Filament\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -40,16 +41,17 @@ class StudentsTable
                     ->searchable()
                     ->toggleable(),
 
-                TextColumn::make('user.is_active')
-                    ->getStateUsing(fn ($record) => $record->user?->is_active ? 'active' : 'inactive')
-                    ->badge()
-                    ->color(fn ($record) => $record->user?->is_active ? 'success' : 'danger')
+                IconColumn::make('parent.is_active')
+                    ->boolean()
+                    ->label('Active')
                     ])
             ->filters([
                 Filter::make('is_active')
                     ->label('Active')
-                    ->query(fn ($query) => $query->whereHas('user', fn ($q) => $q->where('is_active', true))),
-
+                    ->query(fn ($query) => $query->whereHas('parent', fn ($q) => $q->where('is_active', true))),
+                Filter::make('is_inactive')
+                    ->label('Inactive')
+                    ->query(fn ($query) => $query->whereHas('parent', fn ($q) => $q->where('is_active', false))),
                 SelectFilter::make('gender')
                     ->options(Gender::options()),
             ])

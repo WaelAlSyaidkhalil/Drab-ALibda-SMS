@@ -185,14 +185,14 @@ class Term extends Model
     public function getStatusAttribute(): string
     {
         if ($this->isActive()) {
-            return 'نشط';
+            return 'active';
         }
 
         if ($this->start_date > now()) {
-            return 'قادم';
+            return 'upcoming';
         }
 
-        return 'مكتمل';
+        return 'completed';
     }
 
     /**

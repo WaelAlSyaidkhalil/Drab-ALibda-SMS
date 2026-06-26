@@ -7,6 +7,7 @@ use App\Enums\DayOfWeek;
 use App\Enums\MarkResult;
 use App\Enums\SubjectComponentType;
 use App\Enums\TermType;
+use App\Models\Communication\Complaint;
 use App\Models\Academic\SchoolClass;
 use App\Models\Academic\Section;
 use App\Models\Academic\Student;
@@ -17,6 +18,7 @@ use App\Models\Communication\AbsenceJustification;
 use App\Models\Communication\Conversation;
 use App\Models\Communication\Message;
 use App\Models\Communication\News;
+use App\Models\Communication\Suggestion;
 use App\Models\Grading\StudentMark;
 use App\Models\Grading\StudentSubjectResult;
 use App\Models\Schedule\Attendance;
@@ -294,5 +296,34 @@ class TeacherDashboardSeeder extends Seeder
             ],
             ['is_read' => false]
         );
+
+        
+            Complaint::create([
+                'user_id' => $parent1->id,
+                'title' => 'شكوى تجريبية',
+                'body' => 'هذه شكوى تجريبية تم إنشاؤها بواسطة Seeder.',
+                'status' => 'pending',
+            ]);
+
+            Complaint::create([
+                'user_id' => $parent1->id,
+                'title' => 'شكوى أخرى',
+                'body' => 'هذه شكوى أخرى تم إنشاؤها بواسطة Seeder.',
+                'status' => 'in_progress',
+            ]);
+
+            Suggestion::create([
+                'user_id' => $parent2->id,
+                'title' => 'اقتراح تجريبي',
+                'body' => 'هذا اقتراح تجريبي تم إنشاؤه بواسطة Seeder.',
+                'is_acknowledged' => false,
+            ]);
+
+            Suggestion::create([
+                'user_id' => $parent2->id,
+                'title' => 'اقتراح آخر',
+                'body' => 'هذا اقتراح آخر تم إنشاؤه بواسطة Seeder.',
+                'is_acknowledged' => true,
+            ]);
     }
 }

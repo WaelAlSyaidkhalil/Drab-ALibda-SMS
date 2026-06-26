@@ -2,6 +2,7 @@
 
 namespace App\Models\Communication;
 
+use App\Enums\ComplaintStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\Filterable;
@@ -15,11 +16,9 @@ use App\Models\Auth\User;
  * @property int $id
  * @property int $user_id             FK → users
  * @property string $title            عنوان الشكوى
- * @property string $description      تفاصيل الشكوى
- * @property string $category         فئة الشكوى (عملية تعليمية، موارد...)
+ * @property string $body             تفاصيل الشكوى
  * @property string $status           الحالة (جديدة، قيد المعالجة، مغلقة)
  * @property string|null $response    الرد على الشكوى
- * @property int|null $assigned_to    معرف المسؤول
  * @property \Illuminate\Support\Carbon|null $resolved_at تاريخ الحل
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at
@@ -34,15 +33,14 @@ class Complaint extends Model
     protected $fillable = [
         'user_id',
         'title',
-        'description',
-        'category',
+        'body',
         'status',
         'response',
-        'assigned_to',
         'resolved_at',
     ];
 
     protected $casts = [
+        'status' => ComplaintStatus::class,
         'resolved_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -60,15 +58,6 @@ class Complaint extends Model
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * المسؤول المعين
-     * 
-     * @return BelongsTo
-     */
-    public function assignee(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'assigned_to');
-    }
 
     // ────── Scopes ──────
 
@@ -103,17 +92,5 @@ class Complaint extends Model
     public function scopeClosed($query)
     {
         return $query->where('status', 'closed');
-    }
-
-    /**
-     * البحث حسب الفئة
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $category
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeByCategory($query, string $category)
-    {
-        return $query->where('category', $category);
     }
 }

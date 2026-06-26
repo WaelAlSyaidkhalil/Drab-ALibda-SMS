@@ -66,9 +66,9 @@ class TermResource extends Resource
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state) => match ($state) {
-                        'نشط' => 'success',
-                        'قادم' => 'warning',
-                        'مكتمل' => 'gray',
+                        'active' => 'success',
+                        'upcoming' => 'warning',
+                        'completed' => 'gray',
                         default => 'gray',
                     })
                     ->sortable(),
@@ -86,9 +86,9 @@ class TermResource extends Resource
                     ->form([
                         Select::make('status')
                             ->options([
-                                'active' => 'نشط',
-                                'upcoming' => 'قادم',
-                                'completed' => 'مكتمل',
+                                'active' => 'active',
+                                'upcoming' => 'upcoming',
+                                'completed' => 'completed',
                             ]),
                     ])
                     ->query(function ($query, array $data) {

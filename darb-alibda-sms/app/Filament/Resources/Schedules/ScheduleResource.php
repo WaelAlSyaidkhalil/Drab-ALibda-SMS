@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Schedules;
 
-use App\Filament\Resources\Schedules\Pages\CreateSchedule;
-use App\Filament\Resources\Schedules\Pages\EditSchedule;
 use App\Filament\Resources\Schedules\Pages\ListSchedules;
 use App\Filament\Resources\Schedules\Schemas\ScheduleForm;
 use App\Filament\Resources\Schedules\Tables\SchedulesTable;

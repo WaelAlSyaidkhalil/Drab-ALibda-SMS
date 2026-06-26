@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\SuggestionStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +17,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('title');
             $table->text('body');
-            $table->enum('status', ['pending', 'reviewed', 'accepted', 'rejected'])->default('pending');
+            $table->boolean('is_acknowledged')->default(false);
+            $table->text('feedback')->nullable();
+            $table->enum('status', SuggestionStatus::getValues())->default(SuggestionStatus::Pending->value);
             $table->timestamps();
         });
     }

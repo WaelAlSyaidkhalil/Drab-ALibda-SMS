@@ -48,7 +48,8 @@ class StudentEnrollmentsTable
 
                 TextColumn::make('final_average_display')
                     ->label('Final average')
-                    ->sortable(),
+                    ->sortable()
+                    ->placeholder('N/A'),
                 TextColumn::make('final_result')
                     ->getStateUsing(fn($record) => $record->final_result)
                     ->badge()

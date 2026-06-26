@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Schedules\Tables;
 
+use App\Enums\DayOfWeek;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -24,6 +25,13 @@ class SchedulesTable
                                     
                 TextColumn::make('day')
                 ->badge()
+                ->colors([
+                    'danger' => DayOfWeek::SUNDAY,
+                    'gray' => DayOfWeek::MONDAY,
+                    'success' => DayOfWeek::TUESDAY,
+                    'warning' => DayOfWeek::WEDNESDAY,
+                    'info' => DayOfWeek::THURSDAY,
+                ])
                 ->sortable(),
 
                 TextColumn::make('timeSlot.full_name')    
