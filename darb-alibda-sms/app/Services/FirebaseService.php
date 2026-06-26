@@ -25,29 +25,29 @@ class FirebaseService
         $this->messaging = $factory->createMessaging();
     }
 
-    public function sendPushNotification(User $user, $title, $body)
+    public function sendPushNotification($tokens, $title, $body)
     {
-        if (!$user->fcm_token) {
-            return false;
-        }
+        foreach($tokens as $token)
+        {
 
-        $message = [
-            'token' => $user->fcm_token,
-            'notification' => [
-                'title' => $title,
-                'body' => $body,
-            ],
-        ];
+            $message = [
+                'token' => $token,
+                'notification' => [
+                    'title' => $title,
+                    'body' => $body,
+                ],
+            ];
 
-        try {
+            try {
 
-            $this->messaging->send($message);
-            return true;
-        }
-        catch (\Exception $e) {
+                $this->messaging->send($message);
+                return true;
+            }
+            catch (\Exception $e) {
 
-            \Log::error("Firebase Notification Error: " . $e->getMessage());
-            return false;
+                Log::error("Firebase Notification Error: " . $e->getMessage());
+                return false;
+            }
         }
     }
 }

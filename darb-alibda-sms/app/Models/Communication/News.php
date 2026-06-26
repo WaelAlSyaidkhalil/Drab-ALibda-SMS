@@ -2,13 +2,15 @@
 
 namespace App\Models\Communication;
 
+use App\Enums\AudienceType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Traits\Filterable;
 use App\Models\Traits\HasAttachments;
-use App\Models\Communication\Attachment;
 use App\Models\Auth\User;
+use App\Observers\Admin\NewsObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Support\Carbon;
 
 /**
@@ -25,6 +27,7 @@ use Illuminate\Support\Carbon;
  * @property-read User|null $user
  * @property-read \Illuminate\Database\Eloquent\Collection $readers
  */
+#[ObservedBy(NewsObserver::class)]
 class News extends Model
 {
     use Filterable, HasAttachments;
@@ -37,6 +40,7 @@ class News extends Model
     ];
 
     protected $casts = [
+        'audience' => AudienceType::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

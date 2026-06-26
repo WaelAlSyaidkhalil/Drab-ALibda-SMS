@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\Users;
 
+use App\Enums\UserRole;
 use App\Filament\Resources\Users\Pages\ManageUsers;
 use App\Models\Auth\User;
 use BackedEnum;
+use Dom\Text;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -17,6 +19,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
@@ -87,11 +90,19 @@ class UserResource extends Resource
                     ->searchable(),
                 TextColumn::make('password'),
                 TextColumn::make('role.name')
-                    ->badge(),
-                TextColumn::make('is_active')
-                    ->formatStateUsing(fn (bool $state) => $state ? 'active' : 'inactive')
                     ->badge()
-                    ->color(fn(bool $state) => $state ? 'success' : 'danger'),
+                    ->colors([
+                        'success' => UserRole::ADMIN->value,
+                        'warning' => UserRole::STUDENT->value,
+                        'info' => UserRole::TEACHER->value,
+                        'danger' => UserRole::PARENT->value,
+                    ]),
+                IconColumn::make('is_active')
+                    ->label('Active'),
+                TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                
             ])
             ->filters([
                 Filter::make('is_active')
