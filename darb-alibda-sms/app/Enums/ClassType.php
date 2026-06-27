@@ -35,7 +35,7 @@ enum ClassType: string
         };
     }
 
-    public function gradeLevel(): int
+    public function getGradeLevel(): int
     {
         return match ($this) {
             self::PRIMARY_FIRST => 1,
@@ -50,6 +50,18 @@ enum ClassType: string
             self::SECONDARY_FIRST => 10,
             self::SECONDARY_SECOND => 11,
             self::SECONDARY_THIRD => 12,
+        };
+    }
+
+    public static function getTypeByGradeLevel($gradeLevel): ClassType
+    {
+        return match ($gradeLevel) {
+            1 => self::PRIMARY_FIRST,
+            2 => self::PRIMARY_SECOND,
+            3 => self::PRIMARY_THIRD,
+            4 => self::PRIMARY_FOURTH,
+            5 => self::PRIMARY_FIFTH,
+            6 => self::PRIMARY_SIXTH,
         };
     }
 
@@ -85,4 +97,13 @@ enum ClassType: string
     {
         return array_map(fn(self $type) => $type->value, array_filter(self::cases(), fn(self $type) => $type->stage() === 'ثانوي'));
     }
+
+    /**
+     * Get all case values
+     */
+    public static function getValues(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
+
 }

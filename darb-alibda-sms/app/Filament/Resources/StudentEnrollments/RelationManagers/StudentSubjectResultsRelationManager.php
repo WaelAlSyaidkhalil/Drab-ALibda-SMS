@@ -12,6 +12,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Validation\Rules\Unique;
 
 class StudentSubjectResultsRelationManager extends RelationManager
 {
@@ -27,7 +28,12 @@ class StudentSubjectResultsRelationManager extends RelationManager
                 ->searchable()
                 ->preload()
                 ->required()
-                ->unique(),
+                ->unique(modifyRuleUsing: fn (Unique $rule) => $rule
+                    ->where(
+                        'enrollment_id',
+                        $this->getOwnerRecord()->id
+                    )
+                    ->ignore($this->getMountedTableActionRecord())),
 
             TextInput::make('term1_mark')
                 ->numeric()

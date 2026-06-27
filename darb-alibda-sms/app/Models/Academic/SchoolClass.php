@@ -77,7 +77,7 @@ class SchoolClass extends Model
      */
     public function scopeGradeLevel($query, int $level)
     {
-        $types = array_filter(ClassType::cases(), fn (ClassType $type) => $type->gradeLevel() === $level);
+        $types = array_filter(ClassType::cases(), fn (ClassType $type) => $type->getGradeLevel() === $level);
         return $query->whereIn('type', array_map(fn (ClassType $type) => $type->value, $types));
     }
 
@@ -133,7 +133,7 @@ class SchoolClass extends Model
      */
     public function getGradeLevelAttribute(): ?int
     {
-        return $this->type?->gradeLevel();
+        return $this->type?->getGradeLevel();
     }
 
     /**

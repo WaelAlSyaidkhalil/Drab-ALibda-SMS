@@ -55,7 +55,7 @@ class StudentEnrollment extends Model
         'enrollment_date' => 'date',
         'final_average' => 'float',
         'status' => StudentStatus::class,
-        'final_result' => 'string',
+        'final_result' => MarkResult::class,
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -123,7 +123,7 @@ class StudentEnrollment extends Model
      */
     public function scopeCompleted($query)
     {
-        return $query->whereIn('final_result', ['pass', 'fail']);
+        return $query->whereIn('final_result', MarkResult::getValues());
     }
 
     /**
@@ -160,7 +160,7 @@ class StudentEnrollment extends Model
      */
     public function scopePassed($query)
     {
-        return $query->where('final_result', 'pass');
+        return $query->where('final_result', MarkResult::PASS);
     }
 
     /**
@@ -171,7 +171,7 @@ class StudentEnrollment extends Model
      */
     public function scopeFailed($query)
     {
-        return $query->where('final_result', 'fail');
+        return $query->where('final_result', MarkResult::FAIL);
     }
 
     // ────── Methods ──────
@@ -208,21 +208,6 @@ class StudentEnrollment extends Model
 
 
     /**
-     * نص النتيجة النهائية بالعربية
-     *
-     * @return string
-     */
-    public function getResultLabelAttribute(): string
-    {
-        return match ($this->final_result) {
-            'pass' => 'ناجح ✅',
-            'fail' => 'راسب ❌',
-            'pending' => 'قيد الانتظار ⏳',
-            default => 'غير معروف',
-        };
-    }
-
-    /**
      * عدد المواد المسجل فيها
      *
      * @return int
@@ -250,42 +235,34 @@ class StudentEnrollment extends Model
     /**
      * حساب المعدل النهائي من نتائج المواد
      * 
-     * @return float|null
+     * @return void
      */
-    public function calculateFinalAverage(): float|null
+    public function setFinalAverageAndFinalResult(): void
     {
         $results = $this->studentSubjectResults()->get();
 
         if ($results->isEmpty()) {
-            return null;
+            return;
         }
 
         foreach ($results as $result) {
             if ($result->yearly_mark === null) {
-                return null; // إذا كانت أي مادة لم تُحسب بعد، لا يمكن حساب المعدل النهائي
+                return; // إذا كانت أي مادة لم تُحسب بعد، لا يمكن حساب المعدل النهائي
             }
         }
 
         $total = $results->sum('yearly_mark');
         $count = $results->count();
 
-        return $count > 0 ? round($total / $count, 2) : null;
-    }
+        $this->update([
+            'final_average' => $count > 0 ? round($total / $count, 2) : null
+        ]);
 
-
-    /**
-     * تحديث النتيجة بناءً على المعدل النهائي
-     * 
-     * @return MarkResult|null
-     */
-    public function calculateResult(): string|null
-    {
-        if ($this->final_average === null) {
-            return MarkResult::PENDING->value;
-        }
-
-        return $this->final_average >= config('school.passing_mark') 
+        $this->update([
+            'final_result' => $this->final_average >= config('school.passing_mark') 
             ? MarkResult::PASS->value
-            : MarkResult::FAIL->value;
+            : MarkResult::FAIL->value
+        ]);
+       
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Observers\Admin;
 
+use App\Enums\StudentStatus;
 use App\Models\Grading\StudentSubjectResult;
 
 class StudentSubjectResultObserver
@@ -11,7 +12,6 @@ class StudentSubjectResultObserver
      */
     public function created(StudentSubjectResult $studentSubjectResult): void
     {
-        $this->updateEnrollmentAverage($studentSubjectResult);
         $this->updateEnrollmentFinalResult($studentSubjectResult);
     }
 
@@ -20,7 +20,6 @@ class StudentSubjectResultObserver
      */
     public function updated(StudentSubjectResult $studentSubjectResult): void
     {
-        $this->updateEnrollmentAverage($studentSubjectResult);
         $this->updateEnrollmentFinalResult($studentSubjectResult);
     }
 
@@ -29,7 +28,6 @@ class StudentSubjectResultObserver
      */
     public function deleted(StudentSubjectResult $studentSubjectResult): void
     {
-        $this->updateEnrollmentAverage($studentSubjectResult);
         $this->updateEnrollmentFinalResult($studentSubjectResult);
     }
 
@@ -56,29 +54,13 @@ class StudentSubjectResultObserver
         $studentSubjectResult->result = $studentSubjectResult->calculateResult();
     }
 
-    protected function updateEnrollmentAverage(StudentSubjectResult $result): void
-    {
-        $enrollment = $result->studentEnrollment;
-
-        if (! $enrollment) {
-            return;
-        }
-
-        $enrollment->update([
-            'final_average' => $enrollment->calculateFinalAverage(),
-        ]);
-    }
-
     protected function updateEnrollmentFinalResult(StudentSubjectResult $result): void
     {
-        $enrollment = $result->studentEnrollment;
+        $enrollment = $result->enrollment;
 
-        if (! $enrollment) {
+        if($enrollment->status !== StudentStatus::ACTIVE)
             return;
-        }
 
-        $enrollment->update([
-            'final_result' => $enrollment->calculateResult(),
-        ]);
+        $enrollment->setFinalAverageAndFinalResult();
     }
 }

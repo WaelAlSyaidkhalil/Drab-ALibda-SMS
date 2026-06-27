@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ClassType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -13,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('classes', function (Blueprint $table) {
             $table->id();
-            $table->string('type'); // primary_first ... secondary_third
+            $table->enum('type', ClassType::getValues()); // primary_first ... secondary_third
             $table->timestamps();
         });
     }

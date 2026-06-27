@@ -47,18 +47,33 @@ class TeacherDashboardSeeder extends Seeder
             return;
         }
 
-        $schoolClass = SchoolClass::firstOrCreate(
+        $primaryFirstClass = SchoolClass::firstOrCreate(
             ['type' => ClassType::PRIMARY_FIRST->value],
             ['type' => ClassType::PRIMARY_FIRST->value]
         );
 
-        $section = Section::firstOrCreate(
+        $primarySecondClass = SchoolClass::firstOrCreate(
+            ['type' => ClassType::PRIMARY_SECOND->value],
+            ['type' => ClassType::PRIMARY_SECOND->value]
+        );
+
+
+        $section1 = Section::firstOrCreate(
             [
-                'class_id' => $schoolClass->id,
+                'class_id' => $primaryFirstClass->id,
                 'name' => 'أ',
             ],
             ['capacity' => 30]
         );
+        
+        $section2 = Section::firstOrCreate(
+            [
+                'class_id' => $primarySecondClass->id,
+                'name' => 'أ',
+            ],
+            ['capacity' => 30]
+        );
+        
 
         $term = Term::firstOrCreate(
             ['type' => TermType::FIRST_TERM->value, 'academic_year' => '2025-2026'],
@@ -157,7 +172,7 @@ class TeacherDashboardSeeder extends Seeder
 
         $schedule1 = Schedule::firstOrCreate(
             [
-                'section_id' => $section->id,
+                'section_id' => $section1->id,
                 'subject_id' => $subject1->id,
                 'teacher_id' => $teacher->id,
                 'term_id' => $term->id,
@@ -168,7 +183,7 @@ class TeacherDashboardSeeder extends Seeder
 
         $schedule2 = Schedule::firstOrCreate(
             [
-                'section_id' => $section->id,
+                'section_id' => $section1->id,
                 'subject_id' => $subject2->id,
                 'teacher_id' => $teacher->id,
                 'term_id' => $term->id,
@@ -179,7 +194,7 @@ class TeacherDashboardSeeder extends Seeder
 
         $schedule3 = Schedule::firstOrCreate(
             [
-                'section_id' => $section->id,
+                'section_id' => $section1->id,
                 'subject_id' => $subject3->id,
                 'teacher_id' => $teacher->id,
                 'term_id' => $term->id,
@@ -190,7 +205,7 @@ class TeacherDashboardSeeder extends Seeder
 
         $schedule4 = Schedule::firstOrCreate(
             [
-                'section_id' => $section->id,
+                'section_id' => $section1->id,
                 'subject_id' => $subject4->id,
                 'teacher_id' => $teacher->id,
                 'term_id' => $term->id,
@@ -202,7 +217,7 @@ class TeacherDashboardSeeder extends Seeder
         StudentEnrollment::updateOrCreate(
             ['student_id' => $student1->id, 'academic_year' => '2025-2026'],
             [
-                'section_id' => $section->id,
+                'section_id' => $section1->id,
                 'enrollment_date' => '2025-09-01',
                 'status' => 'active',
                 'final_result' => 'pending',
@@ -212,7 +227,7 @@ class TeacherDashboardSeeder extends Seeder
         StudentEnrollment::updateOrCreate(
             ['student_id' => $student2->id, 'academic_year' => '2025-2026'],
             [
-                'section_id' => $section->id,
+                'section_id' => $section1->id,
                 'enrollment_date' => '2025-09-01',
                 'status' => 'active',
                 'final_result' => 'pending',
