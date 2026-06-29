@@ -48,7 +48,8 @@ class TeacherScheduleRepository
      */
     public function getWeekSchedule(int $teacherId)
     {
-        $weekDays = ['sun', 'mon', 'tue', 'wed', 'thu'];
+        $weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu'];
+
 
         $schedules = Schedule::where('teacher_id', $teacherId)
             ->whereIn('day', $weekDays)
@@ -63,13 +64,14 @@ class TeacherScheduleRepository
             ->get();
 
         return $schedules->groupBy('day')->mapWithKeys(function ($items, $day) {
-            $dayNames = [
-                'sun' => 'الأحد',
-                'mon' => 'الإثنين',
-                'tue' => 'الثلاثاء',
-                'wed' => 'الأربعاء',
-                'thu' => 'الخميس',
-            ];
+          $dayNames = [
+    'Sun' => 'الأحد',
+    'Mon' => 'الإثنين',
+    'Tue' => 'الثلاثاء',
+    'Wed' => 'الأربعاء',
+    'Thu' => 'الخميس',
+];
+
 
             return [
                 $dayNames[$day] => $items->map(fn ($schedule) => [
