@@ -62,10 +62,12 @@ class AbsenceJustificationController extends Controller
                 'message' => 'تم تحديث طلب الغياب بنجاح',
             ]);
         } catch (\Exception $e) {
+            $statusCode = $e->getCode() >= 400 ? $e->getCode() : 500;
+
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
-            ], 500);
+            ], $statusCode);
         }
     }
 
@@ -82,10 +84,12 @@ class AbsenceJustificationController extends Controller
                 'message' => 'تم حذف طلب الغياب بنجاح',
             ]);
         } catch (\Exception $e) {
+            $statusCode = $e->getCode() >= 400 ? $e->getCode() : 500;
+
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage(),
-            ], 500);
+            ], $statusCode);
         }
     }
 }

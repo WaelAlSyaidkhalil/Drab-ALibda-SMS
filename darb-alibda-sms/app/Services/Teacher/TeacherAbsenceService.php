@@ -52,6 +52,10 @@ class TeacherAbsenceService
      */
     public function updateAbsenceJustification(int $justificationId, array $data, int $reviewerId)
     {
+        if (!$this->repository->findJustification($justificationId)) {
+            throw new \Exception('طلب الغياب غير موجود', 404);
+        }
+
         $updated = $this->repository->updateJustificationStatus($justificationId, [
             'status' => $data['status'],
             'review_note' => $data['review_note'] ?? null,
@@ -59,7 +63,7 @@ class TeacherAbsenceService
         ]);
 
         if (!$updated) {
-            throw new \Exception('فشل تحديث طلب الغياب');
+            throw new \Exception('فشل تحديث طلب الغياب', 500);
         }
 
         return $this->repository->getJustificationById($justificationId);
@@ -70,10 +74,14 @@ class TeacherAbsenceService
      */
     public function deleteAbsenceJustification(int $justificationId)
     {
+        if (!$this->repository->findJustification($justificationId)) {
+            throw new \Exception('طلب الغياب غير موجود', 404);
+        }
+
         $deleted = $this->repository->deleteJustification($justificationId);
 
         if (!$deleted) {
-            throw new \Exception('فشل حذف طلب الغياب');
+            throw new \Exception('فشل حذف طلب الغياب', 500);
         }
 
         return true;

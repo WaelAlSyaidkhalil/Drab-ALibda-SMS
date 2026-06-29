@@ -15,6 +15,7 @@ use App\Http\Controllers\Teacher\AbsenceJustificationController;
 use App\Http\Controllers\Teacher\NewsController;
 use App\Http\Controllers\Teacher\ScheduleController as TeacherScheduleController;
 use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
+use App\Http\Controllers\Teacher\TeacherMarkController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -45,6 +46,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('teacher/news/unread-count', [NewsController::class, 'unreadCount']);
     Route::post('teacher/news/{newsId}/mark-as-read', [NewsController::class, 'markAsRead']);
     Route::post('teacher/news/mark-all-as-read', [NewsController::class, 'markAllAsRead']);
+
+    // ملاحظات المعلم للأهالي
+    Route::get('teacher/parent-notes', [\App\Http\Controllers\Teacher\TeacherNoteController::class, 'index']);
+    Route::post('teacher/parent-notes', [\App\Http\Controllers\Teacher\TeacherNoteController::class, 'store']);
+    Route::post('teacher/parent-notes/{noteId}', [\App\Http\Controllers\Teacher\TeacherNoteController::class, 'update']);
+    Route::post('teacher/parent-notes/delete/{noteId}', [\App\Http\Controllers\Teacher\TeacherNoteController::class, 'destroy']);
+
+    Route::get('teacher/marks/students', [TeacherMarkController::class, 'students']);
+    Route::post('teacher/marks', [TeacherMarkController::class, 'store']);
+    Route::post('teacher/marks/{markId}', [TeacherMarkController::class, 'update']);
+    Route::post('teacher/marks/delete/{markId}', [TeacherMarkController::class, 'destroy']);
 
     Route::post('parent/logout', [AuthController::class, 'logout']);
     Route::post('parent/change-password', [AuthController::class, 'changePassword']);

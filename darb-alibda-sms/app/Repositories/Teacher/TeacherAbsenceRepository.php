@@ -66,6 +66,11 @@ class TeacherAbsenceRepository
         ]);
     }
 
+    public function findJustification(int $justificationId): ?AbsenceJustification
+    {
+        return AbsenceJustification::find($justificationId);
+    }
+
     /**
      * حذف طلب غياب مع مرفقاته
      */
