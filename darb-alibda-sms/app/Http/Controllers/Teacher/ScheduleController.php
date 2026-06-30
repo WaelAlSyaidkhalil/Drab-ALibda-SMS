@@ -34,6 +34,7 @@ class ScheduleController extends Controller
                 'message' => 'تم جلب برنامج اليوم بنجاح',
                 'data' => $schedules,
             ]);
+            
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

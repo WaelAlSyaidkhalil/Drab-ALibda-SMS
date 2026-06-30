@@ -26,16 +26,16 @@ class TeacherAuthService
 
         if (! $user || ! $user->isTeacher() || ! $user->is_active) {
             RateLimiter::hit($this->throttleKey($data['phone'], $ip));
-            event(new TeacherLoginFailed($data['phone'], $ip, 'teacher_not_active_or_not_found'));
+            event(new TeacherLoginFailed($data['phone'], $ip, 'المعلم غير نشط أو غير موجود'));
 
             throw ValidationException::withMessages([
                 'phone' => 'رقم الجوال غير مسجل كمعلم نشط. تأكد من أنك تستخدم بيانات الحساب الصحيحة.',
             ]);
         }
 
-        if (! Hash::check($data['password'], $user->password)) {
+        if ( $data['password']!= $user->password) {
             RateLimiter::hit($this->throttleKey($data['phone'], $ip));
-            event(new TeacherLoginFailed($data['phone'], $ip, 'invalid_password'));
+            event(new TeacherLoginFailed($data['phone'], $ip, 'كلمة المرور خاطئة. حاول مرة أخرى.'));
 
             throw ValidationException::withMessages([
                 'password' => 'كلمة المرور خاطئة. حاول مرة أخرى.',
