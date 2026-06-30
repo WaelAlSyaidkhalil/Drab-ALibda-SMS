@@ -13,5 +13,8 @@ class ViewSchoolClass extends ViewRecord
 
     protected string $view = 'filament.resources.school-classes.view-school-class';
 
-
+    public function getTitle(): string
+    {
+        return $this->record->getTypeName();
+    }
 }

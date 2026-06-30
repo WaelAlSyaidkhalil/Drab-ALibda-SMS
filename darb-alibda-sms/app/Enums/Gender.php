@@ -18,19 +18,8 @@ enum Gender: string
     public function label(): string
     {
         return match($this) {
-            self::MALE => 'ذكر',
-            self::FEMALE => 'أنثى',
-        };
-    }
-
-    /**
-     * الضمير المناسب
-     */
-    public function pronoun(): string
-    {
-        return match($this) {
-            self::MALE => 'هو',
-            self::FEMALE => 'هي',
+            self::MALE => __('dashboard.enums.gender.male'),
+            self::FEMALE => __('dashboard.enums.gender.female'),
         };
     }
 
@@ -43,7 +32,7 @@ enum Gender: string
     {
         return collect(self::cases())
             ->mapWithKeys(fn (self $case) => [
-                $case->value => $case->value,
+                $case->value => $case->label(),
             ])
             ->toArray();
     }

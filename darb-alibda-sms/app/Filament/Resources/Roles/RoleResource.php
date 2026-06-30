@@ -27,18 +27,23 @@ class RoleResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $recordTitleAttribute = 'name';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.user_management');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.roles');
+    }
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->columns(2)
             ->components([
-                TextInput::make('name')
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    ->columnSpan(1),
                 Textarea::make('description')
+                    ->label(__('dashboard.labels.description'))
                     ->columnSpan(2),
             ]);
     }
@@ -48,14 +53,17 @@ class RoleResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(__('dashboard.labels.name'))
+                    ->formatStateUsing(fn($state) => $state->label())
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('description')
+                    ->label(__('dashboard.labels.description'))
                     ->sortable(),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()->modalHeading(fn($record) => __('dashboard.buttons.edit') . ' ' . $record->name->label()),
+                DeleteAction::make()->modalHeading(fn($record) => __('dashboard.buttons.delete') . ' ' . $record->name->label()),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

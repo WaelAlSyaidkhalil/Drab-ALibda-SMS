@@ -4,28 +4,33 @@ namespace App\Filament\Resources\SchoolClasses;
 
 use App\Filament\Resources\SchoolClasses\Pages\ManageSchoolClasses;
 use App\Filament\Resources\SchoolClasses\Pages\ViewSchoolClass;
-use App\Filament\Resources\SchoolClasses\Pages\EditSchoolClass;
 use BackedEnum;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
-use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use App\Models\Academic\SchoolClass;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Actions\ViewAction;
+use Override;
 
 class SchoolClassResource extends Resource
 {
     protected static ?string $model = SchoolClass::class;
 
-    protected static \UnitEnum|string|null $navigationGroup = 'School Management';
-
     protected static string|BackedEnum|null $navigationIcon = Heroicon::AcademicCap;
 
-    protected static ?string $navigationLabel = 'School Classes';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.school_management');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.school_classes');
+    }
+
 
     protected static ?int $navigationSort = 0;
 
@@ -35,6 +40,7 @@ class SchoolClassResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('type')
+                    ->label(__('dashboard.labels.class_type'))
                     ->getStateUsing(fn(SchoolClass $record) => $record->getTypeName())
                     ->sortable()
                     ->searchable(),
@@ -62,4 +68,9 @@ class SchoolClassResource extends Resource
         return static::getModel()::count();
     }
 
+    #[Override]
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.pages.school_classes');
+    }
 }

@@ -13,7 +13,12 @@ class ListStudentEnrollments extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->label(__('dashboard.buttons.create_student_enrollment')),
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.student_enrollments');
     }
 }

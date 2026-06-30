@@ -15,7 +15,7 @@ class ListAttendances extends ListRecords
         ];
     }
 
-    public function getTitle(): string
+public function getTitle(): string
 {
     $date = request('date');
     $classId = request('class_id');
@@ -45,6 +45,6 @@ class ListAttendances extends ListRecords
 
     return $parts
         ? implode('  |  ', $parts)
-        : 'Students Attendance';
+        : __('dashboard.pages.attendance');
 }
 }

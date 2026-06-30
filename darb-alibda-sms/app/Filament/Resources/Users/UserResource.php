@@ -37,39 +37,59 @@ class UserResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.user_management');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.users');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->columns(2)
             ->components([
                 TextInput::make('name')
+                    ->label(__('dashboard.labels.name'))
                     ->required()
                     ->columnSpan(1),
                     
                 TextInput::make('email')
+                    ->label(__('dashboard.labels.email'))
                     ->email()
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->columnSpan(1),
 
                 TextInput::make('phone')
+                    ->label(__('dashboard.labels.phone'))
                     ->tel()
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->columnSpan(1),
 
                 TextInput::make('password')
+                    ->label(__('dashboard.labels.password'))
                     ->minLength(8)
                     ->maxLength(255)
                     ->columnSpan(1),
 
                 Select::make('role_id')
-                    ->relationship('role', 'name')
-                    ->required()
-                    ->columnSpan(1),
+                    ->label(__('dashboard.labels.role'))
+                    ->relationship(
+                        name: 'role',
+                        titleAttribute: 'name',
+                    )
+                    ->getOptionLabelFromRecordUsing(
+                        fn ($record) => $record->name->label()
+                    )
+                    ->required(),
 
                 Toggle::make('is_active')
-                    ->label('Active')
+                    ->label(__('dashboard.labels.active'))
                     ->default(true)
                     ->columnSpanFull(),
             ]);
@@ -80,36 +100,42 @@ class UserResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(__('dashboard.labels.name'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('email')
+                    ->label(__('dashboard.labels.email'))
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('phone')
+                    ->label(__('dashboard.labels.phone'))
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('password'),
+                TextColumn::make('password')
+                    ->label(__('dashboard.labels.password')),
                 TextColumn::make('role.name')
+                    ->label(__('dashboard.labels.role'))
+                    ->formatStateUsing(fn ($state) => $state->label())
                     ->badge()
-                    ->colors([
-                        'success' => UserRole::ADMIN->value,
-                        'warning' => UserRole::STUDENT->value,
-                        'info' => UserRole::TEACHER->value,
-                        'danger' => UserRole::PARENT->value,
-                    ]),
+                    ->colors(UserRole::getColors()),
                 IconColumn::make('is_active')
-                    ->label('Active'),
+                    ->label(__('dashboard.labels.active')),
                 TextColumn::make('created_at')
+                    ->label(__('dashboard.labels.created_at'))
                     ->dateTime()
                     ->sortable()
                 
             ])
             ->filters([
                 Filter::make('is_active')
+                    ->label(__('dashboard.labels.active'))
                     ->query(fn(Builder $query) => $query->where('is_active', true)),
-                SelectFilter::make('role')
+                SelectFilter::make('role_id')
+                    ->label(__('dashboard.labels.role'))
                     ->relationship('role', 'name')
-                    ->label('Role'),
+                    ->getOptionLabelFromRecordUsing(
+                        fn ($record) => $record->name->label()
+                    )
             ])
             ->recordActions([
                 EditAction::make(),

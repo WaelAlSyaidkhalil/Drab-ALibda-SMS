@@ -13,7 +13,12 @@ class ManageStudents extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()
+            CreateAction::make()->label(__('dashboard.buttons.create_student'))->modalHeading(__('dashboard.buttons.create_student'))
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.students_info');
     }
 }

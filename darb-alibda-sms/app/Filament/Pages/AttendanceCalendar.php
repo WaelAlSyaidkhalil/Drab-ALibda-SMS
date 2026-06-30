@@ -22,6 +22,21 @@ class AttendanceCalendar extends Page implements HasForms
 
     protected static ?string $navigationLabel = 'Attendance Calendar';
 
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.attendance_calendar');
+    }
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.student_management');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.attendance_calendar');
+    }
+
     protected static ?int $navigationSort = 10;
 
     protected static bool $shouldRegisterNavigation = true;
@@ -45,7 +60,7 @@ class AttendanceCalendar extends Page implements HasForms
                 // CLASS SELECT (ENUM SAFE)
                 // =========================
                 Select::make('class_id')
-                    ->label('Class')
+                    ->label(__('dashboard.labels.class'))
                     ->options(fn () => SchoolClass::query()
                         ->get()
                         ->mapWithKeys(fn ($class) => [
@@ -63,7 +78,7 @@ class AttendanceCalendar extends Page implements HasForms
                 // SECTION SELECT (DEPENDENT)
                 // =========================
                 Select::make('section_id')
-                    ->label('Section')
+                    ->label(__('dashboard.labels.section'))
                     ->options(fn (callable $get) =>
                         $get('class_id')
                             ? Section::query()

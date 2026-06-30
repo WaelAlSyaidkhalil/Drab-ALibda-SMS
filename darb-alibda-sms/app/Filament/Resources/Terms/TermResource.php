@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Terms;
 
+use App\Enums\TermStatus;
 use App\Filament\Resources\Terms\Pages\ManageTerms;
 use App\Models\Subjects\Term;
 use App\Enums\TermType;
@@ -29,6 +30,16 @@ class TermResource extends Resource
 
     protected static ?string $navigationLabel = 'Terms';
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.school_management');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.terms');
+    }
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::CalendarDays;
 
     protected static ?int $navigationSort = 1;
@@ -38,11 +49,15 @@ class TermResource extends Resource
         return $schema
             ->components([
                 Select::make('type')
-                    ->options(collect(TermType::cases())->mapWithKeys(fn($c) => [$c->value => $c->label()])->toArray())
+                    ->label(__('dashboard.labels.term'))
+                    ->options(TermType::options())
                     ->required(),
-                TextInput::make('academic_year'),
-                DatePicker::make('start_date'),
-                DatePicker::make('end_date'),
+                TextInput::make('academic_year')
+                    ->label(__('dashboard.labels.academic_year')),
+                DatePicker::make('start_date')
+                    ->label(__('dashboard.labels.start_time')),
+                DatePicker::make('end_date')
+                    ->label(__('dashboard.labels.end_time')),
             ]);
     }
 
@@ -51,30 +66,32 @@ class TermResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('term_name')
+                    ->label(__('dashboard.labels.name'))
                     ->sortable(),
 
                 TextColumn::make('academic_year')
+                    ->label(__('dashboard.labels.academic_year'))
                     ->sortable(),
 
-                TextColumn::make('duration'),
+                TextColumn::make('duration')
+                    ->label(__('dashboard.labels.duration')),
 
                 TextColumn::make('days_remaining')
+                    ->label(__('dashboard.labels.days_remaining'))
                     ->state(fn (Term $record) => $record->getDaysRemaining())
                     ->badge()
                     ->color(fn ($state) => $state > 30 ? 'success' : ($state > 0 ? 'warning' : 'danger')),
 
                 TextColumn::make('status')
+                    ->label(__('dashboard.labels.status'))
+                    ->formatStateUsing(fn ($state) => $state->label())
                     ->badge()
-                    ->color(fn (string $state) => match ($state) {
-                        'active' => 'success',
-                        'upcoming' => 'warning',
-                        'completed' => 'gray',
-                        default => 'gray',
-                    })
+                    ->colors(TermStatus::getColors())
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('academic_year')
+                    ->label(__('dashboard.labels.academic_year'))
                     ->options(
                         Term::query()
                             ->select('academic_year')
@@ -85,22 +102,19 @@ class TermResource extends Resource
                 Filter::make('status')
                     ->form([
                         Select::make('status')
-                            ->options([
-                                'active' => 'active',
-                                'upcoming' => 'upcoming',
-                                'completed' => 'completed',
-                            ]),
+                            ->label(__('dashboard.labels.status'))
+                            ->options(TermStatus::options()),
                     ])
                     ->query(function ($query, array $data) {
                         return $query->when($data['status'] ?? null, function ($q, $status) {
 
                             return match ($status) {
-                                'active' => $q->where('start_date', '<=', now())
+                                TermStatus::ACTIVE => $q->where('start_date', '<=', now())
                                             ->where('end_date', '>=', now()),
 
-                                'upcoming' => $q->where('start_date', '>', now()),
+                                TermStatus::UPCOMING => $q->where('start_date', '>', now()),
 
-                                'completed' => $q->where('end_date', '<', now()),
+                                TermStatus::COMPLETED => $q->where('end_date', '<', now()),
 
                                 default => $q,
                             };
@@ -129,5 +143,10 @@ class TermResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('dashboard.pages.term');
     }
 }

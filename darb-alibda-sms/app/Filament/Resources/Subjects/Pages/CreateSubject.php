@@ -9,4 +9,8 @@ class CreateSubject extends CreateRecord
 {
     protected static string $resource = SubjectResource::class;
     
+    public function getTitle(): string
+    {
+        return __('dashboard.buttons.create_subject');
+    }
 }

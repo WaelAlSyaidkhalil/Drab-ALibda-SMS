@@ -13,7 +13,12 @@ class ManageTimeSlots extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()
+            CreateAction::make()->label(__('dashboard.buttons.create_time_slot'))->modalHeading(__('dashboard.buttons.create_time_slot'))
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.time_slots');
     }
 }

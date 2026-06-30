@@ -70,4 +70,9 @@ class CreateNews extends CreateRecord
             ]);
         }
     }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.buttons.create_news');
+    }
 }

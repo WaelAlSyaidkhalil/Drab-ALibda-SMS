@@ -15,4 +15,9 @@ class ManageSuggestions extends ManageRecords
         return [
         ];
     }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.suggestions');
+    }
 }

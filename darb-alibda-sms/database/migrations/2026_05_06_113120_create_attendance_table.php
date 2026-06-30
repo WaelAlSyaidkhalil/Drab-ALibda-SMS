@@ -15,12 +15,12 @@ return new class extends Migration
         Schema::create('attendance', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
-            $table->foreignId('schedule_id')->constrained('schedules')->cascadeOnDelete();
+            $table->foreignId('section_id')->constrained('sections')->cascadeOnDelete();
             $table->date('date');
             $table->enum('status', AttendanceStatus::getValues());
             $table->timestamps();
 
-            $table->unique(['student_id', 'schedule_id', 'date']);
+            $table->unique(['student_id', 'section_id', 'date']);
         });
     }
 

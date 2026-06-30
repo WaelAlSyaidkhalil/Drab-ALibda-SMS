@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Subjects\Pages;
 use App\Filament\Resources\Subjects\SubjectResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ManageRecords;
+use Override;
 
 class ManageSubjects extends ManageRecords
 {
@@ -16,4 +17,5 @@ class ManageSubjects extends ManageRecords
             CreateAction::make(),
         ];
     }
+
 }

@@ -13,7 +13,12 @@ class ManageTerms extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->modalHeading(__('dashboard.buttons.create_term'))->label(__('dashboard.buttons.create_term')),
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.terms');
     }
 }

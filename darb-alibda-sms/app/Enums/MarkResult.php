@@ -9,40 +9,27 @@ namespace App\Enums;
  */
 enum MarkResult: string
 {
-    case PASS = 'pass';       // ناجح
-    case FAIL = 'fail';       // راسب
-    case PENDING = 'pending'; // قيد الانتظار
+    case PASS = 'pass';       
+    case FAIL = 'fail';       
+    case PENDING = 'pending'; 
 
-    /**
-     * الوصف البشري للنتيجة
-     */
+
     public function label(): string
     {
         return match($this) {
-            self::PASS => 'ناجح ✅',
-            self::FAIL => 'راسب ❌',
-            self::PENDING => 'قيد الانتظار ⏳',
+            self::PASS => __('dashboard.enums.mark_result.pass'),
+            self::FAIL => __('dashboard.enums.mark_result.fail'),
+            self::PENDING => __('dashboard.enums.mark_result.pending'),
         };
     }
 
-    /**
-     * اللون المناسب للنتيجة (للـ UI)
-     */
-    public function color(): string
+    public static function getColors(): array
     {
-        return match($this) {
-            self::PASS => 'green',
-            self::FAIL => 'red',
-            self::PENDING => 'yellow',
-        };
-    }
-
-    /**
-     * هل النتيجة نهائية؟
-     */
-    public function isFinal(): bool
-    {
-        return $this !== self::PENDING;
+        return [
+            'success' => self::PASS,
+            'danger' => self::FAIL,
+            'warning' => self::PENDING,
+        ];
     }
 
     public static function getValues(): array
@@ -54,7 +41,7 @@ enum MarkResult: string
     {
         return collect(self::cases())
             ->mapWithKeys(fn (self $case) => [
-                $case->value => $case->value,
+                $case->value => $case->label(),
             ])
             ->toArray();
     }

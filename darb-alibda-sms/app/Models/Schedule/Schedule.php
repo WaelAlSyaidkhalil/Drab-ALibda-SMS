@@ -35,7 +35,6 @@ use Illuminate\Support\Carbon;
  * @property-read Teacher $teacher
  * @property-read Term $term
  * @property-read TimeSlot $timeSlot
- * @property-read Collection $attendance
  */
 class Schedule extends Model
 {
@@ -106,16 +105,6 @@ class Schedule extends Model
     public function timeSlot(): BelongsTo
     {
         return $this->belongsTo(TimeSlot::class);
-    }
-
-    /**
-     * الحضور/الغياب
-     *
-     * @return HasMany
-     */
-    public function attendance(): HasMany
-    {
-        return $this->hasMany(Attendance::class);
     }
 
     // ────── Scopes ──────
@@ -219,27 +208,6 @@ class Schedule extends Model
             ->exists();
     }
 
-    /**
-     * نسبة الحضور (%)
-     *
-     * @return float
-     */
-    public function getAttendancePercentage(): float
-    {
-        $totalStudents = $this->section->enrollments()
-            ->where('status', 'active')
-            ->count();
-
-        if ($totalStudents === 0) {
-            return 0;
-        }
-
-        $presentCount = $this->attendance()
-            ->where('status', 'present')
-            ->count();
-
-        return round(($presentCount / $totalStudents) * 100, 2);
-    }
 
     // ────── Accessors ──────
 

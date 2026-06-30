@@ -15,13 +15,13 @@ enum TimeSlotNumber: int
     public function label(): string
     {
         return match ($this) {
-            self::FIRST => 'الحصة الأولى',
-            self::SECOND => 'الحصة الثانية',
-            self::THIRD => 'الحصة الثالثة',
-            self::FOURTH => 'الحصة الرابعة',
-            self::FIFTH => 'الحصة الخامسة',
-            self::SIXTH => 'الحصة السادسة',
-            self::SEVENTH => 'الحصة السابعة',
+            self::FIRST => __('dashboard.enums.time_slot.first'),
+            self::SECOND => __('dashboard.enums.time_slot.second'),
+            self::THIRD => __('dashboard.enums.time_slot.third'),
+            self::FOURTH => __('dashboard.enums.time_slot.fourth'),
+            self::FIFTH => __('dashboard.enums.time_slot.fifth'),
+            self::SIXTH => __('dashboard.enums.time_slot.sixth'),
+            self::SEVENTH => __('dashboard.enums.time_slot.seventh'),
         };
     }
     

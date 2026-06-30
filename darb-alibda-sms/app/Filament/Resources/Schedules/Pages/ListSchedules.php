@@ -13,7 +13,12 @@ class ListSchedules extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->label(__('dashboard.buttons.create_schedule'))->modalHeading(__('dashboard.buttons.create_schedule')),
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.schedules');
     }
 }

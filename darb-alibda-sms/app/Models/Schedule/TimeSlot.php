@@ -140,7 +140,7 @@ class TimeSlot extends Model
         $minutes = $this->getDurationInMinutes();
 
         if ($minutes < 60) {
-            return "{$minutes} min";
+            return "{$minutes}" . __('dashboard.labels.minutes');
         }
 
         $hours = intdiv($minutes, 60);

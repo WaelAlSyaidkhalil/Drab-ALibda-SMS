@@ -24,11 +24,13 @@ class ComponentsRelationManager extends RelationManager
         return $schema
             ->schema([
                 Select::make('type')
-                    ->options(SubjectComponentType::getWithArabic())
+                    ->label(__('dashboard.labels.component_type'))
+                    ->options(SubjectComponentType::options())
                     ->required()
                     ->native(false),
 
                 TextInput::make('out_of')
+                    ->label(__('dashboard.labels.out_of'))
                     ->numeric()
                     ->required()
                     ->minValue(0)
@@ -56,12 +58,14 @@ class ComponentsRelationManager extends RelationManager
                     ]),
 
                 TextInput::make('order')
+                    ->label(__('dashboard.labels.order'))
                     ->numeric()
                     ->required()
                     ->default(1)
                     ->minValue(1),
 
                 Textarea::make('description')
+                    ->label(__('dashboard.labels.description'))
                     ->rows(3)
                     ->columnSpanFull(),
             ]);
@@ -70,29 +74,35 @@ class ComponentsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->heading( __('dashboard.pages.subject_components'))
             ->defaultSort('order')
             ->columns([
                 TextColumn::make('order')
+                    ->label(__('dashboard.labels.order'))
                     ->sortable(),
 
                 TextColumn::make('type')
+                    ->label(__('dashboard.labels.component_type'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('out_of')
+                    ->label(__('dashboard.labels.out_of'))
                     ->sortable(),
 
                 TextColumn::make('description')
+                    ->label(__('dashboard.labels.description'))
                     ->limit(50)
                     ->toggleable()
-                    ->placeholder('N/A'),
+                    ->placeholder(__('dashboard.labels.not_available')),
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()->label(__('dashboard.buttons.create_subject_component'))->modalHeading(__('dashboard.buttons.create_subject_component')),
             ])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()->modalHeading(__('dashboard.buttons.edit_subject_component')),
+                DeleteAction::make()->modalHeading(__('dashboard.buttons.delete') . ' ' . __('dashboard.pages.subject_component')),
             ]);
     }
+
 }

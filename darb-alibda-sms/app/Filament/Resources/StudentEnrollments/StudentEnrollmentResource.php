@@ -25,6 +25,16 @@ class StudentEnrollmentResource extends Resource
 
     protected static \UnitEnum|string|null $navigationGroup = 'Student Management';
 
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.student_enrollments');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.student_management');
+    }
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::AcademicCap;
 
     protected static ?string $recordTitleAttribute = 'id';
@@ -64,5 +74,10 @@ class StudentEnrollmentResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.pages.student_enrollments');
     }
 }

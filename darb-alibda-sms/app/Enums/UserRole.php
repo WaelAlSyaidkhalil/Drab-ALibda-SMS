@@ -9,42 +9,33 @@ namespace App\Enums;
  */
 enum UserRole: string
 {
-    // الإدارة
     case ADMIN = 'admin';
-    
-    // الطلاب وأولياء الأمور
     case STUDENT = 'student';
     case PARENT = 'parent';
-    
-    // الموظفين
     case TEACHER = 'teacher';
     
-    /**
-     * الوصف البشري للدور
-     */
     public function label(): string
     {
         return match($this) {
-            self::ADMIN => 'مسؤول النظام',
-            self::STUDENT => 'طالب',
-            self::PARENT => 'ولي أمر',
-            self::TEACHER => 'معلم',
+            self::ADMIN => __('dashboard.enums.user_role.admin'),
+            self::STUDENT => __('dashboard.enums.user_role.student'),
+            self::PARENT => __('dashboard.enums.user_role.parent'),
+            self::TEACHER => __('dashboard.enums.user_role.teacher'),
         };
     }
 
-    /**
-     * الأدوار التي لها صلاحيات مرتفعة
-     */
-    public function isAdmin(): bool
+    public static function getValues(): array
     {
-        return $this === self::ADMIN;
+        return array_column(self::cases(), 'value');
     }
 
-    /**
-     * الأدوار التعليمية (معلم + طالب)
-     */
-    public function isEducational(): bool
+    public static function getColors(): array
     {
-        return in_array($this, [self::TEACHER, self::STUDENT]);
+        return [
+            'success' => UserRole::ADMIN,
+            'warning' => UserRole::STUDENT,
+            'info' => UserRole::TEACHER,
+            'danger' => UserRole::PARENT,
+        ];
     }
 }

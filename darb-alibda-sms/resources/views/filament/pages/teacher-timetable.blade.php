@@ -17,7 +17,7 @@
             <!-- HEADER: TIME SLOTS (7 columns) -->
             <thead>
                 <tr>
-                    <th class="day-header">Day</th>
+                    <th class="day-header">{{ __('dashboard.enums.day_of_week.day') }}</th>
 
                     @foreach ($timeSlots as $slot)
                         <th class="slot-header">
@@ -36,7 +36,7 @@
 
                         <!-- DAY COLUMN -->
                         <td class="day-cell">
-                            {{ $day }}
+                            {{ $day->label() }}
                         </td>
 
                         <!-- 7 EMPTY TIME SLOTS -->

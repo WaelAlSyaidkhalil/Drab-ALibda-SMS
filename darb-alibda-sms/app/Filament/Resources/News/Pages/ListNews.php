@@ -14,7 +14,12 @@ class ListNews extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()
+            CreateAction::make()->label(__('dashboard.buttons.create_news'))
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.news');
     }
 }

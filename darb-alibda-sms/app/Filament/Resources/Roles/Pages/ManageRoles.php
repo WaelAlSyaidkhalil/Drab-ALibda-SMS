@@ -12,8 +12,11 @@ class ManageRoles extends ManageRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            CreateAction::make()
-        ];
+        return [];
+    }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.roles');
     }
 }

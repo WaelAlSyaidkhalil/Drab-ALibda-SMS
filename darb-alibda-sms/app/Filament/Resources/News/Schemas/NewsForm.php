@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Communication\NewsResource\Forms;
 
+use App\Enums\AudienceType;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -15,32 +16,31 @@ class NewsForm
     {
         return $schema
             ->schema([
-                Section::make('News Information')
+                Section::make(__('dashboard.labels.news_information'))
                     ->columns(2)
                     ->columnSpanFull()
                     ->schema([
                         TextInput::make('title')
+                            ->label(__('dashboard.labels.title'))
                             ->required()
                             ->maxLength(255),
 
                         Select::make('audience')
+                            ->label(__('dashboard.labels.audience'))
                             ->required()
-                            ->options([
-                                'all' => 'All',
-                                'teachers' => 'Teachers',
-                                'students' => 'Students',
-                                'parents' => 'Parents',
-                            ]),
+                            ->options(AudienceType::options()),
 
                         RichEditor::make('body')
+                            ->label(__('dashboard.labels.body'))
                             ->required()
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Images')
+                Section::make(__('dashboard.labels.images'))
                     ->schema([
 
                         FileUpload::make('images')
+                            ->label(__('dashboard.labels.images'))
                             ->multiple()
                             ->image()
                             ->disk('public')
@@ -51,10 +51,11 @@ class NewsForm
 
                     ]),
 
-                Section::make('Videos')
+                Section::make(__('dashboard.labels.videos'))
                     ->schema([
 
                         FileUpload::make('videos')
+                            ->label(__('dashboard.labels.videos'))
                             ->multiple()
                             ->acceptedFileTypes([
                                 'video/mp4',

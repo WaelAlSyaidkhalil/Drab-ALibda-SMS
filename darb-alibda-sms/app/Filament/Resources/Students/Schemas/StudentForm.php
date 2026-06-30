@@ -18,78 +18,89 @@ class StudentForm
     {
         return $schema
             ->components([
-                Section::make('Student Details')
+                Section::make(__('dashboard.labels.student_details'))
                     ->schema([
                         TextInput::make('first_name')
+                            ->label(__('dashboard.labels.first_name'))
                             ->required()
                             ->maxLength(255),
 
                         TextInput::make('last_name')
+                            ->label(__('dashboard.labels.last_name'))
                             ->required()
                             ->maxLength(255),
 
                         TextInput::make('father_name')
+                            ->label(__('dashboard.labels.father_name'))
                             ->maxLength(255),
 
                         TextInput::make('mother_name')
+                            ->label(__('dashboard.labels.mother_name'))
                             ->maxLength(255),
 
                         Select::make('gender')
+                            ->label(__('dashboard.labels.gender'))
                             ->options(Gender::options())
                             ->required(),
 
                         DatePicker::make('birth_date')
+                            ->label(__('dashboard.labels.birth_date'))
                             ->native(false)
                             ->maxDate(now()),
                     ])->columns(2),
-                Section::make('Parent account Details')
+                Section::make(__('dashboard.labels.parent_account_details'))
                     ->relationship('parent')
                     ->schema([
                         TextInput::make('name')
-                            ->label('Parent name')
+                            ->label(__('dashboard.labels.parent_name'))
                             ->required()
                             ->maxLength(255),
 
                         TextInput::make('phone')
+                            ->label(__('dashboard.labels.phone'))
                             ->required()
                             ->tel()
                             ->unique(ignoreRecord: true)
                             ->maxLength(20),
 
                         TextInput::make('email')
+                            ->label(__('dashboard.labels.email'))
                             ->email()
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
 
                         TextInput::make('password')
+                            ->label(__('dashboard.labels.password'))
                             ->default(fn() => app(GeneratePasswordService::class)->generatePassword()),
                                 
                         Hidden::make('role_id')
                             ->default(4),
                             
                         TextInput::make('role_display')
-                            ->label('Role')
-                            ->placeholder('Parent')
+                            ->label(__('dashboard.labels.role'))
+                            ->placeholder(__(''))
                             ->disabled(),
                     ])->columns(2),
 
-                Section::make('Oficial Details')
+                Section::make(__('dashboard.labels.official_details'))
                     ->schema([
                         TextInput::make('national_id')
+                            ->label(__('dashboard.labels.national_id'))
                             ->unique(ignoreRecord: true)
                             ->maxLength(50),
 
                         TextInput::make('registry_number')
+                            ->label(__('dashboard.labels.registry_number'))
                             ->required()
-                            ->placeholder('Ex: STU001')
+                            ->placeholder(__('dashboard.labels.not_available'))
                             ->unique(ignoreRecord: true)
                             ->maxLength(50),
                     ])->columns(2),
-                Section::make('Status')
+                Section::make(__('dashboard.labels.status'))
                     ->relationship('parent')
                     ->schema([
                         Toggle::make('is_active')
-                            ->label('Is Active')
+                            ->label(__('dashboard.labels.active'))
                             ->default(true),
                     ]),
             ])->columns(1);

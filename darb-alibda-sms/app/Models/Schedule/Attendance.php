@@ -2,18 +2,19 @@
 
 namespace App\Models\Schedule;
 
+use App\Enums\AttendanceStatus;
+use App\Models\Academic\Section;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\Filterable;
 use App\Models\Academic\Student;
-use App\Models\Schedule\Schedule;
 use Illuminate\Support\Carbon;
 
 /**
  * نموذج الحضور والغياب
  *
  * @property int $id
- * @property int $schedule_id          FK → schedules
+ * @property int $section_id          FK → sections
  * @property int $student_id           FK → students
  * @property string $status            حالة الحضور (present, absent, late, excused)
  * @property string|null $reason       سبب الغياب (اختياري)
@@ -21,7 +22,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
- * @property-read Schedule $schedule
+ * @property-read Section $section
  * @property-read Student $student
  */
 class Attendance extends Model
@@ -31,7 +32,7 @@ class Attendance extends Model
     protected $table = 'attendance';
 
     protected $fillable = [
-        'schedule_id',
+        'section_id',
         'student_id',
         'status',
         'reason',
@@ -39,6 +40,7 @@ class Attendance extends Model
     ];
 
     protected $casts = [
+        'status' => AttendanceStatus::class,
         'date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -51,9 +53,9 @@ class Attendance extends Model
      *
      * @return BelongsTo
      */
-    public function schedule(): BelongsTo
+    public function section(): BelongsTo
     {
-        return $this->belongsTo(Schedule::class);
+        return $this->belongsTo(Section::class);
     }
 
     /**
@@ -167,6 +169,25 @@ class Attendance extends Model
     {
         return $this->status === 'late';
     }
+
+        /**
+     * نسبة الحضور (%)
+     *
+     * @return float
+     */
+    public function getAttendancePercentage(): float
+    {
+        $totalStudents = $this->section->enrollments->active()->count();
+
+        if ($totalStudents === 0) {
+            return 0;
+        }
+
+        $presentCount = $this->present()->count();
+
+        return round(($presentCount / $totalStudents) * 100, 2);
+    }
+
 
     // ────── Accessors ──────
 

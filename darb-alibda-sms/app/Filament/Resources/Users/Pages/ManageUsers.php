@@ -13,7 +13,12 @@ class ManageUsers extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make()
+            CreateAction::make()->label(__('dashboard.buttons.create_user'))->modalHeading(__('dashboard.buttons.create_user'))
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.users');
     }
 }

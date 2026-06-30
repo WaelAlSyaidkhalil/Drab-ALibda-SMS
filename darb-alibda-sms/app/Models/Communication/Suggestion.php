@@ -2,6 +2,7 @@
 
 namespace App\Models\Communication;
 
+use App\Enums\SuggestionStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\Filterable;
@@ -17,6 +18,7 @@ use Illuminate\Support\Carbon;
  * @property string $title            عنوان الاقتراح
  * @property string $body             تفاصيل الاقتراح
  * @property bool $is_acknowledged    هل تم إقرار الاقتراح
+ * @property SuggestionStatus $status     حالة الاقتراح (قيد الانتظار، تمت المراجعة، تم القبول، تم الرفض)
  * @property string|null $feedback    التعليق على الاقتراح
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -36,6 +38,7 @@ class Suggestion extends Model
     ];
 
     protected $casts = [
+        'status' => SuggestionStatus::class,
         'is_acknowledged' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

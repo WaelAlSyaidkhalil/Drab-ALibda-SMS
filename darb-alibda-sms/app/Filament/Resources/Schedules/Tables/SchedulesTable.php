@@ -16,36 +16,37 @@ class SchedulesTable
         ->defaultSort('day')
         ->columns([
                 TextColumn::make('term.academic_year_and_term')
-                    ->label('Term')
+                    ->label(__('dashboard.labels.term'))
                     ->sortable(),
                     
                 TextColumn::make('section.full_name')    
+                    ->label(__('dashboard.labels.section'))
                     ->searchable()
                     ->sortable(),    
                                     
                 TextColumn::make('day')
+                ->label(__('dashboard.labels.day'))
+                ->formatStateUsing(fn ($state) => $state->label())
                 ->badge()
-                ->colors([
-                    'danger' => DayOfWeek::SUNDAY,
-                    'gray' => DayOfWeek::MONDAY,
-                    'success' => DayOfWeek::TUESDAY,
-                    'warning' => DayOfWeek::WEDNESDAY,
-                    'info' => DayOfWeek::THURSDAY,
-                ])
+                ->colors(DayOfWeek::getColors())
                 ->sortable(),
 
                 TextColumn::make('timeSlot.full_name')    
+                    ->label(__('dashboard.labels.time_slot'))
                     ->sortable(),
 
                 TextColumn::make('subject.name')    
+                    ->label(__('dashboard.labels.subject'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('teacher.full_name')    
+                    ->label(__('dashboard.labels.teacher'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('created_at')
+                    ->label(__('dashboard.labels.created_at'))
                     ->date()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
@@ -53,8 +54,8 @@ class SchedulesTable
                 //
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make()
+                EditAction::make()->modalHeading(__('dashboard.buttons.edit') . ' ' . __('dashboard.pages.schedule')),
+                DeleteAction::make()->modalHeading(__('dashboard.buttons.delete') . ' ' . __('dashboard.pages.schedule'))
             ])
             ->toolbarActions([
             ]);

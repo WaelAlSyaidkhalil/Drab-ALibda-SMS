@@ -15,7 +15,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Livewire\Component;
 
 class SubjectResource extends Resource
 {
@@ -24,6 +23,16 @@ class SubjectResource extends Resource
     protected static ?string $navigationLabel = 'Subjects';
 
     protected static \UnitEnum|string|null $navigationGroup = 'School Management';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.subjects');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.school_management');
+    }
     
     protected static string|BackedEnum|null $navigationIcon = Heroicon::BookOpen;
 
@@ -62,4 +71,10 @@ class SubjectResource extends Resource
     {
         return static::getModel()::count();
     }
+    
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.pages.subjects');
+    }
 }
+

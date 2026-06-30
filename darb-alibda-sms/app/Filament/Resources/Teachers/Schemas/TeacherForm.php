@@ -20,10 +20,11 @@ class TeacherForm
         return $schema
             ->columns(1)
             ->components([
-                Section::make('Personal Information')
+                Section::make(__('dashboard.labels.personal_information'))
                     ->columns(2)
                     ->schema([
                         TextInput::make('first_name')
+                            ->label(__('dashboard.labels.first_name'))
                             ->required()
                             ->live()
                             ->afterStateUpdated(
@@ -32,6 +33,7 @@ class TeacherForm
                             ),
 
                         TextInput::make('last_name')
+                            ->label(__('dashboard.labels.last_name'))
                             ->required()
                             ->live()
                             ->afterStateUpdated(
@@ -39,103 +41,107 @@ class TeacherForm
                                 $set('user.name', trim($get('first_name') . ' ' . $state))
                             ),
                         TextInput::make('father_name')
-                            ->label('Father Name'),
+                            ->label(__('dashboard.labels.father_name')),
 
                         TextInput::make('mother_name')
-                            ->label('Mother Name'),
+                            ->label(__('dashboard.labels.mother_name')),
 
                         DatePicker::make('birth_date')
-                            ->label('Birth Date')
+                            ->label(__('dashboard.labels.birth_date'))
                             ->native(false)
                             ->maxDate(now()),
 
                         Select::make('gender')
-                            ->label('Gender')
+                            ->label(__('dashboard.labels.gender'))
                             ->options(Gender::options())
                             ->required(),
                     ]),
-                Section::make('Account Details')
+                Section::make(__('dashboard.labels.account_details'))
                     ->columns(2)
                     ->relationship('user')
                     ->schema([
                         TextInput::make('name')
+                            ->label(__('dashboard.labels.name'))
                             ->disabled()
                             ->dehydrated(),
 
                         TextInput::make('phone')
+                            ->label(__('dashboard.labels.phone'))
                             ->required()
                             ->tel()
                             ->unique(ignoreRecord: true)
                             ->maxLength(20),
 
                         TextInput::make('email')
+                            ->label(__('dashboard.labels.email'))
                             ->email()
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
 
                         TextInput::make('password')
+                            ->label(__('dashboard.labels.password'))
                             ->default(fn() => app(GeneratePasswordService::class)->generatePassword()),
 
                         Hidden::make('role_id')
                             ->default(2),
 
                         TextInput::make('role_display')
-                            ->label('Role')
-                            ->placeholder('Teacher')
+                            ->label(__('dashboard.labels.role'))
+                            ->placeholder(__('dashboard.labels.teacher'))
                             ->disabled(),
                     ]),
-                Section::make('Employment Information')
+                Section::make(__('dashboard.labels.employment_information'))
                     ->columns(2)
                     ->schema([
                         TextInput::make('employee_number')
-                            ->label('Employee Number')
+                            ->label(__('dashboard.labels.employee_number'))
                             ->unique(ignoreRecord: true),
 
                         DatePicker::make('hire_date')
-                            ->label('Hire Date'),
+                            ->label(__('dashboard.labels.hire_date')),
 
                         TextInput::make('employment_type')
-                            ->label('Employment Type'),
+                            ->label(__('dashboard.labels.employment_type')),
 
                         TextInput::make('grade')
-                            ->label('Grade'),
+                            ->label(__('dashboard.labels.grade')),
 
                         TextInput::make('specialization')
-                            ->label('Specialization'),
+                            ->label(__('dashboard.labels.specialization')),
 
                         TextInput::make('experience_years')
-                            ->label('Experience Years')
+                            ->label(__('dashboard.labels.experience_years'))
                             ->numeric()
                             ->minValue(0)
                             ->default(0),
                     ]),
-                Section::make('Official Information')
+                Section::make(__('dashboard.labels.official_information'))
                     ->columns(2)
                     ->schema([
                         TextInput::make('registry_number')
-                            ->label('Registry Number'),
+                            ->label(__('dashboard.labels.registry_number')),
 
                         TextInput::make('national_id')
-                            ->label('National ID')
+                            ->label(__('dashboard.labels.national_id'))
                             ->required()
                             ->unique(ignoreRecord: true),
                     ]),
-                Section::make('Contact Information')
+                Section::make(__('dashboard.labels.contact_information'))
                     ->columns(2)
                     ->schema([
                         Textarea::make('address')
-                            ->label('Address')
+                            ->label(__('dashboard.labels.address'))
                             ->columnSpanFull(),
 
                         TextInput::make('phone_alt')
-                            ->label('Alternative Phone')
+                            ->label(__('dashboard.labels.alternative_phone'))
                             ->tel(),
                     ]),
-                Section::make('Status')
+                Section::make(__('dashboard.labels.status'))
                     ->relationship('user')
                     ->schema([
                         Toggle::make('is_active')
-                            ->label('Is Active')
+                            ->label(__('dashboard.labels.active'))
                             ->default(true),
                     ]),
             ]);

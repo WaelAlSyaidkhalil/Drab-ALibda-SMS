@@ -27,6 +27,16 @@ class TimeSlotResource extends Resource
 
     protected static ?string $navigationLabel = 'Time Slots';
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.scheduling');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.time_slots');
+    }
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::Clock;
 
     protected static ?int $navigationSort = 3;
@@ -35,12 +45,12 @@ class TimeSlotResource extends Resource
     {
         return $schema->components([
             TimePicker::make('start_time')
-                ->label('Start Time')
+                ->label(__('dashboard.labels.start_time'))
                 ->seconds(false)
                 ->required(),
 
             TimePicker::make('end_time')
-                ->label('End Time')
+                ->label(__('dashboard.labels.end_time'))
                 ->seconds(false)
                 ->required()
                 ->rule(function (UtilitiesGet $get) {
@@ -56,7 +66,7 @@ class TimeSlotResource extends Resource
                         }
 
                         if ($value <= $startTime) {
-                            $fail('End time must be after start time.');
+                            $fail(__('dashboard.validation.end_time_after_start'));
 
                             return;
                         }
@@ -68,7 +78,7 @@ class TimeSlotResource extends Resource
                             )
                         ) {
                             $fail(
-                                'This time slot overlaps with an existing time slot.'
+                                __('dashboard.validation.overlapping_time_slot')
                             );
                         }
                     };
@@ -80,18 +90,12 @@ class TimeSlotResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('period_number')
-                    ->label('Period')
-                    ->getStateUsing(
-                        fn (TimeSlot $record) =>
-                            $record->period_number instanceof TimeSlotNumber
-                                ? $record->period_number->label()
-                                : TimeSlotNumber::tryFrom($record->period_number)?->label()
-                    )
+                TextColumn::make('full_name')
+                    ->label(__('dashboard.labels.period'))
                     ->sortable(),
 
                 TextColumn::make('display_time')
-                    ->label('Time Range')
+                    ->label(__('dashboard.labels.time_range'))
                     ->getStateUsing(
                         fn (TimeSlot $record) =>
                             $record->start_time->format('H:i') .
@@ -100,7 +104,7 @@ class TimeSlotResource extends Resource
                     ),
 
                 TextColumn::make('duration_display')
-                    ->label('Duration'),
+                    ->label(__('dashboard.labels.duration')),
 
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -108,8 +112,8 @@ class TimeSlotResource extends Resource
             ])
             ->defaultSort('start_time')
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()->modalHeading(__('dashboard.buttons.edit') . ' ' . __('dashboard.pages.time_slot')),
+                DeleteAction::make()->modalHeading(__('dashboard.buttons.delete') . ' ' . __('dashboard.pages.time_slot')),
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),

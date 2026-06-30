@@ -4,6 +4,7 @@ namespace App\Filament\Resources\StudentEnrollments\Tables;
 
 use App\Enums\MarkResult;
 use App\Enums\StudentStatus;
+use App\Models\Academic\Student;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -18,64 +19,61 @@ class StudentEnrollmentsTable
         return $table
             ->columns([
                 TextColumn::make('student.full_name')
+                    ->label(__('dashboard.labels.student'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('section.full_name')
-                    ->label('Class & Section')
+                    ->label(__('dashboard.labels.class_section'))
                     ->sortable(),
 
                 TextColumn::make('academic_year')
+                    ->label(__('dashboard.labels.academic_year'))
                     ->sortable(),
 
                 TextColumn::make('enrollment_date')
+                    ->label(__('dashboard.labels.enrollment_date'))
                     ->date()
                     ->sortable(),
 
                 TextColumn::make('status')
+                    ->label(__('dashboard.labels.status'))
+                    ->formatStateUsing(fn ($state) => $state->label())
                     ->badge()
-                    ->colors([
-                        'success' => StudentStatus::PROMOTED,
-                        'warning' => StudentStatus::GRADUATED,
-                        'info' => StudentStatus::ACTIVE,
-                        'gray' => StudentStatus::REPEATED,
-                        'secondary' => StudentStatus::TRANSFERRED,
-                        'danger' => StudentStatus::WITHDRAWN,
-                    ]),
+                    ->colors(StudentStatus::getColors()),
 
                 TextColumn::make('student_subject_count')
-                    ->label('Subjects count'),
+                    ->label(__('dashboard.labels.subjects_count')),
 
                 TextColumn::make('final_average_display')
-                    ->label('Final average')
+                    ->label(__('dashboard.labels.final_average'))
                     ->sortable()
-                    ->placeholder('N/A'),
+                    ->placeholder(__('dashboard.labels.not_available')),
                 TextColumn::make('final_result')
+                    ->label(__('dashboard.labels.final_result'))
                     ->getStateUsing(fn($record) => $record->final_result)
+                    ->formatStateUsing(fn ($state) => $state?->label())
                     ->badge()
-                    ->colors([
-                        'primary' => MarkResult::PENDING,
-                        'success' => MarkResult::PASS,
-                        'danger' => MarkResult::FAIL,
-                    ]),
+                    ->colors(MarkResult::getColors()),
 
 
                 TextColumn::make('created_at')
+                    ->label(__('dashboard.labels.created_at'))
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('status')
+                    ->label(__('dashboard.labels.status'))
                     ->options(StudentStatus::options()),
 
                 SelectFilter::make('final_result')
+                    ->label(__('dashboard.labels.final_result'))
                     ->options(MarkResult::options()),
 
                 SelectFilter::make('section')
+                    ->label(__('dashboard.labels.section'))
                     ->relationship('section', 'name'),
-
-                SelectFilter::make('student')
-                    ->relationship('student', 'first_name'),
             ])
             ->actions([
                 EditAction::make(),

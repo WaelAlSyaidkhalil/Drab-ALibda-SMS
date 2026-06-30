@@ -15,44 +15,39 @@ enum DayOfWeek: string
     case WEDNESDAY = 'Wed';
     case THURSDAY = 'Thu';
 
-    /**
-     * الوصف البشري لليوم
-     */
     public function label(): string
     {
         return match($this) {
-            self::SUNDAY => 'الأحد',
-            self::MONDAY => 'الإثنين',
-            self::TUESDAY => 'الثلاثاء',
-            self::WEDNESDAY => 'الأربعاء',
-            self::THURSDAY => 'الخميس',
-        };
-    }
-
-    /**
-     * يوم نهاية الأسبوع؟
-     */
-    public function isWeekend(): bool
-    {
-        return false; // في النظام العربي لا يوجد عطلة أسبوعية وسط الأسبوع
-    }
-
-    /**
-     * رقم اليوم (1-5)
-     */
-    public function dayNumber(): int
-    {
-        return match($this) {
-            self::SUNDAY => 1,
-            self::MONDAY => 2,
-            self::TUESDAY => 3,
-            self::WEDNESDAY => 4,
-            self::THURSDAY => 5,
+            self::SUNDAY => __('dashboard.enums.day_of_week.sunday'),
+            self::MONDAY => __('dashboard.enums.day_of_week.monday'),
+            self::TUESDAY => __('dashboard.enums.day_of_week.tuesday'),
+            self::WEDNESDAY => __('dashboard.enums.day_of_week.wednesday'),
+            self::THURSDAY => __('dashboard.enums.day_of_week.thursday'),
         };
     }
 
     public static function getValues(): array
     {
         return array_column(self::cases(), 'value');
+    }
+
+    public static function options(): array
+    {
+        return collect(self::cases())
+            ->mapWithKeys(fn (self $case) => [
+                $case->value => $case->label(),
+            ])
+            ->toArray();
+    }
+
+    public static function getColors(): array
+    {
+        return [
+            'danger' => self::SUNDAY,
+            'gray' => self::MONDAY,
+            'success' => self::TUESDAY,
+            'warning' => self::WEDNESDAY,
+            'info' => self::THURSDAY,
+        ];
     }
 }

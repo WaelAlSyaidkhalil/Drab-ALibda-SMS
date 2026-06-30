@@ -13,7 +13,12 @@ class ManageTeachers extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->label(__('dashboard.buttons.create_teacher'))->modalHeading(__('dashboard.buttons.create_teacher')),
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.teachers');
     }
 }

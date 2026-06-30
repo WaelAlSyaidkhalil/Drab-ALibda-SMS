@@ -10,8 +10,8 @@ enum TermType: string
     public function label(): string
     {
         return match ($this) {
-            self::FIRST_TERM => 'الفصل الأول',
-            self::SECOND_TERM => 'الفصل الثاني',
+            self::FIRST_TERM => __('dashboard.enums.term_type.first_term'),
+            self::SECOND_TERM => __('dashboard.enums.term_type.second_term'),
         };
     }
 
@@ -26,5 +26,14 @@ enum TermType: string
     public static function getValues(): array
     {
         return array_column(self::cases(), 'value');
+    }
+
+    public static function options(): array
+    {
+        return collect(self::cases())
+            ->mapWithKeys(fn (self $case) => [
+                $case->value => $case->label(),
+            ])
+            ->toArray();
     }
 }

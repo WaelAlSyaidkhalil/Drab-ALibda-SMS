@@ -122,4 +122,9 @@ class EditNews extends EditRecord
             ]);
         }
     }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.buttons.edit') . ' ' . __('dashboard.pages.news');
+    }
 }

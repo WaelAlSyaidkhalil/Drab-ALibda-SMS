@@ -20,6 +20,16 @@ class StudentResource extends Resource
 
     protected static \UnitEnum|string|null $navigationGroup = 'Student Management';
 
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.students_info');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.student_management');
+    }
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::UserGroup;
 
     protected static ?string $recordTitleAttribute = 'first_name';

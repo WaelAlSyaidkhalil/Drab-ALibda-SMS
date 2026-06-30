@@ -13,7 +13,13 @@ class ListSubjects extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()->label(__('dashboard.buttons.create_subject')),
         ];
     }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.subjects');
+    }
+
 }

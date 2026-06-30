@@ -19,6 +19,7 @@ class TeachersTable
         return $table
             ->columns([
                 TextColumn::make('full_name')
+                    ->label(__('dashboard.labels.full_name'))
                     ->searchable([
                         'first_name',
                         'father_name',
@@ -27,32 +28,35 @@ class TeachersTable
                     ->sortable(),
 
                 TextColumn::make('gender')
+                    ->label(__('dashboard.labels.gender'))
                     ->formatStateUsing(fn(string $state) => Gender::from($state)->value)
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('specialization')
+                    ->label(__('dashboard.labels.specialization'))
                     ->searchable()
                     ->sortable()
-                    ->placeholder('N/A'),
+                    ->placeholder(__('dashboard.labels.not_available')),
 
                 TextColumn::make('experience_years')
-                    ->label('Experience Years')
+                    ->label(__('dashboard.labels.experience_years'))
                     ->sortable()
-                    ->placeholder('N/A'),
+                    ->placeholder(__('dashboard.labels.not_available')),
                 
                 IconColumn::make('user.is_active')
-                    ->label('Active')
+                    ->label(__('dashboard.labels.active'))
                     ->boolean()
             ])
             ->filters([
                 Filter::make('is_active')
-                    ->label('Active')
+                    ->label(__('dashboard.labels.active'))
                     ->query(fn(Builder $query) => $query->whereHas('user', fn($q) => $q->where('is_active', true))),
                 Filter::make('is_inactive')
-                    ->label('Inactive')
+                    ->label(__('dashboard.labels.inactive'))
                     ->query(fn(Builder $query) => $query->whereHas('user', fn($q) => $q->where('is_active', false))),
                 SelectFilter::make('employment_type')
+                    ->label(__('dashboard.labels.employment_type'))
                     ->options(
                         fn() => Teacher::query()
                             ->whereNotNull('employment_type')
@@ -61,6 +65,7 @@ class TeachersTable
                             ->toArray()
                     ),
                 SelectFilter::make('specialization')
+                    ->label(__('dashboard.labels.specialization'))
                     ->options(
                         fn() => Teacher::query()
                             ->whereNotNull('specialization')
@@ -69,6 +74,7 @@ class TeachersTable
                             ->toArray()
                     ),
                 SelectFilter::make('grade')
+                    ->label(__('dashboard.labels.grade'))
                     ->options(
                         fn() => Teacher::query()
                             ->whereNotNull('grade')
@@ -77,12 +83,12 @@ class TeachersTable
                             ->toArray()
                     ),
                 SelectFilter::make('experience_years')
-                    ->label('Experience Years')
+                    ->label(__('dashboard.labels.experience_years'))
                     ->options([
-                        '0-5' => '0-5 years',
-                        '6-10' => '6-10 years',
-                        '11-20' => '11-20 years',
-                        '21+' => '21+ years',
+                        '0-5' => __('dashboard.labels.years_0_5'),
+                        '6-10' => __('dashboard.labels.years_6_10'),
+                        '11-20' => __('dashboard.labels.years_11_20'),
+                        '21+' => __('dashboard.labels.years_21_plus'),
                     ])
                     ->modifyQueryUsing(function (Builder $query, array $data): Builder {
                         return match ($data['value'] ?? null) {

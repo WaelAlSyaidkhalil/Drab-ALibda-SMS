@@ -8,6 +8,7 @@ enum ComplaintStatus : string
     case IN_PROGRESS = 'in_progress';
     case RESOLVED = 'resolved';
 
+
     public static function getValues(): array
     {
         return [
@@ -17,13 +18,12 @@ enum ComplaintStatus : string
         ];
     }
 
-    public static function label(string $status): string
+    public function label(): string
     {
-        return match($status) {
-            self::PENDING => 'قيد الانتظار',
-            self::IN_PROGRESS => 'قيد المعالجة',
-            self::RESOLVED => 'تم الحل',
-            default => 'غير معروف',
+        return match($this) {
+            self::PENDING => __('dashboard.enums.complaint_status.pending'),
+            self::IN_PROGRESS => __('dashboard.enums.complaint_status.in_progress'),
+            self::RESOLVED => __('dashboard.enums.complaint_status.resolved'),
         };
     }
     
@@ -31,8 +31,17 @@ enum ComplaintStatus : string
     {
         return collect(self::cases())
             ->mapWithKeys(fn (self $case) => [
-                $case->value => $case->value,
+                $case->value => $case->label(),
             ])
             ->toArray();
+    }
+
+    public static function getColors(): array
+    {
+        return [
+            'warning' => self::PENDING,
+            'info' => self::IN_PROGRESS,
+            'success' => self::RESOLVED,
+        ];
     }
 }

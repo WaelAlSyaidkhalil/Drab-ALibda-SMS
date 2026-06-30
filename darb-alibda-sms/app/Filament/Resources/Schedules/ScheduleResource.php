@@ -22,6 +22,21 @@ class ScheduleResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.schedules');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.scheduling');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.schedules');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ScheduleForm::configure($schema);
@@ -49,5 +64,10 @@ class ScheduleResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.pages.schedules');
     }
 }

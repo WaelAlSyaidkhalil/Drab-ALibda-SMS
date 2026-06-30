@@ -260,7 +260,7 @@ class TeacherDashboardSeeder extends Seeder
         Attendance::updateOrCreate(
             [
                 'student_id' => $student1->id,
-                'schedule_id' => $schedule1->id,
+                'section_id' => $section1->id,
                 'date' => Carbon::today()->toDateString(),
             ],
             ['status' => 'present']
@@ -269,7 +269,7 @@ class TeacherDashboardSeeder extends Seeder
         Attendance::updateOrCreate(
             [
                 'student_id' => $student2->id,
-                'schedule_id' => $schedule1->id,
+                'section_id' => $section2->id,
                 'date' => Carbon::today()->toDateString(),
             ],
             ['status' => 'absent']

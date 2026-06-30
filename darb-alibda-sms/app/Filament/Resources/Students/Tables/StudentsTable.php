@@ -18,6 +18,7 @@ class StudentsTable
         return $table
             ->columns([
                 TextColumn::make('full_name')
+                    ->label(__('dashboard.labels.full_name'))
                     ->searchable([
                         'first_name',
                         'father_name',
@@ -26,33 +27,38 @@ class StudentsTable
                     ->sortable(),
 
                 TextColumn::make('registry_number')
+                    ->label(__('dashboard.labels.registry_number'))
                     ->searchable(),
 
                 TextColumn::make('gender')
-                    ->formatStateUsing(fn (string $state) => $state instanceof Gender ? $state->value : $state)
+                    ->label(__('dashboard.labels.gender'))
+                    ->formatStateUsing(fn ($state) => $state->label())
                     ->badge(),
 
                 TextColumn::make('age')
+                    ->label(__('dashboard.labels.age'))
                     ->getStateUsing(fn ($record) => $record->birth_date? now()->diff($record->birth_date)->format('%y') : null)
-                    ->placeholder('N/A')
+                    ->placeholder(__('dashboard.labels.not_available'))
                     ->sortable(),
 
                 TextColumn::make('parent.name')
+                    ->label(__('dashboard.labels.parent_name'))
                     ->searchable()
                     ->toggleable(),
 
                 IconColumn::make('parent.is_active')
                     ->boolean()
-                    ->label('Active')
+                    ->label(__('dashboard.labels.active'))
                     ])
             ->filters([
                 Filter::make('is_active')
-                    ->label('Active')
+                    ->label(__('dashboard.labels.active'))
                     ->query(fn ($query) => $query->whereHas('parent', fn ($q) => $q->where('is_active', true))),
                 Filter::make('is_inactive')
-                    ->label('Inactive')
+                    ->label(__('dashboard.labels.inactive'))
                     ->query(fn ($query) => $query->whereHas('parent', fn ($q) => $q->where('is_active', false))),
                 SelectFilter::make('gender')
+                    ->label(__('dashboard.labels.gender'))
                     ->options(Gender::options()),
             ])
             ->actions([

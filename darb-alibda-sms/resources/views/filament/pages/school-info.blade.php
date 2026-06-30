@@ -3,7 +3,7 @@
         {{ $this->form->columns(2) }}
 
         <x-filament::button type="submit" style="margin-top: 40px; display: block; width: 10%;">
-            Save
+            {{ __('dashboard.buttons.save') }}
         </x-filament::button>
     </form>
 </x-filament-panels::page>

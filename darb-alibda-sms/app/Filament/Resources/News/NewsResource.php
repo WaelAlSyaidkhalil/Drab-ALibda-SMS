@@ -12,6 +12,7 @@ use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Override;
 
 class NewsResource extends Resource
 {
@@ -22,6 +23,16 @@ class NewsResource extends Resource
     protected static \UnitEnum|string|null $navigationGroup = 'Communication';
 
     protected static ?int $navigationSort = 1;
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.communication');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.news');
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -45,6 +56,12 @@ class NewsResource extends Resource
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
+    }
+
+    #[Override]
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.pages.news');
     }
     
 }

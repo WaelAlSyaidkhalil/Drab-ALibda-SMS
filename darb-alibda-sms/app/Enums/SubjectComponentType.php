@@ -8,33 +8,25 @@ enum SubjectComponentType: string
     case ORAL = 'oral';
     case PRACTICAL = 'practical';
 
-    /**
-     * Get Arabic translation for the enum case
-     */
-    public function getArabic(): string
+
+    public function label(): string
     {
-        return match($this) {
-            self::WRITTEN => 'تحريري',
-            self::ORAL => 'شفهي',
-            self::PRACTICAL => 'عملي',
+        return match ($this) {
+            self::WRITTEN => __('dashboard.enums.subject_component_type.written'),
+            self::ORAL => __('dashboard.enums.subject_component_type.oral'),
+            self::PRACTICAL => __('dashboard.enums.subject_component_type.practical'),
         };
     }
 
-    /**
-     * Get all cases with their Arabic translations
-     */
-    public static function getWithArabic(): array
+    public static function getColors(): array
     {
-        $result = [];
-        foreach (self::cases() as $case) {
-            $result[$case->value] = $case->getArabic();
-        }
-        return $result;
+        return [
+            'danger' => self::WRITTEN,
+            'success' => self::ORAL,
+            'info' => self::PRACTICAL,
+        ];
     }
 
-    /**
-     * Get all case values
-     */
     public static function getValues(): array
     {
         return array_column(self::cases(), 'value');
@@ -44,7 +36,7 @@ enum SubjectComponentType: string
     {
         return collect(self::cases())
             ->mapWithKeys(fn (self $case) => [
-                $case->value => $case->getArabic(),
+                $case->value => $case->label(),
             ])
             ->toArray();
     }

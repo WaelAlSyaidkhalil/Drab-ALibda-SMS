@@ -28,6 +28,21 @@ class Timetable extends Page implements HasForms
     protected static \UnitEnum|string|null $navigationGroup = 'Scheduling';
     protected static string|BackedEnum|null $navigationIcon = Heroicon::TableCells;
     protected static ?string $navigationLabel = 'Timetable';
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.timetable');
+    }
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.scheduling');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.timetable');
+    }
     protected static ?int $navigationSort = 2;
 
     public ?array $data = [];
@@ -53,7 +68,7 @@ class Timetable extends Page implements HasForms
         return $schema->components([
 
             Select::make('termId')
-                ->label('Term')
+                ->label(__('dashboard.labels.term'))
                 ->options(Term::all()->mapWithKeys(fn ($t) => [
                     $t->id => $t->academicYearAndTerm,
                 ]))
@@ -65,7 +80,7 @@ class Timetable extends Page implements HasForms
                 })),
 
             Select::make('sectionId')
-                ->label('Section')
+                ->label(__('dashboard.labels.section'))
                 ->options(
                     Section::query()->get()->mapWithKeys(fn ($s) => [
                         $s->id => $s->schoolClass->type->label() . ' - ' . $s->name,
@@ -163,17 +178,17 @@ class Timetable extends Page implements HasForms
     {
         return [
             Action::make('editCell')
-                ->label('Save Schedule')
-                ->modalHeading('Schedule Editor')
+                ->label(__('dashboard.labels.save_schedule'))
+                ->modalHeading(__('dashboard.labels.schedule_editor'))
                 ->form([
                     Select::make('subject_id')
-                        ->label('Subject')
+                        ->label(__('dashboard.labels.subject'))
                         ->options(Subject::pluck('name', 'id'))
                         ->searchable()
                         ->required(),
 
                     Select::make('teacher_id')
-                        ->label('Teacher')
+                        ->label(__('dashboard.labels.teacher'))
                         ->options(Teacher::all()->mapWithKeys(fn ($t) => [
                             $t->id => $t->full_name,
                         ]))
@@ -212,8 +227,8 @@ class Timetable extends Page implements HasForms
     private function notifyMissingContext(): void
     {
         Notification::make()
-            ->title('Missing Selection')
-            ->body('Please select Term and Section first.')
+            ->title(__('dashboard.labels.missing_selection'))
+            ->body(__('dashboard.labels.missing_selection_message'))
             ->danger()
             ->send();
     }

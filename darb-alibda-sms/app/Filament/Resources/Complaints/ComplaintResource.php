@@ -29,15 +29,27 @@ class ComplaintResource extends Resource
 
     protected static ?string $navigationLabel = 'Complaints';
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.feedback_center');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.complaints');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('status')
+                    ->label(__('dashboard.labels.status'))
                     ->options(ComplaintStatus::options())
                     ->required(),
 
                 Textarea::make('response')
+                    ->label(__('dashboard.labels.response'))
                     ->rows(6)
                     ->columnSpanFull(),
 
@@ -49,39 +61,40 @@ class ComplaintResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('title')
+                    ->label(__('dashboard.labels.title'))
                     ->searchable(),
 
                 TextColumn::make('user.name')
-                    ->label('User')
+                    ->label(__('dashboard.labels.user'))
                     ->searchable(),
 
                 TextColumn::make('body')
+                    ->label(__('dashboard.labels.body'))
                     ->limit(50),
 
                 TextColumn::make('response')
+                    ->label(__('dashboard.labels.response'))
                     ->limit(50)
-                    ->placeholder('N/A'),
+                    ->placeholder(__('dashboard.labels.not_available')),
 
                 TextColumn::make('status')
-                    ->label('Status')
-                    ->formatStateUsing(fn ($state) => $state instanceof ComplaintStatus ? $state : ComplaintStatus::tryFrom($state))
+                    ->label(__('dashboard.labels.status'))
+                    ->formatStateUsing(fn ($state) => $state->label())
                     ->badge()
-                    ->colors([
-                        'success' => ComplaintStatus::RESOLVED,
-                        'warning' => ComplaintStatus::PENDING,
-                        'info' => ComplaintStatus::IN_PROGRESS,
-                    ]),
+                    ->colors(ComplaintStatus::getColors()),
 
                 TextColumn::make('created_at')
+                    ->label(__('dashboard.labels.created_at'))
                     ->dateTime(),
 
                 TextColumn::make('resolved_at')
+                    ->label(__('dashboard.labels.resolved_at'))
                     ->dateTime()
-                    ->placeholder('N/A'),
+                    ->placeholder(__('dashboard.labels.not_available')),
             ])
             ->actions([
                 EditAction::make()
-                    ->modalHeading('Update Complaint')
+                    ->modalHeading(__('dashboard.labels.update_complaint'))
                     ->using(function (Complaint $record, array $data): Complaint {
                         if (
                             $data['status'] === ComplaintStatus::RESOLVED->value &&
@@ -102,7 +115,7 @@ class ComplaintResource extends Resource
             ->filters([
                 SelectFilter::make('status')
                     ->options(ComplaintStatus::options())
-                    ->label('Status'),
+                    ->label(__('dashboard.labels.status')),
             ]);
     }
 

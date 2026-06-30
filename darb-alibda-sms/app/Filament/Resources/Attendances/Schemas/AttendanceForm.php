@@ -15,6 +15,7 @@ class AttendanceForm
         return $schema
             ->schema([
                 Select::make('student_id')
+                    ->label(__('dashboard.labels.student'))
                     ->relationship('student', 'first_name')
                     ->getOptionLabelFromRecordUsing(
                         fn ($record) => $record->full_name
@@ -24,16 +25,19 @@ class AttendanceForm
                     ->required(),
 
                 Select::make('status')
+                    ->label(__('dashboard.labels.status'))
                     ->options(AttendanceStatus::options())
                     ->required(),
 
                 DatePicker::make('date')
+                    ->label(__('dashboard.labels.date'))
                     ->required(),
 
                 Textarea::make('reason')
+                    ->label(__('dashboard.labels.reason'))
                     ->columnSpanFull()
                     ->maxLength(500)
-                    ->placeholder('اختياري...'),
+                    ->placeholder(__('dashboard.labels.optional')),
             ]);
         }
 }

@@ -20,6 +20,16 @@ class TeacherResource extends Resource
 
     protected static ?string $navigationLabel = 'Teachers';
 
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.teacher_management');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.teachers');
+    }
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::User;
 
     protected static ?int $navigationSort = 1;

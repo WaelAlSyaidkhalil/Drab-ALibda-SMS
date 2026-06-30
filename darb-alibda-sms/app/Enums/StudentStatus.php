@@ -17,35 +17,28 @@ enum StudentStatus: string
     case WITHDRAWN = 'withdrawn';     // انسحب
 
     
-    /**
-     * الوصف البشري للحالة
-     */
     public function label(): string
     {
         return match($this) {
-            self::ACTIVE => 'مسجّل حالياً',
-            self::PROMOTED => 'نجح وانتقل',
-            self::REPEATED => 'إعادة سنة',
-            self::TRANSFERRED => 'انتقل لمدرسة أخرى',
-            self::GRADUATED => 'تخرج',
-            self::WITHDRAWN => 'انسحب',
+            self::ACTIVE => __('dashboard.enums.student_status.active'),
+            self::PROMOTED => __('dashboard.enums.student_status.promoted'),
+            self::REPEATED => __('dashboard.enums.student_status.repeated'),
+            self::TRANSFERRED => __('dashboard.enums.student_status.transferred'),
+            self::GRADUATED => __('dashboard.enums.student_status.graduated'),
+            self::WITHDRAWN => __('dashboard.enums.student_status.withdrawn'),
         };
     }
 
-    /**
-     * الحالات النشطة (الطالب لا يزال مسجلاً)
-     */
-    public function isActive(): bool
+    public static function getColors(): array
     {
-        return $this === self::ACTIVE;
-    }
-
-    /**
-     * الحالات النهائية (الطالب لن يعود)
-     */
-    public function isFinal(): bool
-    {
-        return in_array($this, [self::TRANSFERRED, self::GRADUATED, self::WITHDRAWN]);
+        return [
+            'success' => self::PROMOTED,
+            'warning' => self::GRADUATED,
+            'info' => self::ACTIVE,
+            'gray' => self::REPEATED,
+            'secondary' => self::TRANSFERRED,
+            'danger' => self::WITHDRAWN,
+        ];
     }
 
     public static function getValues(): array
@@ -57,7 +50,7 @@ enum StudentStatus: string
     {
         return collect(self::cases())
             ->mapWithKeys(fn (self $case) => [
-                $case->value => $case->value,
+                $case->value => $case->label(),
             ])
             ->toArray();
     }

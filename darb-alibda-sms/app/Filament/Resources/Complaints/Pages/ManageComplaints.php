@@ -13,4 +13,9 @@ class ManageComplaints extends ManageRecords
     {
         return [];
     }
+
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.complaints');
+    }
 }

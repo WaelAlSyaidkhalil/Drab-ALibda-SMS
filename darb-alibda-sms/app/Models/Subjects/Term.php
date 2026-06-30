@@ -2,6 +2,7 @@
 
 namespace App\Models\Subjects;
 
+use App\Enums\TermStatus;
 use App\Enums\TermType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -182,17 +183,17 @@ class Term extends Model
      * 
      * @return string
      */
-    public function getStatusAttribute(): string
+    public function getStatusAttribute(): TermStatus
     {
         if ($this->isActive()) {
-            return 'active';
+            return TermStatus::ACTIVE;
         }
 
         if ($this->start_date > now()) {
-            return 'upcoming';
+            return TermStatus::UPCOMING;
         }
 
-        return 'completed';
+        return TermStatus::COMPLETED;
     }
 
     /**

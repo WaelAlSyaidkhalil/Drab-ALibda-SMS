@@ -15,22 +15,27 @@ class SubjectsTable
         return $table
             ->columns([
                 TextColumn::make('name')
+                    ->label(__('dashboard.labels.name'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('code')
+                    ->label(__('dashboard.labels.code'))
                     ->searchable()
                     ->toggleable(),
 
                 TextColumn::make('full_mark')
+                    ->label(__('dashboard.labels.full_mark'))
                     ->sortable()
                     ->alignCenter(),
 
                 TextColumn::make('pass_mark')
+                    ->label(__('dashboard.labels.pass_mark'))
                     ->sortable()
                     ->alignCenter(),
 
                 TextColumn::make('description')
+                    ->label(__('dashboard.labels.description'))
                     ->limit(50)
                     ->toggleable(),
             ])

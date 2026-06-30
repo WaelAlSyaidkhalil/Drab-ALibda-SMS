@@ -18,3 +18,11 @@ Route::get('/test-firebase', function () {
         return "❌ خطأ في الاتصال: " . $e->getMessage();
     }
 });
+
+Route::get('/locale/{locale}', function (string $locale) {
+    abort_unless(in_array($locale, ['en', 'ar']), 404);
+
+    session(['locale' => $locale]);
+
+    return back();
+})->name('locale.switch');

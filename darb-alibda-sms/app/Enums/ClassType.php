@@ -62,6 +62,12 @@ enum ClassType: string
             4 => self::PRIMARY_FOURTH,
             5 => self::PRIMARY_FIFTH,
             6 => self::PRIMARY_SIXTH,
+            7 => self::MIDDLE_FIRST,
+            8 => self::MIDDLE_SECOND,
+            9 => self::MIDDLE_THIRD,
+            10 => self::SECONDARY_FIRST,
+            11 => self::SECONDARY_SECOND,
+            12 => self::SECONDARY_THIRD,
         };
     }
 
@@ -98,9 +104,6 @@ enum ClassType: string
         return array_map(fn(self $type) => $type->value, array_filter(self::cases(), fn(self $type) => $type->stage() === 'ثانوي'));
     }
 
-    /**
-     * Get all case values
-     */
     public static function getValues(): array
     {
         return array_column(self::cases(), 'value');

@@ -10,7 +10,6 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Override;
 
 class AttendanceResource extends Resource
 {
@@ -27,14 +26,12 @@ class AttendanceResource extends Resource
                 $query->whereDate('date', request('date'))
             )
             ->when(request('school_class_id'), fn ($query) =>
-                $query->whereHas('schedule', fn ($schedule) =>
-                    $schedule->where('school_class_id', request('school_class_id'))
+                $query->whereHas('section', fn ($section) =>
+                    $section->where('class_id', request('school_class_id'))
                 )
             )
             ->when(request('section_id'), fn ($query) =>
-                $query->whereHas('schedule', fn ($schedule) =>
-                    $schedule->where('section_id', request('section_id'))
-                )
+                $query->where('section_id', request('section_id'))
             );
     }
 
@@ -63,5 +60,10 @@ class AttendanceResource extends Resource
         return [
             'index' => ListAttendances::route('/'),
         ];
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.pages.attendance');
     }
 }

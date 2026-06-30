@@ -10,7 +10,6 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class SchoolSettings extends Page implements HasForms
@@ -32,6 +31,21 @@ class SchoolSettings extends Page implements HasForms
 
     public ?array $data = [];
 
+    public function getTitle(): string
+    {
+        return __('dashboard.pages.school_info');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('dashboard.navigation.school_management');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('dashboard.pages.school_info');
+    }
+    
     protected function getListeners(): array
     {
         return [
@@ -57,17 +71,22 @@ class SchoolSettings extends Page implements HasForms
         return $schema
             ->components([
                         TextInput::make('name')
+                            ->label(__('dashboard.labels.school_name'))
                             ->required(),
 
-                        TextInput::make('phone'),
+                        TextInput::make('phone')
+                            ->label(__('dashboard.labels.phone')),
 
                         TextInput::make('email')
+                            ->label(__('dashboard.labels.email'))
                             ->email(),
 
                         TextInput::make('website')
+                            ->label(__('dashboard.labels.website'))
                             ->url(),
 
                         Textarea::make('address')
+                            ->label(__('dashboard.labels.address'))
                             ->rows(3),
             ])
             ->statePath('data');

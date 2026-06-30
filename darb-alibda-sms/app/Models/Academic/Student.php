@@ -2,6 +2,7 @@
 
 namespace App\Models\Academic;
 
+use App\Enums\Gender;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -56,6 +57,7 @@ class Student extends Model
     ];
 
     protected $casts = [
+        'gender' => Gender::class,
         'birth_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -153,7 +155,7 @@ class Student extends Model
     public function getCurrentEnrollment(): StudentEnrollment|null
     {
         return $this->enrollments()
-            ->where('status', 'active')
+            ->active()
             ->latest('created_at')
             ->first();
     }
