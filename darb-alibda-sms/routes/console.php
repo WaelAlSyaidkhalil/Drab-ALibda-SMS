@@ -11,3 +11,6 @@ Artisan::command('inspire', function () {
 Schedule::command('school:generate-enrollments')
     ->yearlyOn(9, 1, '00:00')
     ->withoutOverlapping();
+
+Schedule::command('school:fill-attendance-table')
+    ->dailyAt('00:00');
