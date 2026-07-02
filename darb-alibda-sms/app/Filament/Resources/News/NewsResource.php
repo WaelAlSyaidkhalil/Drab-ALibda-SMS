@@ -61,7 +61,7 @@ class NewsResource extends Resource
     #[Override]
     public static function getPluralModelLabel(): string
     {
-        return __('dashboard.pages.news');
+        return __('dashboard.labels.news');
     }
     
 }

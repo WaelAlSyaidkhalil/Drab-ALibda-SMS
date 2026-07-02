@@ -145,6 +145,11 @@ class TermResource extends Resource
         return static::getModel()::count();
     }
 
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.labels.terms');
+    }
+
     public static function getModelLabel(): string
     {
         return __('dashboard.pages.term');

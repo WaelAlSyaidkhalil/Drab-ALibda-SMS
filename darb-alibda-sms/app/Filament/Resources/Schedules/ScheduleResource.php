@@ -68,6 +68,11 @@ class ScheduleResource extends Resource
 
     public static function getPluralModelLabel(): string
     {
-        return __('dashboard.pages.schedules');
+        return __('dashboard.labels.schedules');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('dashboard.pages.schedule');
     }
 }

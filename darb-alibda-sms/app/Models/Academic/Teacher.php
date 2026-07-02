@@ -11,6 +11,7 @@ use App\Models\Traits\Filterable;
 use App\Models\Traits\HasFullName;
 use App\Models\Auth\User;
 use App\Models\Schedule\Schedule;
+use App\Models\Schedule\TeacherAttendance;
 use Illuminate\Support\Carbon;
 
 /**
@@ -72,6 +73,11 @@ class Teacher extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(TeacherAttendance::class);
     }
 
     /**

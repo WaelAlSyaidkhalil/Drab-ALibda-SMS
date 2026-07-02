@@ -126,4 +126,14 @@ class TimeSlotResource extends Resource
             'index' => ManageTimeSlots::route('/'),
         ];
     }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.labels.time_slots');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('dashboard.pages.time_slot');
+    }
 }

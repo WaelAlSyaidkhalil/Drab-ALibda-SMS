@@ -62,4 +62,14 @@ class StudentResource extends Resource
     {
         return static::getModel()::count();
     }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.labels.students');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('dashboard.pages.student');
+    }
 }

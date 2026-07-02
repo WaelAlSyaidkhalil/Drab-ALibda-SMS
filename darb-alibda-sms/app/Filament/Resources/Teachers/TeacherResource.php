@@ -53,8 +53,18 @@ class TeacherResource extends Resource
         ];
     }
 
-        public static function getNavigationBadge(): ?string
-        {
-            return static::getModel()::count();
-        }
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.labels.teachers');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('dashboard.pages.teacher');
+    }
 }

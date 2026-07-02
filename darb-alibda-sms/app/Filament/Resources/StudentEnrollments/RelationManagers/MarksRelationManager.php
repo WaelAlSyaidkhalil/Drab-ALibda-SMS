@@ -131,4 +131,14 @@ class MarksRelationManager extends RelationManager
                 DeleteAction::make()->modalHeading(__('dashboard.buttons.delete') . ' ' . __('dashboard.pages.subject_component_mark')),
             ]);
     }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.labels.subject_component_marks');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('dashboard.pages.subject_component_mark');
+    }
 }

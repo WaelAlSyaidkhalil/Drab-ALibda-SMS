@@ -74,7 +74,7 @@ class SubjectResource extends Resource
     
     public static function getPluralModelLabel(): string
     {
-        return __('dashboard.pages.subjects');
+        return __('dashboard.labels.subjects');
     }
 }
 

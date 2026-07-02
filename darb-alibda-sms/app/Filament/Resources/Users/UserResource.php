@@ -159,4 +159,14 @@ class UserResource extends Resource
     {
         return static::getModel()::count();
     }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.labels.users');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('dashboard.pages.user');
+    }
 }

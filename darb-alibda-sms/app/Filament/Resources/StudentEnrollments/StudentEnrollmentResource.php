@@ -78,6 +78,6 @@ class StudentEnrollmentResource extends Resource
 
     public static function getPluralModelLabel(): string
     {
-        return __('dashboard.pages.student_enrollments');
+        return __('dashboard.labels.student_enrollments');
     }
 }

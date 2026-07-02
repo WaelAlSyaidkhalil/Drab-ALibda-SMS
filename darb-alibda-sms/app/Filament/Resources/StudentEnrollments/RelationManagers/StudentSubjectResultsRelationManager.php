@@ -99,4 +99,14 @@ class StudentSubjectResultsRelationManager extends RelationManager
                 DeleteAction::make()->modalHeading(__('dashboard.buttons.delete') . ' ' . __('dashboard.pages.subject_result')),
             ]);
     }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.labels.subject_results');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('dashboard.pages.subject_result');
+    }
 }

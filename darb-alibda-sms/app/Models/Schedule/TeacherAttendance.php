@@ -3,39 +3,34 @@
 namespace App\Models\Schedule;
 
 use App\Enums\AttendanceStatus;
-use App\Models\Academic\Section;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\Filterable;
-use App\Models\Academic\Student;
+use App\Models\Academic\Teacher;
 use Illuminate\Support\Carbon;
 
 /**
  * نموذج الحضور والغياب
  *
  * @property int $id
- * @property int $section_id          FK → sections
- * @property int $student_id           FK → students
+ * @property int $teacher_id           FK → teachers
  * @property string $status            حالة الحضور (present, absent, late, excused)
  * @property string|null $reason       سبب الغياب (اختياري)
  * @property Carbon|null $date تاريخ الحصة
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
- * @property-read Section $section
- * @property-read Student $student
+ * @property-read Teacher $teacher
  */
-class Attendance extends Model
+class TeacherAttendance extends Model
 {
     use Filterable;
 
-    protected $table = 'attendance';
+    protected $table = 'teacher_attendance';
 
     protected $fillable = [
-        'section_id',
-        'student_id',
+        'teacher_id',
         'status',
-        'reason',
         'date',
     ];
 
@@ -48,24 +43,15 @@ class Attendance extends Model
 
     // ────── العلاقات ──────
 
-    /**
-     * الحصة
-     *
-     * @return BelongsTo
-     */
-    public function section(): BelongsTo
-    {
-        return $this->belongsTo(Section::class);
-    }
 
     /**
-     * الطالب
+     * المعلم
      *
      * @return BelongsTo
      */
-    public function student(): BelongsTo
+    public function teacher(): BelongsTo
     {
-        return $this->belongsTo(Student::class);
+        return $this->belongsTo(Teacher::class);
     }
 
     // ────── Scopes ──────
@@ -127,21 +113,21 @@ class Attendance extends Model
     }
 
     /**
-     * البحث عن الطالب
+     * البحث عن المعلم
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $studentId
+     * @param int $teacherId
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeForStudent($query, int $studentId)
+    public function scopeForTeacher($query, int $teacherId)
     {
-        return $query->where('student_id', $studentId);
+        return $query->where('teacher_id', $teacherId);
     }
 
     // ────── Methods ──────
 
     /**
-     * التحقق من أن الطالب حاضر
+     * التحقق من أن المعلم حاضر
      *
      * @return bool
      */
@@ -151,7 +137,7 @@ class Attendance extends Model
     }
 
     /**
-     * التحقق من أن الطالب غائب
+     * التحقق من أن المعلم غائب
      *
      * @return bool
      */
@@ -161,7 +147,7 @@ class Attendance extends Model
     }
 
     /**
-     * التحقق من أن الطالب متأخر
+     * التحقق من أن المعلم متأخر
      *
      * @return bool
      */
@@ -170,23 +156,25 @@ class Attendance extends Model
         return $this->status === 'late';
     }
 
-        /**
+    /**
      * نسبة الحضور (%)
      *
      * @return float
      */
     public function getAttendancePercentage(): float
     {
-        $totalStudents = $this->section->enrollments->active()->count();
+        $totalTeachers = self::query()->whereHas('teacher', function ($q) {
+            $q->whereHas('user', function ($q) {
+                $q->where('is_active', true);
+            });
+        })->count();
 
-        if ($totalStudents === 0) {
+        if ($totalTeachers === 0) {
             return 0;
         }
 
-        $presentCount = $this->present()->count();
+        $presentCount = self::query()->where('date', today())->present()->count();
 
-        return round(($presentCount / $totalStudents) * 100, 2);
+        return round(($presentCount / $totalTeachers) * 100, 2);
     }
-
-
 }

@@ -70,4 +70,14 @@ trait HasAcademicYear
         // الفصل الثاني: 1-8 (يناير - أغسطس)
         return $month >= 9 ? 1 : 2;
     }
+
+    public static function changeAcademicYear(int $step): string
+    {
+        $currentYear = self::getCurrentAcademicYear();
+        $year = explode('-', $currentYear);
+        $year[0] += $step;
+        $year[1] += $step;
+
+        return "{$year[0]}-{$year[1]}";
+    }
 }

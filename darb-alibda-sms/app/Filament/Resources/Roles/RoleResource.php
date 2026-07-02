@@ -79,4 +79,14 @@ class RoleResource extends Resource
             'index' => ManageRoles::route('/'),
         ];
     }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.labels.roles');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('dashboard.pages.role');
+    }
 }

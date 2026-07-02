@@ -125,4 +125,14 @@ class SuggestionResource extends Resource
     {
         return static::getModel()::count();
     }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.labels.suggestions');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('dashboard.pages.suggestion');
+    }
 }
