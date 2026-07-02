@@ -6,9 +6,11 @@ use App\Enums\AudienceType;
 use App\Enums\AttendanceStatus;
 use App\Enums\ClassType;
 use App\Enums\ComplaintStatus;
+use App\Enums\DayOfWeek;
 use App\Enums\MarkResult;
 use App\Enums\StudentStatus;
 use App\Enums\SuggestionStatus;
+use App\Enums\TermType;
 use App\Models\Academic\SchoolClass;
 use App\Models\Academic\Section;
 use App\Models\Academic\Student;
@@ -21,8 +23,11 @@ use App\Models\Communication\News;
 use App\Models\Communication\Suggestion;
 use App\Models\Grading\StudentSubjectResult;
 use App\Models\Schedule\Attendance;
+use App\Models\Schedule\Schedule;
 use App\Models\Schedule\TeacherAttendance;
+use App\Models\Schedule\TimeSlot;
 use App\Models\Subjects\Subject;
+use App\Models\Subjects\Term;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -37,8 +42,8 @@ class AdminSeeder extends Seeder
 
         $admin = $this->createAdminUser($roles['admin']);
         $classes = $this->createSchoolStructure();
-        $subjects = $this->createSubjects();
         $teachers = $this->createTeachers($roles['teacher']);
+        $subjects = $this->createSubjects();
         $parents = $this->createParents($roles['parent']);
         $students = $this->createStudents($roles['student'], $parents);
         $student_enrollments = $this->createEnrollments($students, $classes);
@@ -47,6 +52,9 @@ class AdminSeeder extends Seeder
         $this->createCommunicationSamples($admin);
         $this->createNewsSamples($admin);
         $this->createSubjectResults($student_enrollments, $subjects);
+        $this->createTimeSlots();
+        $this->createTerms();
+        $this->createSchedules($teachers, $subjects, $classes);
     }
 
     private function createRoles(): array
@@ -123,6 +131,8 @@ class AdminSeeder extends Seeder
                 [
                     'name' => $subject['name'],
                     'description' => $subject['description'],
+                    'teacher_id' => Teacher::inRandomOrder()->value('id'),
+                    'class_id' => SchoolClass::inRandomOrder()->value('id'),
                     'pass_mark' => 50,
                     'full_mark' => 100,
                     'code' => $subject['code'],
@@ -141,6 +151,8 @@ class AdminSeeder extends Seeder
                     'pass_mark' => 50,
                     'full_mark' => 100,
                     'code' => $code,
+                    'teacher_id' => Teacher::inRandomOrder()->value('id'),
+                    'class_id' => SchoolClass::inRandomOrder()->value('id'),
                 ]
             );
         }
@@ -421,5 +433,66 @@ class AdminSeeder extends Seeder
                 ]
             );
         }
+    }
+
+    private function createTimeSlots(): void
+    {
+        $timeSlots = [
+            ['start_time' => '08:00:00', 'end_time' => '09:00:00'],
+            ['start_time' => '09:15:00', 'end_time' => '10:15:00'],
+            ['start_time' => '10:30:00', 'end_time' => '11:30:00'],
+            ['start_time' => '11:45:00', 'end_time' => '12:45:00'],
+            ['start_time' => '13:00:00', 'end_time' => '14:00:00'],
+        ];
+
+        foreach ($timeSlots as $slot) {
+            TimeSlot::updateOrCreate(
+                ['start_time' => $slot['start_time'], 'end_time' => $slot['end_time']],
+                [
+                    'start_time' => $slot['start_time'],
+                    'end_time' => $slot['end_time'],
+                ]
+            );
+        }
+    }
+
+    public function createTerms(): void
+    {
+        $terms = [
+            ['type' => TermType::FIRST_TERM->value, 'start_date' => '2025-09-01', 'end_date' => '2025-12-31', 'academic_year' => '2025-2026'],
+            ['type' => TermType::SECOND_TERM->value, 'start_date' => '2026-01-01', 'end_date' => '2026-05-31', 'academic_year' => '2026-2027'],
+        ];
+
+        foreach ($terms as $term) {
+            Term::updateOrCreate(
+                ['type' => $term['type']],
+                [
+                    'type' => $term['type'],
+                    'start_date' => $term['start_date'],
+                    'end_date' => $term['end_date'],
+                    'academic_year' => $term['academic_year'],
+                ]
+            );
+        }
+    }
+
+    public function createSchedules(Collection $teachers, Collection $subjects, Collection $classes): void
+    {
+        Schedule::updateOrCreate(
+            [
+                'section_id' => Section::inRandomOrder()->value('id'),
+                'subject_id' => Subject::inRandomOrder()->value('id'),
+                'term_id' => Term::inRandomOrder()->value('id'),
+                'day' => DayOfWeek::MONDAY,
+                'time_slot_id' => TimeSlot::inRandomOrder()->value('id'),
+            ],
+            [
+                'section_id' => Section::inRandomOrder()->value('id'),
+                'subject_id' => Subject::inRandomOrder()->value('id'),
+                'term_id' => Term::inRandomOrder()->value('id'),
+                'day' => DayOfWeek::SUNDAY,
+                'time_slot_id' => TimeSlot::inRandomOrder()->value('id'),
+            ]
+        );
     }
 }

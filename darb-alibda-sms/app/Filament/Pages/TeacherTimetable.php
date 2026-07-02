@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Enums\DayOfWeek;
+use App\Models\Academic\SchoolClass;
 use App\Models\Academic\Section;
 use App\Models\Academic\Teacher;
 use App\Models\Schedule\Schedule;
@@ -116,7 +117,9 @@ class TeacherTimetable extends Page implements HasForms, HasActions
 
         $schedules = Schedule::query()
             ->where('term_id', $this->termId)
-            ->where('teacher_id', $this->teacherId)
+            ->whereHas('subject', function ($query) {
+                $query->where('teacher_id', $this->teacherId);
+            })
             ->with(['subject', 'section'])
             ->get();
 
@@ -172,9 +175,12 @@ class TeacherTimetable extends Page implements HasForms, HasActions
             return $grid;
         }
 
-        $schedules = Schedule::forTeacher($this->teacherId)
-            ->where('term_id', $termId)
-            ->with(['subject', 'section.schoolClass'])
+        $schedules = Schedule::query()
+            ->where('term_id', $this->termId)
+            ->whereHas('subject', function ($query) {
+                $query->where('teacher_id', $this->teacherId);
+            })
+            ->with(['subject', 'section'])
             ->get();
 
         foreach ($schedules as $schedule) {
@@ -199,7 +205,9 @@ class TeacherTimetable extends Page implements HasForms, HasActions
 
         $schedule = Schedule::query()
             ->where('term_id', $this->termId)
-            ->where('teacher_id', $this->teacherId)
+            ->whereHas('subject', function ($query) {
+                $query->where('teacher_id', $this->teacherId);
+            })
             ->where('day', $day)
             ->where('time_slot_id', $slotId)
             ->first();
@@ -219,15 +227,13 @@ class TeacherTimetable extends Page implements HasForms, HasActions
                 ->label(__('dashboard.labels.save_schedule'))
                 ->modalHeading(__('dashboard.labels.schedule_editor'))
                 ->schema([
-                    Select::make('subject_id')
-                        ->label(__('dashboard.labels.subject'))
-                        ->options(Subject::pluck('name', 'id'))
-                        ->searchable()
-                        ->required(),
-
                     Select::make('section_id')
                         ->label(__('dashboard.labels.section'))
-                        ->options(Section::all()->mapwithKeys(fn ($section) => [
+                        ->options(Section::whereHas('schoolClass', function ($classQuery) {
+                            $classQuery->whereHas('subjects', function ($subjectQuery) {
+                                $subjectQuery->where('teacher_id', $this->teacherId);
+                            });
+                        })->get()->mapWithKeys(fn ($section) => [
                             $section->id => $section->full_name,
                         ]))
                         ->searchable()
@@ -238,12 +244,11 @@ class TeacherTimetable extends Page implements HasForms, HasActions
                     Schedule::updateOrCreate(
                         [
                             'term_id' => $this->termId,
-                            'teacher_id' => $this->teacherId,
                             'day' => $this->selectedDay,
                             'time_slot_id' => $this->selectedSlotId,
                         ],
                         [
-                            'subject_id' => $data['subject_id'],
+                            'subject_id' => Subject::where('teacher_id', $this->teacherId)->where('class_id', Section::find($data['section_id'])->class_id)->value('id'),
                             'section_id' => $data['section_id'],
                         ]
                     );

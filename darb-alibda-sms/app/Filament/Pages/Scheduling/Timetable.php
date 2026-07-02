@@ -110,14 +110,14 @@ class Timetable extends Page implements HasForms
         $schedules = Schedule::query()
             ->where('term_id', $this->termId)
             ->where('section_id', $this->sectionId)
-            ->with(['subject', 'teacher'])
+            ->with(['subject', 'subject.teacher'])
             ->get();
 
         foreach ($schedules as $schedule) {
             $this->grid[$schedule->day->value][$schedule->time_slot_id] = [
                 'id' => $schedule->id,
                 'subject' => $schedule->subject?->name,
-                'teacher' => $schedule->teacher?->full_name,
+                'teacher' => $schedule->subject?->teacher?->full_name,
                 'subject_id' => $schedule->subject_id,
                 'teacher_id' => $schedule->teacher_id,
             ];
@@ -186,14 +186,6 @@ class Timetable extends Page implements HasForms
                         ->options(Subject::pluck('name', 'id'))
                         ->searchable()
                         ->required(),
-
-                    Select::make('teacher_id')
-                        ->label(__('dashboard.labels.teacher'))
-                        ->options(Teacher::all()->mapWithKeys(fn ($t) => [
-                            $t->id => $t->full_name,
-                        ]))
-                        ->searchable()
-                        ->required(),
                 ])
                 ->action(function (array $data) {
 
@@ -206,7 +198,7 @@ class Timetable extends Page implements HasForms
                         ],
                         [
                             'subject_id' => $data['subject_id'],
-                            'teacher_id' => $data['teacher_id'],
+                            'teacher_id' => Subject::find($data['subject_id'])->teacher_id,
                         ]
                     );
 

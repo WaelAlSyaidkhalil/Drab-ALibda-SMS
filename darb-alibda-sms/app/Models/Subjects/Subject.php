@@ -8,13 +8,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\Traits\Filterable;
 use App\Models\Academic\SchoolClass;
+use App\Models\Academic\Teacher;
 use App\Models\Subjects\SubjectComponent;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
  * نموذج المادة الدراسية
  *
  * @property int $id
+ * @property int|null $class_id        FK → classes
+ * @property int|null $teacher_id      FK → teachers
  * @property string $name              اسم المادة (رياضيات، عربي...)
  * @property string|null $description  وصف المادة
  * @property int|null $pass_mark       الحد الأدنى للنجاح (افتراضياً 50)
@@ -33,6 +37,8 @@ class Subject extends Model
 
     protected $fillable = [
         'name',
+        'class_id',
+        'teacher_id',
         'description',
         'pass_mark',
         'full_mark',
@@ -58,19 +64,19 @@ class Subject extends Model
         return $this->hasMany(SubjectComponent::class);
     }
 
+    public function teacher(): BelongsTo
+    {
+        return $this->belongsTo(Teacher::class);
+    }
+
     /**
      * الصفوف التي تُدرس فيها هذه المادة
      *
-     * @return BelongsToMany
+     * @return BelongsTo
      */
-    public function schoolClasses(): BelongsToMany
+    public function schoolClass(): BelongsTo
     {
-        return $this->belongsToMany(
-            SchoolClass::class,
-            'class_subject',
-            'subject_id',
-            'class_id'
-        );
+        return $this->belongsTo(SchoolClass::class, 'class_id');
     }
 
     /**

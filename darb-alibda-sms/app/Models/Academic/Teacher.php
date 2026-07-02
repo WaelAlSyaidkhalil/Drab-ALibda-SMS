@@ -12,6 +12,7 @@ use App\Models\Traits\HasFullName;
 use App\Models\Auth\User;
 use App\Models\Schedule\Schedule;
 use App\Models\Schedule\TeacherAttendance;
+use App\Models\Subjects\Subject;
 use Illuminate\Support\Carbon;
 
 /**
@@ -50,7 +51,7 @@ class Teacher extends Model
         'employee_number',
         'hire_date',
         'employment_type',
-        'grade',
+        'class_id',
         'address',
         'phone_alt',
         'experience_years',
@@ -73,6 +74,11 @@ class Teacher extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function subjects(): HasMany
+    {
+        return $this->hasMany(Subject::class);
     }
 
     public function attendances(): HasMany

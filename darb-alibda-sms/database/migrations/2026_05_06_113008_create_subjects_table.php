@@ -17,6 +17,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->integer('pass_mark')->default(50);
             $table->integer('full_mark')->default(100);
+            $table->foreignId('class_id')->constrained('classes');
+            $table->foreignId('teacher_id')->constrained('teachers');
+            $table->integer('num_of_weekly_hours')->default(0);
             $table->string('code')->unique();
             $table->timestamps();
         });

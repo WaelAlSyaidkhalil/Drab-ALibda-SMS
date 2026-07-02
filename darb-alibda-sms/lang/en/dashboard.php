@@ -212,6 +212,7 @@ return [
         'users' => 'Users',
         'top_students' => 'Top Students',
         'section_success_rate' => 'Section Success Rate',
+        'subject_components' => 'Subject Components',
     ],
 
     'buttons' => [

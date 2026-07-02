@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Subjects\Schemas;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
@@ -23,7 +24,24 @@ class SubjectForm
                         TextInput::make('code')
                             ->label(__('dashboard.labels.code'))
                             ->maxLength(50)
-                            ->unique(ignoreRecord: true),
+                            ->unique(ignoreRecord: true)
+                            ->required(),
+
+                        Select::make('class_id')
+                            ->label(__('dashboard.labels.class'))
+                            ->relationship('schoolClass', 'type')
+                            ->getOptionLabelFromRecordUsing(fn($record) => $record->type->label())
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        
+                        Select::make('teacher_id')
+                            ->label(__('dashboard.labels.teacher'))
+                            ->relationship('teacher', 'full_name')
+                            ->getOptionLabelFromRecordUsing(fn($record) => $record->full_name)
+                            ->searchable()
+                            ->preload()
+                            ->required(),
 
                         TextInput::make('full_mark')
                             ->label(__('dashboard.labels.full_mark'))

@@ -4,10 +4,8 @@ namespace App\Models\Schedule;
 
 use App\Enums\DayOfWeek;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Traits\Filterable;
 use App\Models\Traits\HasStatus;
 use App\Models\Academic\Section;
@@ -23,7 +21,6 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $section_id           FK → sections
  * @property int $subject_id           FK → subjects
- * @property int $teacher_id           FK → teachers
  * @property int $term_id              FK → terms
  * @property int $time_slot_id         FK → time_slots
  * @property DayOfWeek $day            يوم الأسبوع (sun, mon, tue...)
@@ -43,7 +40,6 @@ class Schedule extends Model
     protected $fillable = [
         'section_id',
         'subject_id',
-        'teacher_id',
         'term_id',
         'time_slot_id',
         'day',
@@ -77,15 +73,6 @@ class Schedule extends Model
         return $this->belongsTo(Subject::class);
     }
 
-    /**
-     * المعلم
-     *
-     * @return BelongsTo
-     */
-    public function teacher(): BelongsTo
-    {
-        return $this->belongsTo(Teacher::class);
-    }
 
     /**
      * الفصل الدراسي
@@ -134,17 +121,6 @@ class Schedule extends Model
         return $query->where('day', $dayValue);
     }
 
-    /**
-     * البحث حسب المعلم
-     *
-     * @param Builder $query
-     * @param int $teacherId
-     * @return Builder
-     */
-    public function scopeForTeacher($query, int $teacherId)
-    {
-        return $query->where('teacher_id', $teacherId);
-    }
 
     /**
      * البحث حسب الفصل الدراسي

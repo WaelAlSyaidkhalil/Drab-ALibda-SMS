@@ -54,16 +54,11 @@ class SchoolClass extends Model
     /**
      * المواد التي تُدرس في هذا الصف
      *
-     * @return BelongsToMany
+     * @return HasMany
      */
-    public function subjects(): BelongsToMany
+    public function subjects(): HasMany
     {
-        return $this->belongsToMany(
-            Subject::class,
-            'class_subject',
-            'class_id',
-            'subject_id'
-        );
+        return $this->hasMany(Subject::class, 'class_id');
     }
 
     // ────── Scopes ──────

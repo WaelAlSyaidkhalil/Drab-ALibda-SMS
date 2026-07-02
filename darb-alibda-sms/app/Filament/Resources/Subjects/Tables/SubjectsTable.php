@@ -24,6 +24,20 @@ class SubjectsTable
                     ->searchable()
                     ->toggleable(),
 
+                TextColumn::make('schoolClass.type')
+                    ->label(__('dashboard.labels.class'))
+                    ->formatStateUsing(fn($state) => $state->label())
+                    ->sortable(),
+
+                TextColumn::make('teacher.full_name')
+                    ->label(__('dashboard.labels.teacher'))
+                    ->searchable([
+                        'first_name',
+                        'father_name',
+                        'last_name',
+                    ])
+                    ->sortable(),
+
                 TextColumn::make('full_mark')
                     ->label(__('dashboard.labels.full_mark'))
                     ->sortable()

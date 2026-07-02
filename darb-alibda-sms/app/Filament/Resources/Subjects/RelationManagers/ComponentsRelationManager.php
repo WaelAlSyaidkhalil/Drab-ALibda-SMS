@@ -104,5 +104,14 @@ class ComponentsRelationManager extends RelationManager
                 DeleteAction::make()->modalHeading(__('dashboard.buttons.delete') . ' ' . __('dashboard.pages.subject_component')),
             ]);
     }
-
+    
+    public static function getModelLabel(): string
+    {
+        return __('dashboard.pages.subject_component');
+    }
+    
+    public static function getPluralModelLabel(): string
+    {
+        return __('dashboard.labels.subject_components');
+    }
 }

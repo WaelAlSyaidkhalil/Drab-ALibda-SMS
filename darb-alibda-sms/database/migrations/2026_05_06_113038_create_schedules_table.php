@@ -17,7 +17,6 @@ return new class extends Migration
 
             $table->foreignId('section_id')->constrained('sections')->cascadeOnDelete();
             $table->foreignId('subject_id')->constrained('subjects')->cascadeOnDelete();
-            $table->foreignId('teacher_id')->constrained('teachers')->cascadeOnDelete();
             $table->foreignId('term_id')->constrained('terms')->cascadeOnDelete();
 
             // ✅ ربط الحصة بفترة زمنية ثابتة على مستوى المدرسة
@@ -29,14 +28,11 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // 📈 فهرس للأداء
-            $table->index(['section_id', 'teacher_id']);
-
             // 🔒 منع تضارب الجدول الدراسي:
 
             // 1️⃣ المعلم لا يمكن أن يكون في حصتين في نفس الوقت
             $table->unique(
-                ['teacher_id', 'term_id', 'day', 'time_slot_id'],
+                ['subject_id', 'term_id', 'day', 'time_slot_id'],
                 'unique_teacher_per_slot'
             );
 

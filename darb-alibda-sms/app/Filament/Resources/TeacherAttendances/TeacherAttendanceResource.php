@@ -24,6 +24,9 @@ class TeacherAttendanceResource extends Resource
     protected static ?string $navigationLabel = 'Teacher Attendance';
 
     protected static ?int $navigationSort = 10;
+    
+    protected static bool $shouldRegisterNavigation = false;
+
 
     public static function getNavigationGroup(): ?string
     {

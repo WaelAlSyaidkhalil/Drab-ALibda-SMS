@@ -80,7 +80,7 @@ return [
         'term' => 'الفصل',
         'section' => 'الشعبة',
         'subject' => 'المادة',
-        'class' => 'الفصل',
+        'class' => 'الصف',
         'start_time' => 'وقت البداية',
         'end_time' => 'وقت النهاية',
         'period' => 'الفترة',
@@ -213,6 +213,7 @@ return [
         'users' => 'مستخدمون',
         'top_students' => 'طلاب أوائل',
         'section_success_rate' => 'معدل النجاح حسب الشعبة',
+        'subject_components' => 'مكوّنات مادة',
     ],
 
     'buttons' => [
