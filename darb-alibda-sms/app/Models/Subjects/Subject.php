@@ -24,6 +24,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $pass_mark       الحد الأدنى للنجاح (افتراضياً 50)
  * @property int|null $full_mark       العلامة الكاملة للمادة (افتراضياً 100)
  * @property string|null $code         رمز المادة (MAT001)
+ * @property int num_of_weekly_hours عدد ساعات المادة الأسبوعية
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
@@ -43,6 +44,7 @@ class Subject extends Model
         'pass_mark',
         'full_mark',
         'code',
+        'num_of_weekly_hours',
     ];
 
     protected $ts = [

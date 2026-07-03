@@ -213,6 +213,8 @@ return [
         'top_students' => 'Top Students',
         'section_success_rate' => 'Section Success Rate',
         'subject_components' => 'Subject Components',
+        'timetable_generated' => 'Timetable Generated successfully',
+        'timetable_generation_failed' => 'Timetable Generation failed'
     ],
 
     'buttons' => [
@@ -221,6 +223,7 @@ return [
         'delete' => 'Delete',
         'acknowledge' => 'Acknowledge',
         'create_section' => 'Create Section',
+        'generate_timetable' => 'Generate Timetable',
         'create_term' => 'Create Term',
         'create_subject' => 'Create Subject',
         'create_subject_component' => 'Create Subject Component',

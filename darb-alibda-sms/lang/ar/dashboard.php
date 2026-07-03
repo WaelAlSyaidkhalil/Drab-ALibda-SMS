@@ -214,12 +214,15 @@ return [
         'top_students' => 'طلاب أوائل',
         'section_success_rate' => 'معدل النجاح حسب الشعبة',
         'subject_components' => 'مكوّنات مادة',
+        'timetable_generated' => 'تم إنشاء برنامج أسبوعي بنجاح',
+        'timetable_generation_failed' => 'لا يمكن إنشاء برنامج أسبوعي'
     ],
 
     'buttons' => [
         'save' => 'حفظ',
         'update' => 'تحديث',
         'delete' => 'حذف',
+        'generate_timetable' => 'إنشاء برنامج أسبوعي',
         'acknowledge' => 'إقرار',
         'create_section' => 'إنشاء شعبة',
         'create_term' => 'إنشاء فصل',

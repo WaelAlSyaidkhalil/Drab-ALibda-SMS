@@ -73,7 +73,10 @@
             </tbody>
 
         </table>
+    </div>
 
+    <div class="mt-6">
+        <button class="generate-timetable-button" wire:click="generateTimetableUsingORTools">{{ __('dashboard.buttons.generate_timetable') }}</button>
     </div>
 
     {{-- ================= STYLES ================= --}}
@@ -177,6 +180,20 @@
             background: var(--gray-800);
         }
 
+        .generate-timetable-button {
+            background-color: var(--primary-600);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .generate-timetable-button:hover {
+            background-color: var(--primary-700);
+        }
     </style>
 
 </x-filament-panels::page>

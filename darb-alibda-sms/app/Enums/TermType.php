@@ -23,6 +23,14 @@ enum TermType: string
         };
     }
 
+    public static function getTermUsingNum($number): ?self
+    {
+        return match ($number) {
+            1 => self::FIRST_TERM,
+            2 => self::SECOND_TERM,
+        };
+    }
+
     public static function getValues(): array
     {
         return array_column(self::cases(), 'value');

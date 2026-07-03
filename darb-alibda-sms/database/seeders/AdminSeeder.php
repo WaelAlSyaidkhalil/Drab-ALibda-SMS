@@ -54,7 +54,6 @@ class AdminSeeder extends Seeder
         $this->createSubjectResults($student_enrollments, $subjects);
         $this->createTimeSlots();
         $this->createTerms();
-        $this->createSchedules($teachers, $subjects, $classes);
     }
 
     private function createRoles(): array
@@ -86,9 +85,8 @@ class AdminSeeder extends Seeder
     {
         $classTypes = [
             ClassType::PRIMARY_FIRST,
-            ClassType::PRIMARY_FOURTH,
-            ClassType::MIDDLE_SECOND,
-            ClassType::SECONDARY_FIRST,
+            ClassType::PRIMARY_SECOND,
+
         ];
 
         foreach ($classTypes as $classType) {
@@ -118,45 +116,26 @@ class AdminSeeder extends Seeder
 
     private function createSubjects(): \Illuminate\Database\Eloquent\Collection
     {
-        $subjects = [
-            ['name' => 'اللغة العربية', 'code' => 'AR', 'description' => 'مادة اللغة العربية'],
-            ['name' => 'الرياضيات', 'code' => 'MA', 'description' => 'مادة الرياضيات'],
-            ['name' => 'العلوم', 'code' => 'SC', 'description' => 'مادة العلوم'],
-            ['name' => 'اللغة الإنجليزية', 'code' => 'EN', 'description' => 'مادة اللغة الإنجليزية'],
-        ];
 
-        foreach ($subjects as $subject) {
-            Subject::updateOrCreate(
-                ['code' => $subject['code']],
-                [
-                    'name' => $subject['name'],
-                    'description' => $subject['description'],
-                    'teacher_id' => Teacher::inRandomOrder()->value('id'),
-                    'class_id' => SchoolClass::inRandomOrder()->value('id'),
-                    'pass_mark' => 50,
-                    'full_mark' => 100,
-                    'code' => $subject['code'],
-                ]
-            );
+        $subjects = ['الرياضيات', 'اللغة العربية', 'العلوم', 'اللغة الإنجليزية', 'التاريخ', 'الجغرافيا', 'الفيزياء', 'الكيمياء', 'الأحياء', 'التربية البدنية', 'الديانة'];
+        $numOfWeeklyHours = [6, 5, 3, 4, 2, 2, 3, 3, 3, 2, 2];
+        for ($i = 1; $i <= 11; $i++) {
+            for ($j = 1; $j <= 2; $j++) {
+                Subject::updateOrCreate(
+                    ['code' => 'SUB' . $i . '_C' . $j],
+                    [
+                        'name' => $subjects[$i - 1],
+                        'description' => 'مادة ' . $subjects[$i - 1],
+                        'teacher_id' => $i,
+                        'class_id' => $j,
+                        'pass_mark' => 50,
+                        'full_mark' => 100,
+                        'code' => 'SUB' . $i . '_C' . $j,
+                        'num_of_weekly_hours' => $numOfWeeklyHours[$i - 1],
+                    ]
+                );
+            }
         }
-
-        for ($i = 1; $i <= 6; $i++) {
-            $code = 'SUB-' . str_pad((string) $i, 2, '0', STR_PAD_LEFT);
-
-            Subject::updateOrCreate(
-                ['code' => $code],
-                [
-                    'name' => 'مادة تجريبية ' . $i,
-                    'description' => 'مادة إضافية رقم ' . $i,
-                    'pass_mark' => 50,
-                    'full_mark' => 100,
-                    'code' => $code,
-                    'teacher_id' => Teacher::inRandomOrder()->value('id'),
-                    'class_id' => SchoolClass::inRandomOrder()->value('id'),
-                ]
-            );
-        }
-
         return Subject::all();
     }
 
@@ -168,6 +147,12 @@ class AdminSeeder extends Seeder
             ['first' => 'ريم', 'last' => 'الحسان', 'specialization' => 'science'],
             ['first' => 'أحمد', 'last' => 'الطائي', 'specialization' => 'english'],
             ['first' => 'نورة', 'last' => 'السبتي', 'specialization' => 'history'],
+            ['first' => 'خالد', 'last' => 'الزهراني', 'specialization' => 'geography'],
+            ['first' => 'هند', 'last' => 'العتيبي', 'specialization' => 'physics'],
+            ['first' => 'عبدالله', 'last' => 'الحربي', 'specialization' => 'chemistry'],
+            ['first' => 'ليلى', 'last' => 'الشمري', 'specialization' => 'biology'],
+            ['first' => 'سلمان', 'last' => 'الراشد', 'specialization' => 'physical_education'],
+            ['first' => 'فاطمة', 'last' => 'الخالدي', 'specialization' => 'religion'],
         ];
 
         $teachers = collect([]);
@@ -438,11 +423,13 @@ class AdminSeeder extends Seeder
     private function createTimeSlots(): void
     {
         $timeSlots = [
-            ['start_time' => '08:00:00', 'end_time' => '09:00:00'],
-            ['start_time' => '09:15:00', 'end_time' => '10:15:00'],
-            ['start_time' => '10:30:00', 'end_time' => '11:30:00'],
-            ['start_time' => '11:45:00', 'end_time' => '12:45:00'],
-            ['start_time' => '13:00:00', 'end_time' => '14:00:00'],
+            ['start_time' => '08:00:00', 'end_time' => '08:45:00'],
+            ['start_time' => '08:45:00', 'end_time' => '09:30:00'],
+            ['start_time' => '09:30:00', 'end_time' => '10:15:00'],
+            ['start_time' => '10:30:00', 'end_time' => '11:15:00'],
+            ['start_time' => '11:15:00', 'end_time' => '12:00:00'],
+            ['start_time' => '12:15:00', 'end_time' => '13:00:00'],
+            ['start_time' => '13:00:00', 'end_time' => '13:45:00'],
         ];
 
         foreach ($timeSlots as $slot) {
@@ -460,7 +447,7 @@ class AdminSeeder extends Seeder
     {
         $terms = [
             ['type' => TermType::FIRST_TERM->value, 'start_date' => '2025-09-01', 'end_date' => '2025-12-31', 'academic_year' => '2025-2026'],
-            ['type' => TermType::SECOND_TERM->value, 'start_date' => '2026-01-01', 'end_date' => '2026-05-31', 'academic_year' => '2026-2027'],
+            ['type' => TermType::SECOND_TERM->value, 'start_date' => '2026-01-01', 'end_date' => '2026-05-31', 'academic_year' => '2025-2026'],
         ];
 
         foreach ($terms as $term) {
@@ -476,23 +463,4 @@ class AdminSeeder extends Seeder
         }
     }
 
-    public function createSchedules(Collection $teachers, Collection $subjects, Collection $classes): void
-    {
-        Schedule::updateOrCreate(
-            [
-                'section_id' => Section::inRandomOrder()->value('id'),
-                'subject_id' => Subject::inRandomOrder()->value('id'),
-                'term_id' => Term::inRandomOrder()->value('id'),
-                'day' => DayOfWeek::MONDAY,
-                'time_slot_id' => TimeSlot::inRandomOrder()->value('id'),
-            ],
-            [
-                'section_id' => Section::inRandomOrder()->value('id'),
-                'subject_id' => Subject::inRandomOrder()->value('id'),
-                'term_id' => Term::inRandomOrder()->value('id'),
-                'day' => DayOfWeek::SUNDAY,
-                'time_slot_id' => TimeSlot::inRandomOrder()->value('id'),
-            ]
-        );
-    }
 }
