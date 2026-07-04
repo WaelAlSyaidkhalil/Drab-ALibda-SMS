@@ -46,7 +46,10 @@ class ComplaintResource extends Resource
                 Select::make('status')
                     ->label(__('dashboard.labels.status'))
                     ->options(ComplaintStatus::options())
-                    ->required(),
+                    ->required()
+                    ->validationMessages([
+                        'required' => __('validation.custom.status.required'),
+                    ]),
 
                 Textarea::make('response')
                     ->label(__('dashboard.labels.response'))

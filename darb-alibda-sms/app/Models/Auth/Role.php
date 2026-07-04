@@ -12,7 +12,7 @@ use App\Models\Traits\Filterable;
  * يمثل أدوار المستخدمين في النظام (إدارة، معلم، طالب، ولي أمر)
  * 
  * @property int $id
- * @property string $name              الاسم (admin, teacher, student, parent)
+ * @property UserRole $name              الاسم (admin, teacher, student, parent)
  * @property string|null $description  وصف الدور
  * @property \Illuminate\Support\Carbon $created_at
  * @property \Illuminate\Support\Carbon $updated_at

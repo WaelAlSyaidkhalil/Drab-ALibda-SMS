@@ -215,7 +215,8 @@ return [
         'section_success_rate' => 'معدل النجاح حسب الشعبة',
         'subject_components' => 'مكوّنات مادة',
         'timetable_generated' => 'تم إنشاء برنامج أسبوعي بنجاح',
-        'timetable_generation_failed' => 'لا يمكن إنشاء برنامج أسبوعي'
+        'timetable_generation_failed' => 'لا يمكن إنشاء برنامج أسبوعي',
+        'password_confirmation' => 'تأكيد كلمة المرور',
     ],
 
     'buttons' => [

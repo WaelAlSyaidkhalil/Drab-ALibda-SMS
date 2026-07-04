@@ -51,13 +51,25 @@ class TermResource extends Resource
                 Select::make('type')
                     ->label(__('dashboard.labels.term'))
                     ->options(TermType::options())
-                    ->required(),
+                    ->required()
+                    ->validationMessages([
+                        'required' => __('validation.custom.type.required'),
+                    ]),
                 TextInput::make('academic_year')
-                    ->label(__('dashboard.labels.academic_year')),
+                    ->label(__('dashboard.labels.academic_year'))
+                    ->validationMessages([
+                        'required' => __('validation.custom.academic_year.required'),
+                    ]),
                 DatePicker::make('start_date')
-                    ->label(__('dashboard.labels.start_time')),
+                    ->label(__('dashboard.labels.start_time'))
+                    ->validationMessages([
+                        'date' => __('validation.custom.start_date.date'),
+                    ]),
                 DatePicker::make('end_date')
-                    ->label(__('dashboard.labels.end_time')),
+                    ->label(__('dashboard.labels.end_time'))
+                    ->validationMessages([
+                        'date' => __('validation.custom.end_date.date'),
+                    ]),
             ]);
     }
 

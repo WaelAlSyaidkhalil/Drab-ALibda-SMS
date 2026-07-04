@@ -214,7 +214,8 @@ return [
         'section_success_rate' => 'Section Success Rate',
         'subject_components' => 'Subject Components',
         'timetable_generated' => 'Timetable Generated successfully',
-        'timetable_generation_failed' => 'Timetable Generation failed'
+        'timetable_generation_failed' => 'Timetable Generation failed',
+        'password_confirmation' => 'Password Confirmation',
     ],
 
     'buttons' => [

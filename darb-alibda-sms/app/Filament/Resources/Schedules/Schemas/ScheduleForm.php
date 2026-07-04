@@ -20,19 +20,28 @@ class ScheduleForm
                     )
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->validationMessages([
+                        'required' => __('validation.custom.term_id.required'),
+                    ]),
 
                 Select::make('section_id')
                 ->label(__('dashboard.labels.section'))
                 ->relationship('section', 'name')
                 ->searchable()
                 ->preload()
-                ->required(),
+                ->required()
+                ->validationMessages([
+                    'required' => __('validation.custom.section_id.required'),
+                ]),
 
                 Select::make('day')
                     ->label(__('dashboard.labels.day'))
                     ->options(DayOfWeek::options())
-                    ->required(),
+                    ->required()
+                    ->validationMessages([
+                        'required' => __('validation.custom.day.required'),
+                    ]),
 
                 Select::make('time_slot_id')
                     ->label(__('dashboard.labels.time_slot'))
@@ -46,7 +55,10 @@ class ScheduleForm
                     ->relationship('subject', 'name')
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->validationMessages([
+                        'required' => __('validation.custom.subject_id.required'),
+                    ]),
 
                 Select::make('teacher_id')
                     ->label(__('dashboard.labels.teacher'))
@@ -56,7 +68,10 @@ class ScheduleForm
                     )
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->validationMessages([
+                        'required' => __('validation.custom.teacher_id.required'),
+                    ]),
 
             ])
             ->columns(2);

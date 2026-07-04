@@ -28,11 +28,11 @@ use App\Models\Schedule\TeacherAttendance;
 use App\Models\Schedule\TimeSlot;
 use App\Models\Subjects\Subject;
 use App\Models\Subjects\Term;
+use App\Services\Admin\GeneratePasswordService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
-use Nette\Utils\Random;
 
 class AdminSeeder extends Seeder
 {
@@ -166,7 +166,7 @@ class AdminSeeder extends Seeder
                     'phone' => '050' . str_pad((string) ($index + 1) . '000000', 7, '0', STR_PAD_LEFT),
                     'role_id' => $teacherRole->id,
                     'is_active' => true,
-                    'password' => Hash::make('password'),
+                    'password' => app(GeneratePasswordService::class)->generatePassword(),
                 ]
             );
 
@@ -232,7 +232,7 @@ class AdminSeeder extends Seeder
                     'phone' => '053' . str_pad((string) ($i + 1), 7, '0', STR_PAD_LEFT),
                     'role_id' => $parentRole->id,
                     'is_active' => true,
-                    'password' => Hash::make('password'),
+                    'password'=> app(GeneratePasswordService::class)->generatePassword(),
                 ]
             );
 
@@ -268,7 +268,7 @@ class AdminSeeder extends Seeder
                     'phone' => '054' . str_pad((string) ($index + 1), 7, '0', STR_PAD_LEFT),
                     'role_id' => $studentRole->id,
                     'is_active' => true,
-                    'password' => Hash::make('password'),
+                    'password' => app(GeneratePasswordService::class)->generatePassword(),
                 ]
             );
 

@@ -23,16 +23,26 @@ class NewsForm
                         TextInput::make('title')
                             ->label(__('dashboard.labels.title'))
                             ->required()
+                            ->validationMessages([
+                                'required' => __('validation.custom.title.required'),
+                                'max' => __('validation.custom.title.max'),
+                            ])
                             ->maxLength(255),
 
                         Select::make('audience')
                             ->label(__('dashboard.labels.audience'))
                             ->required()
+                            ->validationMessages([
+                                'required' => __('validation.custom.audience.required'),
+                            ])
                             ->options(AudienceType::options()),
 
                         RichEditor::make('body')
                             ->label(__('dashboard.labels.body'))
                             ->required()
+                            ->validationMessages([
+                                'required' => __('validation.custom.body.required'),
+                            ])
                             ->columnSpanFull(),
                     ]),
 

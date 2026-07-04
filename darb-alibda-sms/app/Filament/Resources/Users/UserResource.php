@@ -55,13 +55,21 @@ class UserResource extends Resource
                 TextInput::make('name')
                     ->label(__('dashboard.labels.name'))
                     ->required()
+                    ->validationMessages([
+                        'required' => __('validation.custom.name.required'),
+                    ])
                     ->columnSpan(1),
-                    
+
                 TextInput::make('email')
                     ->label(__('dashboard.labels.email'))
                     ->email()
                     ->required()
                     ->unique(ignoreRecord: true)
+                    ->validationMessages([
+                        'required' => __('validation.custom.email.required'),
+                        'email' => __('validation.custom.email.email'),
+                        'unique' => __('validation.custom.email.unique'),
+                    ])
                     ->columnSpan(1),
 
                 TextInput::make('phone')
@@ -69,12 +77,11 @@ class UserResource extends Resource
                     ->tel()
                     ->required()
                     ->unique(ignoreRecord: true)
-                    ->columnSpan(1),
-
-                TextInput::make('password')
-                    ->label(__('dashboard.labels.password'))
-                    ->minLength(8)
-                    ->maxLength(255)
+                    ->validationMessages([
+                        'required' => __('validation.custom.phone.required'),
+                        'unique' => __('validation.custom.phone.unique'),
+                        'regex' => __('validation.custom.phone.tel'),
+                    ])
                     ->columnSpan(1),
 
                 Select::make('role_id')
@@ -86,11 +93,45 @@ class UserResource extends Resource
                     ->getOptionLabelFromRecordUsing(
                         fn ($record) => $record->name->label()
                     )
-                    ->required(),
+                    ->required()
+                    ->validationMessages([
+                        'required' => __('validation.custom.role_id.required'),
+                    ]),
+
+                TextInput::make('password')
+                    ->label(__('dashboard.labels.password'))
+                    ->password()
+                    ->formatStateUsing(fn ($state) => '')
+                    ->dehydrateStateUsing(fn ($state, $record) => $record->role->name === UserRole::ADMIN ? Hash::make($state) : $state)
+                    ->minLength(8)
+                    ->maxLength(255)
+                    ->validationMessages([
+                        'min' => __('validation.custom.password.min'),
+                        'max' => __('validation.custom.password.max'),
+                    ])
+                    ->columnSpan(1),
+
+                TextInput::make('password_confirmation')
+                    ->label(__('dashboard.labels.password_confirmation'))
+                    ->dehydrated(false)
+                    ->password()
+                    ->same('password')
+                    ->minLength(8)
+                    ->maxLength(255)
+                    ->columnSpan(1)
+                    ->requiredWith('password')
+                    ->validationMessages([
+                        'same' => __('validation.custom.password_confirmation.same'),
+                        'min' => __('validation.custom.password_confirmation.min'),
+                        'max' => __('validation.custom.password_confirmation.max'),
+                    ]),
 
                 Toggle::make('is_active')
                     ->label(__('dashboard.labels.active'))
                     ->default(true)
+                    ->validationMessages([
+                        'boolean' => __('validation.custom.is_active.boolean'),
+                    ])
                     ->columnSpanFull(),
             ]);
     }
@@ -112,7 +153,8 @@ class UserResource extends Resource
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('password')
-                    ->label(__('dashboard.labels.password')),
+                    ->label(__('dashboard.labels.password'))
+                    ->formatStateUsing(fn ($state, $record) => $record->role->name === UserRole::ADMIN ? '********' : $state),
                 TextColumn::make('role.name')
                     ->label(__('dashboard.labels.role'))
                     ->formatStateUsing(fn ($state) => $state->label())

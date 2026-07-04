@@ -24,7 +24,10 @@ class StudentEnrollmentForm
                 )
                 ->searchable()
                 ->preload()
-                ->required(),
+                ->required()
+                ->validationMessages([
+                    'required' => __('validation.custom.student_id.required'),
+                ]),
 
             Select::make('section_id')
                 ->label(__('dashboard.labels.section'))
@@ -34,39 +37,61 @@ class StudentEnrollmentForm
                 )
                 ->searchable()
                 ->preload()
-                ->required(),
+                ->required()
+                ->validationMessages([
+                    'required' => __('validation.custom.section_id.required'),
+                ]),
 
             TextInput::make('academic_year')
                 ->label(__('dashboard.labels.academic_year'))
                 ->required()
-                ->maxLength(20),
+                ->maxLength(20)
+                ->validationMessages([
+                    'required' => __('validation.custom.academic_year.required'),
+                    'max' => __('validation.custom.academic_year.max'),
+                ]),
 
             DatePicker::make('enrollment_date')
                 ->label(__('dashboard.labels.enrollment_date'))
-                ->required(),
+                ->required()
+                ->validationMessages([
+                    'required' => __('validation.custom.enrollment_date.required'),
+                ]),
 
             Select::make('status')
                 ->label(__('dashboard.labels.status'))
                 ->options(StudentStatus::options())
-                ->required(),
+                ->required()
+                ->validationMessages([
+                    'required' => __('validation.custom.status.required'),
+                ]),
 
             Select::make('final_result')
                 ->label(__('dashboard.labels.final_result'))
                 ->options(MarkResult::options())
                 ->default('pending')
                 ->disabled()
-                ->required(),
+                ->required()
+                ->validationMessages([
+                    'required' => __('validation.custom.final_result.required'),
+                ]),
 
             TextInput::make('final_average')
                 ->label(__('dashboard.labels.final_average'))
                 ->numeric()
                 ->disabled()
-                ->suffix('%'),
+                ->suffix('%')
+                ->validationMessages([
+                    'numeric' => __('validation.custom.final_average.numeric'),
+                ]),
             
 
             Textarea::make('notes')
                 ->label(__('dashboard.labels.notes'))
-                ->columnSpanFull(),
+                ->columnSpanFull()
+                ->validationMessages([
+                    'max' => __('validation.custom.notes.max'),
+                ])
             ]);
     }
 }

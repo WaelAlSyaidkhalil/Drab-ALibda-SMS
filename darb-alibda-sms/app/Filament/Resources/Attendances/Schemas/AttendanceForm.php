@@ -22,21 +22,33 @@ class AttendanceForm
                     )
                     ->searchable()
                     ->preload()
-                    ->required(),
+                    ->required()
+                    ->validationMessages([
+                        'required' => __('validation.custom.student_id.required'),
+                    ]),
 
                 Select::make('status')
                     ->label(__('dashboard.labels.status'))
                     ->options(AttendanceStatus::options())
-                    ->required(),
+                    ->required()
+                    ->validationMessages([
+                        'required' => __('validation.custom.status.required'),
+                    ]),
 
                 DatePicker::make('date')
                     ->label(__('dashboard.labels.date'))
-                    ->required(),
+                    ->required()
+                    ->validationMessages([
+                        'required' => __('validation.custom.date.required'),
+                    ]),
 
                 Textarea::make('reason')
                     ->label(__('dashboard.labels.reason'))
                     ->columnSpanFull()
                     ->maxLength(500)
+                    ->validationMessages([
+                        'max' => __('validation.custom.reason.max'),
+                    ])
                     ->placeholder(__('dashboard.labels.optional')),
             ]);
         }

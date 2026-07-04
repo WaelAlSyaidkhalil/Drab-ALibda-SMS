@@ -23,25 +23,42 @@ class StudentForm
                         TextInput::make('first_name')
                             ->label(__('dashboard.labels.first_name'))
                             ->required()
+                            ->validationMessages([
+                                'required' => __('validation.custom.first_name.required'),
+                                'max' => __('validation.custom.first_name.max'),
+                            ])
                             ->maxLength(255),
 
                         TextInput::make('last_name')
                             ->label(__('dashboard.labels.last_name'))
                             ->required()
+                            ->validationMessages([
+                                'required' => __('validation.custom.last_name.required'),
+                                'max' => __('validation.custom.last_name.max'),
+                            ])
                             ->maxLength(255),
 
                         TextInput::make('father_name')
                             ->label(__('dashboard.labels.father_name'))
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->validationMessages([
+                                'max' => __('validation.custom.father_name.max'),
+                            ]),
 
                         TextInput::make('mother_name')
                             ->label(__('dashboard.labels.mother_name'))
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->validationMessages([
+                                'max' => __('validation.custom.mother_name.max'),
+                            ]),
 
                         Select::make('gender')
                             ->label(__('dashboard.labels.gender'))
                             ->options(Gender::options())
-                            ->required(),
+                            ->required()
+                            ->validationMessages([
+                                'required' => __('validation.custom.gender.required'),
+                            ]),
 
                         DatePicker::make('birth_date')
                             ->label(__('dashboard.labels.birth_date'))
@@ -54,6 +71,10 @@ class StudentForm
                         TextInput::make('name')
                             ->label(__('dashboard.labels.parent_name'))
                             ->required()
+                            ->validationMessages([
+                                'required' => __('validation.custom.name.required'),
+                                'max' => __('validation.custom.name.max'),
+                            ])
                             ->maxLength(255),
 
                         TextInput::make('phone')
@@ -61,25 +82,37 @@ class StudentForm
                             ->required()
                             ->tel()
                             ->unique(ignoreRecord: true)
+                            ->validationMessages([
+                                'required' => __('validation.custom.phone.required'),
+                                'unique' => __('validation.custom.phone.unique'),
+                                'regex' => __('validation.custom.phone.tel'),
+                            ])
                             ->maxLength(20),
 
                         TextInput::make('email')
                             ->label(__('dashboard.labels.email'))
                             ->email()
                             ->unique(ignoreRecord: true)
+                            ->validationMessages([
+                                'email' => __('validation.custom.email.email'),
+                                'unique' => __('validation.custom.email.unique'),
+                            ])
                             ->maxLength(255),
 
                         TextInput::make('password')
                             ->label(__('dashboard.labels.password'))
                             ->default(fn() => app(GeneratePasswordService::class)->generatePassword()),
-                                
+
                         Hidden::make('role_id')
                             ->default(4),
-                            
+
                         TextInput::make('role_display')
                             ->label(__('dashboard.labels.role'))
                             ->placeholder(__(''))
-                            ->disabled(),
+                            ->disabled()
+                            ->validationMessages([
+                                'required' => __('validation.custom.role_display.required'),
+                            ])
                     ])->columns(2),
 
                 Section::make(__('dashboard.labels.official_details'))
@@ -87,6 +120,9 @@ class StudentForm
                         TextInput::make('national_id')
                             ->label(__('dashboard.labels.national_id'))
                             ->unique(ignoreRecord: true)
+                            ->validationMessages([
+                                'unique' => __('validation.custom.national_id.unique'),
+                            ])
                             ->maxLength(50),
 
                         TextInput::make('registry_number')
@@ -94,6 +130,10 @@ class StudentForm
                             ->required()
                             ->placeholder(__('dashboard.labels.not_available'))
                             ->unique(ignoreRecord: true)
+                            ->validationMessages([
+                                'required' => __('validation.custom.registry_number.required'),
+                                'unique' => __('validation.custom.registry_number.unique'),
+                            ])
                             ->maxLength(50),
                     ])->columns(2),
                 Section::make(__('dashboard.labels.status'))
@@ -101,7 +141,10 @@ class StudentForm
                     ->schema([
                         Toggle::make('is_active')
                             ->label(__('dashboard.labels.active'))
-                            ->default(true),
+                            ->default(true)
+                            ->validationMessages([
+                                'boolean' => __('validation.custom.is_active.boolean'),
+                            ]),
                     ]),
             ])->columns(1);
     }

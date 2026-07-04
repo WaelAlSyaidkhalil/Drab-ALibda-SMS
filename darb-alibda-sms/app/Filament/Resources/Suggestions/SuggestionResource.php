@@ -47,12 +47,18 @@ class SuggestionResource extends Resource
             Select::make('status')
                 ->label(__('dashboard.labels.status'))
                 ->options(SuggestionStatus::options())
-                ->required(),
+                ->required()
+                ->validationMessages([
+                    'required' => __('validation.custom.status.required'),
+                ]),
 
                 Textarea::make('feedback')
                 ->label(__('dashboard.labels.feedback'))
                 ->rows(4)
-                ->columnSpanFull(),
+                ->columnSpanFull()
+                ->validationMessages([
+                    'required' => __('validation.custom.feedback.required'),
+                ]),
 
                 Toggle::make('is_acknowledged')
                     ->label(__('dashboard.labels.acknowledged')),

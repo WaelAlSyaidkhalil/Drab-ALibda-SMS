@@ -38,7 +38,10 @@ class MarksRelationManager extends RelationManager
                 ->searchable()
                 ->preload()
                 ->live() 
-                ->required(),
+                ->required()
+                ->validationMessages([
+                    'required' => __('validation.custom.subject_id.required'),
+                ]),
 
             Select::make('subject_component_id')
                 ->label(__('dashboard.labels.component'))
@@ -58,7 +61,10 @@ class MarksRelationManager extends RelationManager
                 })
                 ->searchable()
                 ->preload()
-                ->required(),
+                ->required()
+                ->validationMessages([
+                    'required' => __('validation.custom.subject_component_id.required'),
+                ]),
 
             Select::make('term_id')
                 ->label(__('dashboard.labels.term'))
@@ -68,13 +74,20 @@ class MarksRelationManager extends RelationManager
                 )
                 ->searchable()
                 ->preload()
-                ->required(),
+                ->required()
+                ->validationMessages([
+                    'required' => __('validation.custom.term_id.required'),
+                ]),
 
             TextInput::make('mark')
                 ->label(__('dashboard.labels.mark'))
                 ->numeric()
                 ->required()
-                ->minValue(0),
+                ->minValue(0)
+                ->validationMessages([
+                    'required' => __('validation.custom.mark.required'),
+                    'numeric' => __('validation.custom.mark.numeric'),
+                ]),
         ]);
     }
 

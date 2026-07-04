@@ -40,31 +40,53 @@ class StudentSubjectResultsRelationManager extends RelationManager
                         'enrollment_id',
                         $this->getOwnerRecord()->id
                     )
-                    ->ignore($this->getMountedTableActionRecord())),
+                    ->ignore($this->getMountedTableActionRecord()))
+                    ->validationMessages([
+                        'required' => __('validation.custom.subject_id.required'),
+                        'unique' => __('validation.custom.subject_id.unique'),
+                    ]),
 
             TextInput::make('term1_mark')
                 ->label(__('dashboard.labels.term1_mark'))
                 ->numeric()
                 ->minValue(0)
-                ->maxValue(100),
+                ->maxValue(100)
+                ->validationMessages([
+                    'numeric' => __('validation.custom.term1_mark.numeric'),
+                    'minValue' => __('validation.custom.term1_mark.minValue'),
+                    'maxValue' => __('validation.custom.term1_mark.maxValue'),
+                ]),
 
             TextInput::make('term2_mark')
                 ->label(__('dashboard.labels.term2_mark'))
                 ->numeric()
                 ->minValue(0)
-                ->maxValue(100),
+                ->maxValue(100)
+                ->validationMessages([
+                    'numeric' => __('validation.custom.term2_mark.numeric'),
+                    'minValue' => __('validation.custom.term2_mark.minValue'),
+                    'maxValue' => __('validation.custom.term2_mark.maxValue'),
+                ]),
 
             TextInput::make('yearly_mark')
                 ->label(__('dashboard.labels.yearly_mark'))
                 ->numeric()
                 ->disabled()
                 ->minValue(0)
-                ->maxValue(100),
+                ->maxValue(100)
+                ->validationMessages([
+                    'numeric' => __('validation.custom.yearly_mark.numeric'),
+                    'minValue' => __('validation.custom.yearly_mark.minValue'),
+                    'maxValue' => __('validation.custom.yearly_mark.maxValue'),
+                ]),
 
             Select::make('result')
                 ->label(__('dashboard.labels.result'))
                 ->disabled()
                 ->options(MarkResult::options())
+                ->validationMessages([
+                    'in' => __('validation.custom.result.in'),
+                ]),
         ]);
     }
 

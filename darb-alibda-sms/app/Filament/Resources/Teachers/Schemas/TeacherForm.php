@@ -26,6 +26,10 @@ class TeacherForm
                         TextInput::make('first_name')
                             ->label(__('dashboard.labels.first_name'))
                             ->required()
+                            ->validationMessages([
+                                'required' => __('validation.custom.first_name.required'),
+                                'max' => __('validation.custom.first_name.max'),
+                            ])
                             ->live()
                             ->afterStateUpdated(
                                 fn($state, callable $get, callable $set) =>
@@ -35,6 +39,10 @@ class TeacherForm
                         TextInput::make('last_name')
                             ->label(__('dashboard.labels.last_name'))
                             ->required()
+                            ->validationMessages([
+                                'required' => __('validation.custom.last_name.required'),
+                                'max' => __('validation.custom.last_name.max'),
+                            ])
                             ->live()
                             ->afterStateUpdated(
                                 fn($state, callable $get, callable $set) =>
@@ -54,7 +62,10 @@ class TeacherForm
                         Select::make('gender')
                             ->label(__('dashboard.labels.gender'))
                             ->options(Gender::options())
-                            ->required(),
+                            ->required()
+                            ->validationMessages([
+                                'required' => __('validation.custom.gender.required'),
+                            ]),
                     ]),
                 Section::make(__('dashboard.labels.account_details'))
                     ->columns(2)
@@ -70,12 +81,21 @@ class TeacherForm
                             ->required()
                             ->tel()
                             ->unique(ignoreRecord: true)
+                            ->validationMessages([
+                                'required' => __('validation.custom.phone.required'),
+                                'unique' => __('validation.custom.phone.unique'),
+                                'regex' => __('validation.custom.phone.tel'),
+                            ])
                             ->maxLength(20),
 
                         TextInput::make('email')
                             ->label(__('dashboard.labels.email'))
                             ->email()
                             ->unique(ignoreRecord: true)
+                            ->validationMessages([
+                                'email' => __('validation.custom.email.email'),
+                                'unique' => __('validation.custom.email.unique'),
+                            ])
                             ->maxLength(255),
 
                         TextInput::make('password')
@@ -95,7 +115,10 @@ class TeacherForm
                     ->schema([
                         TextInput::make('employee_number')
                             ->label(__('dashboard.labels.employee_number'))
-                            ->unique(ignoreRecord: true),
+                            ->unique(ignoreRecord: true)
+                            ->validationMessages([
+                                'unique' => __('validation.custom.employee_number.unique'),
+                            ]),
 
                         DatePicker::make('hire_date')
                             ->label(__('dashboard.labels.hire_date')),
@@ -113,7 +136,11 @@ class TeacherForm
                             ->label(__('dashboard.labels.experience_years'))
                             ->numeric()
                             ->minValue(0)
-                            ->default(0),
+                            ->default(0)
+                            ->validationMessages([
+                                'numeric' => __('validation.custom.experience_years.numeric'),
+                                'min' => __('validation.custom.experience_years.min'),
+                            ]),
                     ]),
                 Section::make(__('dashboard.labels.official_information'))
                     ->columns(2)
@@ -124,7 +151,11 @@ class TeacherForm
                         TextInput::make('national_id')
                             ->label(__('dashboard.labels.national_id'))
                             ->required()
-                            ->unique(ignoreRecord: true),
+                            ->unique(ignoreRecord: true)
+                            ->validationMessages([
+                                'required' => __('validation.custom.national_id.required'),
+                                'unique' => __('validation.custom.national_id.unique'),
+                            ]),
                     ]),
                 Section::make(__('dashboard.labels.contact_information'))
                     ->columns(2)
@@ -135,14 +166,20 @@ class TeacherForm
 
                         TextInput::make('phone_alt')
                             ->label(__('dashboard.labels.alternative_phone'))
-                            ->tel(),
+                            ->tel()
+                            ->validationMessages([
+                                'regex' => __('validation.custom.phone.tel'),
+                            ])
                     ]),
                 Section::make(__('dashboard.labels.status'))
                     ->relationship('user')
                     ->schema([
                         Toggle::make('is_active')
                             ->label(__('dashboard.labels.active'))
-                            ->default(true),
+                            ->default(true)
+                            ->validationMessages([
+                                'boolean' => __('validation.custom.is_active.boolean'),
+                            ]),
                     ]),
             ]);
     }

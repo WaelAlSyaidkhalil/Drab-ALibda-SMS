@@ -3,8 +3,10 @@
 namespace App\Filament\Resources\Students\Pages;
 
 use App\Filament\Resources\Students\StudentResource;
+use App\Models\Academic\Student;
 use Filament\Resources\Pages\ManageRecords;
 use Filament\Actions\CreateAction;
+use Illuminate\Support\Facades\DB;
 
 class ManageStudents extends ManageRecords
 {
@@ -21,4 +23,11 @@ class ManageStudents extends ManageRecords
     {
         return __('dashboard.pages.students_info');
     }
+
+    // protected function handleRecordCreation(array $data): Student
+    // {
+    //     return DB::transaction(function () use ($data) {
+    //         return Student::create($data);
+    //     });
+    // }
 }
