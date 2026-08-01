@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Students\Schemas;
 
 use App\Enums\Gender;
+use App\Models\User;
 use App\Services\Admin\GeneratePasswordService;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
@@ -65,56 +66,57 @@ class StudentForm
                             ->native(false)
                             ->maxDate(now()),
                     ])->columns(2),
-                Section::make(__('dashboard.labels.parent_account_details'))
-                    ->relationship('parent')
+               Section::make(__('dashboard.labels.parent_account_details'))
                     ->schema([
-                        TextInput::make('name')
+                        Select::make('parent_id')
                             ->label(__('dashboard.labels.parent_name'))
+                            ->relationship(
+                                name: 'parent',
+                                titleAttribute: 'name',
+                                modifyQueryUsing: fn ($query) => $query->where('role_id', 4)
+                            )
+                            ->searchable()
+                            ->preload()
                             ->required()
-                            ->validationMessages([
-                                'required' => __('validation.custom.name.required'),
-                                'max' => __('validation.custom.name.max'),
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->label(__('dashboard.labels.parent_name'))
+                                    ->required()
+                                    ->maxLength(255),
+
+                                TextInput::make('phone')
+                                    ->label(__('dashboard.labels.phone'))
+                                    ->required()
+                                    ->tel()
+                                    ->unique('users', 'phone')
+                                    ->maxLength(20),
+
+                                TextInput::make('email')
+                                    ->label(__('dashboard.labels.email'))
+                                    ->email()
+                                    ->unique('users', 'email')
+                                    ->maxLength(255),
+
+                                TextInput::make('password')
+                                    ->label(__('dashboard.labels.password'))
+                                    ->default(fn () => app(GeneratePasswordService::class)->generatePassword())
+                                    ->required(),
+
+                                Hidden::make('role_id')
+                                    ->default(4),
                             ])
-                            ->maxLength(255),
+                            ->createOptionUsing(function (array $data) {
+                                $parent = User::create([
+                                    'name' => $data['name'],
+                                    'phone' => $data['phone'],
+                                    'email' => $data['email'],
+                                    'password' => app(GeneratePasswordService::class)->generatePassword(),
+                                    'role_id' => $data['role_id'],
+                                ]);
 
-                        TextInput::make('phone')
-                            ->label(__('dashboard.labels.phone'))
-                            ->required()
-                            ->tel()
-                            ->unique(ignoreRecord: true)
-                            ->validationMessages([
-                                'required' => __('validation.custom.phone.required'),
-                                'unique' => __('validation.custom.phone.unique'),
-                                'regex' => __('validation.custom.phone.tel'),
-                            ])
-                            ->maxLength(20),
-
-                        TextInput::make('email')
-                            ->label(__('dashboard.labels.email'))
-                            ->email()
-                            ->unique(ignoreRecord: true)
-                            ->validationMessages([
-                                'email' => __('validation.custom.email.email'),
-                                'unique' => __('validation.custom.email.unique'),
-                            ])
-                            ->maxLength(255),
-
-                        TextInput::make('password')
-                            ->label(__('dashboard.labels.password'))
-                            ->default(fn() => app(GeneratePasswordService::class)->generatePassword()),
-
-                        Hidden::make('role_id')
-                            ->default(4),
-
-                        TextInput::make('role_display')
-                            ->label(__('dashboard.labels.role'))
-                            ->placeholder(__(''))
-                            ->disabled()
-                            ->validationMessages([
-                                'required' => __('validation.custom.role_display.required'),
-                            ])
-                    ])->columns(2),
-
+                                return $parent->id;
+                            }),
+                    ]),
                 Section::make(__('dashboard.labels.official_details'))
                     ->schema([
                         TextInput::make('national_id')
