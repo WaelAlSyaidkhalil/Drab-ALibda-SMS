@@ -135,6 +135,18 @@ class Schedule extends Model
     }
 
     /**
+     * الحصص حسب المعلم
+     *
+     * @param Builder $query
+     * @param int $teacherId
+     * @return Builder
+     */
+    public function scopeForTeacher($query, int $teacherId)
+    {
+        return $query->where('teacher_id', $teacherId);
+    }
+
+    /**
      * الحصص المتاحة لتعيين معلم (بدون تضارب)
      *
      * @param Builder $query

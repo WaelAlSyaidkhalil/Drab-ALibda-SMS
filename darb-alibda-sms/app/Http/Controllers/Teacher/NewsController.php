@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Teacher;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Teacher\TeacherController;
 use App\Services\Teacher\TeacherNewsService;
 use Illuminate\Http\Request;
 
-class NewsController extends Controller
+class NewsController extends TeacherController
 {
     public function __construct(protected TeacherNewsService $service)
     {
@@ -19,17 +19,10 @@ class NewsController extends Controller
     {
         try {
             $news = $this->service->getAllNews($request->user()->id);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'تم جلب الأخبار بنجاح',
-                'data' => $news,
-            ]);
+             return $this->successResponse($news,'تم جلب الأخبار بنجاح');
+          
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ], 500);
+            return $this->errorResponse(null,$e->getMessage());
         }
     }
 
@@ -49,10 +42,7 @@ class NewsController extends Controller
                 ],
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ], 500);
+           return $this->errorResponse(null,$e->getMessage());
         }
     }
 
@@ -63,7 +53,6 @@ class NewsController extends Controller
     {
         try {
             $this->service->markAsRead($request->user()->id, $newsId);
-
             return response()->json([
                 'status' => 'success',
                 'message' => 'تم تعليم الخبر كمقروء بنجاح',

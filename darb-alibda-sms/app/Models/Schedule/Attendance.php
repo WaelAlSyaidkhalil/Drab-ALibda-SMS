@@ -4,6 +4,7 @@ namespace App\Models\Schedule;
 
 use App\Enums\AttendanceStatus;
 use App\Models\Academic\Section;
+use App\Models\Schedule\Schedule as ScheduleModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\Filterable;
@@ -33,6 +34,7 @@ class Attendance extends Model
 
     protected $fillable = [
         'section_id',
+        'schedule_id',
         'student_id',
         'status',
         'reason',
@@ -56,6 +58,16 @@ class Attendance extends Model
     public function section(): BelongsTo
     {
         return $this->belongsTo(Section::class);
+    }
+
+    /**
+     * الحصة المرتبطة بتسجيل الحضور
+     *
+     * @return BelongsTo
+     */
+    public function schedule(): BelongsTo
+    {
+        return $this->belongsTo(ScheduleModel::class);
     }
 
     /**

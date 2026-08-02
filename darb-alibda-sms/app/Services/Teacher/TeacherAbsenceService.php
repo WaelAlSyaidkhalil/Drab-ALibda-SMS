@@ -2,6 +2,9 @@
 
 namespace App\Services\Teacher;
 
+use App\Models\Academic\Student;
+use App\Models\Auth\User;
+use App\Notifications\Parent\TeacherActionNotification;
 use App\Repositories\Teacher\TeacherAbsenceRepository;
 
 class TeacherAbsenceService
@@ -66,7 +69,27 @@ class TeacherAbsenceService
             throw new \Exception('فشل تحديث طلب الغياب', 500);
         }
 
-        return $this->repository->getJustificationById($justificationId);
+        $justification = $this->repository->getJustificationById($justificationId);
+        if ($justification && $justification->student && $justification->student->parent) {
+            $teacherUser = User::find($reviewerId);
+            $student = $justification->student;
+            $statusLabel = match ($data['status'] ?? '') {
+                'approved' => 'مقبول',
+                'rejected' => 'مرفوض',
+                'pending' => 'قيد المراجعة',
+                default => 'تم تحديثه',
+            };
+
+            $justification->student->parent->notify(new TeacherActionNotification(
+                $teacherUser,
+                $student,
+                'تم تحديث طلب الغياب',
+                sprintf('تم تحديث حالة غياب %s إلى %s.', $student->getFullNameAttribute(), $statusLabel),
+                ['type' => 'absence_justification']
+            ));
+        }
+
+        return $justification;
     }
 
     /**

@@ -266,8 +266,27 @@ class User extends Authenticatable
      */
     public function hasRole(string|UserRole $roleName): bool
     {
-        $name = $roleName instanceof UserRole ? $roleName->value : $roleName;
-        return $this->role->name === $name;
+        $expected = $this->normalizeRoleName($roleName);
+        $actual = $this->normalizeRoleName($this->role?->name);
+
+        return $expected !== null && $actual !== null && $actual === $expected;
+    }
+
+    protected function normalizeRoleName(string|UserRole|null $roleName): ?string
+    {
+        if ($roleName instanceof UserRole) {
+            return $roleName->value;
+        }
+
+        if (is_string($roleName)) {
+            return strtolower($roleName);
+        }
+
+        if (is_object($roleName) && property_exists($roleName, 'value')) {
+            return strtolower((string) $roleName->value);
+        }
+
+        return null;
     }
 
     /**

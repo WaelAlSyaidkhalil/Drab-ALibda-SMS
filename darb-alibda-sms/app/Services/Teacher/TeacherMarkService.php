@@ -2,8 +2,12 @@
 
 namespace App\Services\Teacher;
 
+use App\Models\Academic\Student;
+use App\Models\Academic\Teacher;
+use App\Models\Auth\User;
 use App\Models\Grading\StudentMark;
 use App\Models\Subjects\SubjectComponent;
+use App\Notifications\Parent\TeacherActionNotification;
 use App\Repositories\Teacher\TeacherMarkRepository;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -71,6 +75,18 @@ class TeacherMarkService
 
         $studentMark->load(['enrollment.section', 'enrollment.student.user', 'subject', 'subjectComponent', 'term']);
 
+        $student = $studentMark->enrollment?->student;
+        $teacherUser = Teacher::find($teacherId)?->user;
+        if ($student && $student->parent && $teacherUser) {
+            $student->parent->notify(new TeacherActionNotification(
+                $teacherUser,
+                $student,
+                'تم إضافة علامة جديدة',
+                sprintf('تم إضافة علامة جديدة ل %s في المادة %s.', $student->getFullNameAttribute(), $studentMark->subject->name),
+                ['type' => 'mark']
+            ));
+        }
+
         return $this->formatMark($studentMark);
     }
 
@@ -97,6 +113,18 @@ class TeacherMarkService
 
         $studentMark->refresh();
         $studentMark->load(['enrollment.section', 'enrollment.student.user', 'subject', 'subjectComponent', 'term']);
+
+        $student = $studentMark->enrollment?->student;
+        $teacherUser = Teacher::find($teacherId)?->user;
+        if ($student && $student->parent && $teacherUser) {
+            $student->parent->notify(new TeacherActionNotification(
+                $teacherUser,
+                $student,
+                'تم تعديل العلامة',
+                sprintf('تم تعديل العلامة الخاصة بـ %s.', $student->getFullNameAttribute()),
+                ['type' => 'mark_update']
+            ));
+        }
 
         return $this->formatMark($studentMark);
     }

@@ -31,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
         AuthenticationException::redirectUsing(fn () => null);
         AuthenticateSessionMiddleware::redirectUsing(fn () => null);
 
-        Event::listen(TeacherLoggedIn::class, [SendLoginNotification::class, 'handle']);
-        Event::listen(TeacherLoginFailed::class, [LogFailedLoginAttempt::class, 'handle']);
+      //  Event::listen(TeacherLoggedIn::class, [SendLoginNotification::class, 'handle']);
+      //  Event::listen(TeacherLoginFailed::class, [LogFailedLoginAttempt::class, 'handle']);
     }
 }

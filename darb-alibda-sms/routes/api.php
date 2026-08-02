@@ -17,7 +17,7 @@ use App\Http\Controllers\Teacher\ScheduleController as TeacherScheduleController
 use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
 use App\Http\Controllers\Teacher\TeacherMarkController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Teacher\NotificationController;
 
 Route::post('teacher/login', [TeacherAuthController::class, 'login']);
 Route::post('parent/login', [AuthController::class, 'login']);
@@ -57,6 +57,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('teacher/marks', [TeacherMarkController::class, 'store']);
     Route::post('teacher/marks/{markId}', [TeacherMarkController::class, 'update']);
     Route::post('teacher/marks/delete/{markId}', [TeacherMarkController::class, 'destroy']);
+
+    Route::get('teacher/notification',[NotificationController::class,'showNotification']);
+    Route::post('teacher/notification/mark-all-as-read',[NotificationController::class,'markAllAsRead']);
+    Route::post('teacher/notification/{notificationId}/mark-as-read',[NotificationController::class,'markAsRead']);
+    Route::post('teacher/notification/{notificationId}',[NotificationController::class,'deleteNotification']);
+
 
     Route::post('parent/logout', [AuthController::class, 'logout']);
     Route::post('parent/change-password', [AuthController::class, 'changePassword']);

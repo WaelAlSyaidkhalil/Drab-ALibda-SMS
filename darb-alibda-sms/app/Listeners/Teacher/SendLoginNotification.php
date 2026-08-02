@@ -25,11 +25,11 @@ class SendLoginNotification
 
             return;
         }
-
+/*
         $this->firebaseService->sendPushNotification(
             $user,
             $notification->title(),
             $notification->body()
-        );
+        );*/
     }
 }

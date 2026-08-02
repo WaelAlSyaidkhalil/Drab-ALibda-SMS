@@ -23,8 +23,16 @@ class TeacherDashboardRepository
 
     public function countTodayPresentStudents(int $teacherId): int
     {
+        $scheduleIds = Schedule::query()
+            ->where('teacher_id', $teacherId)
+            ->pluck('id');
+
+        if ($scheduleIds->isEmpty()) {
+            return 0;
+        }
+
         return Attendance::query()
-            ->whereHas('schedule', fn ($query) => $query->where('teacher_id', $teacherId))
+            ->whereIn('schedule_id', $scheduleIds)
             ->whereDate('date', Carbon::today())
             ->where('status', 'present')
             ->distinct('student_id')

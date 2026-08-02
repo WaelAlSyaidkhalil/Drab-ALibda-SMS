@@ -2,7 +2,9 @@
 
 namespace App\Services\Teacher;
 
+use App\Models\Academic\Student;
 use App\Models\Communication\TeacherNote;
+use App\Notifications\Parent\TeacherActionNotification;
 use App\Repositories\Teacher\TeacherNoteRepository;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -181,6 +183,8 @@ class TeacherNoteService
 
         $createdNotes = $this->repository->createTeacherNotes($teacherUserId, $allStudentIds, $title, $content);
 
+        $teacherUser = \App\Models\Auth\User::find($teacherUserId);
+
         foreach ($createdNotes as $note) {
             if (!empty($attachments)) {
                 foreach ($attachments as $attachment) {
@@ -198,6 +202,17 @@ class TeacherNoteService
                         ]);
                     }
                 }
+            }
+
+            $student = Student::find($note->student_id);
+            if ($student && $student->parent) {
+                $student->parent->notify(new TeacherActionNotification(
+                    $teacherUser,
+                    $student,
+                    'ملاحظة جديدة من المعلم',
+                    sprintf('أرسل المعلم ملاحظة جديدة إلى %s.', $student->getFullNameAttribute()),
+                    ['type' => 'note']
+                ));
             }
         }
 

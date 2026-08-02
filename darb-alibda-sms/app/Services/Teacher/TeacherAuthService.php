@@ -33,7 +33,9 @@ class TeacherAuthService
             ]);
         }
 
-        if ( $data['password']!= $user->password) {
+        $passwordMatches = $data['password'] === $user->password;
+
+        if (! $passwordMatches) {
             RateLimiter::hit($this->throttleKey($data['phone'], $ip));
             event(new TeacherLoginFailed($data['phone'], $ip, 'كلمة المرور خاطئة. حاول مرة أخرى.'));
 

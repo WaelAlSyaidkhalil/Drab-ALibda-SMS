@@ -2,8 +2,12 @@
 
 namespace App\Services\Teacher;
 
-use App\Repositories\Teacher\TeacherAttendanceRepository;
 use App\Models\Academic\Section;
+use App\Models\Academic\Student;
+use App\Models\Academic\Teacher;
+use App\Models\Auth\User;
+use App\Notifications\Parent\TeacherActionNotification;
+use App\Repositories\Teacher\TeacherAttendanceRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 
@@ -53,6 +57,28 @@ class TeacherAttendanceService
             collect($statuses),
             $scheduleIds
         );
+
+        $teacherUser = Teacher::find($teacherId)?->user;
+        foreach ($updates as $update) {
+            $student = Student::find($update['student_id'] ?? null);
+            if (!$student || !$student->parent) {
+                continue;
+            }
+
+            $statusLabel = match ($update['status'] ?? 'present') {
+                'absent' => 'غياب',
+                'late' => 'تأخير',
+                default => 'حضور',
+            };
+
+            $student->parent->notify(new TeacherActionNotification(
+                $teacherUser,
+                $student,
+                'تحديث حالة الحضور',
+                sprintf('تم تحديث حالة حضور %s إلى %s.', $student->getFullNameAttribute(), $statusLabel),
+                ['type' => 'attendance']
+            ));
+        }
 
         return [
             'section_id' => $sectionId,
