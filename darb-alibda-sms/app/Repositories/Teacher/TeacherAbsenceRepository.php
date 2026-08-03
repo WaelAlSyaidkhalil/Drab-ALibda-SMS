@@ -14,7 +14,9 @@ class TeacherAbsenceRepository
      */
     public function getStudentAbsenceJustifications(int $teacherId)
     {
-        $sectionIds = Schedule::where('teacher_id', $teacherId)
+        $sectionIds = Schedule::whereHas('subject', fn ($q) =>
+                $q->where('teacher_id', $teacherId)
+            )
             ->pluck('section_id')
             ->unique();
 

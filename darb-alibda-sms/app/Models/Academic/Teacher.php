@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use App\Models\Traits\Filterable;
 use App\Models\Traits\HasFullName;
 use App\Models\Auth\User;
@@ -89,11 +90,18 @@ class Teacher extends Model
     /**
      * جميع الحصص الموزعة على هذا المعلم
      *
-     * @return HasMany
+     * @return HasManyThrough
      */
-    public function schedules(): HasMany
+    public function schedules(): HasManyThrough
     {
-        return $this->hasMany(Schedule::class);
+        return $this->hasManyThrough(
+            Schedule::class,
+            Subject::class,
+            'teacher_id', // subject.teacher_id
+            'subject_id', // schedule.subject_id
+            'id',
+            'id'
+        );
     }
 
     // ────── Scopes ──────

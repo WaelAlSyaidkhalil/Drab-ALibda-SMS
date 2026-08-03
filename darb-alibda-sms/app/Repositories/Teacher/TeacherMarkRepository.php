@@ -37,7 +37,7 @@ class TeacherMarkRepository
         ?int $termId = null
     ): array {
         $query = Schedule::query()
-            ->where('teacher_id', $teacherId)
+            ->whereHas('subject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->when($classId, fn ($q) => $q->whereHas('section', fn ($sq) => $sq->where('class_id', $classId)))
             ->when($sectionId, fn ($q) => $q->where('section_id', $sectionId))
             ->when($subjectId, fn ($q) => $q->where('subject_id', $subjectId))
@@ -144,7 +144,7 @@ public function resolveEnrollmentForTeacher(
     public function teacherTeaches(int $teacherId, int $sectionId, int $subjectId, int $termId): bool
     {
         return Schedule::query()
-            ->where('teacher_id', $teacherId)
+            ->whereHas('subject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->where('section_id', $sectionId)
             ->where('subject_id', $subjectId)
             ->where('term_id', $termId)
@@ -161,7 +161,7 @@ public function resolveEnrollmentForTeacher(
         return StudentMark::query()
             ->where('id', $markId)
             ->whereHas('enrollment.section.schedules', fn ($q) =>
-                $q->where('teacher_id', $teacherId)
+                $q->whereHas('subject', fn ($sq) => $sq->where('teacher_id', $teacherId))
             )
             ->with(['enrollment.section', 'enrollment.student.user', 'subject', 'subjectComponent', 'term'])
             ->first();

@@ -31,7 +31,7 @@ class TeacherScheduleRepository
             return collect();
         }
 
-        return Schedule::where('teacher_id', $teacherId)
+        return Schedule::whereHas('subject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->where('day', $mappedDay)
             ->with([
                 'section' => fn ($q) => $q->with('schoolClass'),
@@ -51,7 +51,7 @@ class TeacherScheduleRepository
         $weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu'];
 
 
-        $schedules = Schedule::where('teacher_id', $teacherId)
+        $schedules = Schedule::whereHas('subject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->whereIn('day', $weekDays)
             ->with([
                 'section' => fn ($q) => $q->with('schoolClass'),

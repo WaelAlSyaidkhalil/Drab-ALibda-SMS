@@ -15,7 +15,7 @@ class TeacherDashboardRepository
     public function getSectionIdsForTeacher(int $teacherId)
     {
         return Schedule::query()
-            ->where('teacher_id', $teacherId)
+            ->whereHas('subject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->pluck('section_id')
             ->unique()
             ->values();
@@ -24,7 +24,7 @@ class TeacherDashboardRepository
     public function countTodayPresentStudents(int $teacherId): int
     {
         $scheduleIds = Schedule::query()
-            ->where('teacher_id', $teacherId)
+            ->whereHas('subject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->pluck('id');
 
         if ($scheduleIds->isEmpty()) {

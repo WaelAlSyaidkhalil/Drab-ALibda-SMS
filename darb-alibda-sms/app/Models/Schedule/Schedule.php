@@ -6,6 +6,7 @@ use App\Enums\DayOfWeek;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use App\Models\Traits\Filterable;
 use App\Models\Traits\HasStatus;
 use App\Models\Academic\Section;
@@ -73,6 +74,22 @@ class Schedule extends Model
         return $this->belongsTo(Subject::class);
     }
 
+    /**
+     * المعلم المسؤول عن المادة
+     *
+     * @return HasOneThrough
+     */
+    public function teacher(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            Teacher::class,
+            Subject::class,
+            'teacher_id', // subject.teacher_id
+            'id', // teacher.id
+            'subject_id', // schedule.subject_id
+            'id' // subject.id
+        );
+    }
 
     /**
      * الفصل الدراسي
@@ -143,7 +160,7 @@ class Schedule extends Model
      */
     public function scopeForTeacher($query, int $teacherId)
     {
-        return $query->where('teacher_id', $teacherId);
+        return $query->whereHas('subject', fn ($q) => $q->where('teacher_id', $teacherId));
     }
 
     /**
@@ -160,14 +177,13 @@ class Schedule extends Model
         $dayValue = $day instanceof DayOfWeek ? $day->value : $day;
 
         return $query->whereNot(function ($q) use ($teacherId, $dayValue, $timeSlotId) {
-            $q->where('teacher_id', $teacherId)
+            $q->whereHas('subject', fn ($sq) => $sq->where('teacher_id', $teacherId))
               ->where('day', $dayValue)
               ->where('time_slot_id', $timeSlotId);
         });
     }
 
     // ────── Methods ──────
-
     /**
      * التحقق من وجود تضارب زمني للمعلم
      *
@@ -175,7 +191,14 @@ class Schedule extends Model
      */
     public function hasTeacherConflict(): bool
     {
-        return Schedule::where('teacher_id', $this->teacher_id)
+        $teacherId = $this->subject?->teacher_id
+            ?? Subject::where('id', $this->subject_id)->value('teacher_id');
+
+        if (! $teacherId) {
+            return false;
+        }
+
+        return Schedule::whereHas('subject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->where('day', $this->day)
             ->where('time_slot_id', $this->time_slot_id)
             ->where('id', '!=', $this->id)

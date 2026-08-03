@@ -13,7 +13,7 @@ class TeacherNoteRepository
     public function getTeacherSectionIds(int $teacherId): SupportCollection
     {
         return Schedule::query()
-            ->where('teacher_id', $teacherId)
+            ->whereHas('subject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->pluck('section_id')
             ->unique()
             ->values();
