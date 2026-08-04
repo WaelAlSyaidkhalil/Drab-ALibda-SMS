@@ -46,7 +46,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
  */
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, Filterable, HasFullName;
+    use HasApiTokens, HasFactory, Notifiable, Filterable;
 
     /**
      * الحقول القابلة للتعبئة
@@ -357,4 +357,27 @@ class User extends Authenticatable
     {
         return $this->is_active ? 'مفعّل' : 'معطل';
     }
+
+public function getFullNameAttribute(): string
+{
+    if ($this->relationLoaded('teacher') && $this->teacher) {
+        return $this->teacher->full_name;
+    }
+
+    if ($this->relationLoaded('student') && $this->student) {
+        return $this->student->full_name;
+    }
+
+    if ($this->teacher) {
+        return $this->teacher->full_name;
+    }
+
+    if ($this->student) {
+        return $this->student->full_name;
+    }
+
+    return $this->name ?? 'بدون اسم';
+}
+
+
 }
