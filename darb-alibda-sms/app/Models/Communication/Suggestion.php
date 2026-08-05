@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\Filterable;
 use App\Models\Traits\HasAttachments;
 use App\Models\Auth\User;
+use App\Observers\Communication\SuggestionObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Support\Carbon;
 
 /**
@@ -25,6 +27,7 @@ use Illuminate\Support\Carbon;
  *
  * @property-read User $user
  */
+#[ObservedBy(SuggestionObserver::class)]
 class Suggestion extends Model
 {
     use Filterable, HasAttachments;

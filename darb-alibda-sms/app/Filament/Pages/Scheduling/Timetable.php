@@ -47,6 +47,69 @@ class Timetable extends Page implements HasForms
 
     public ?array $data = [];
 
+    public function publishStudentTimetable(): void
+    {
+        if (! $this->ensureContextSelected()) {
+            $this->notifyMissingContext();
+            return;
+        }
+
+        $scheduleExists = Schedule::query()
+            ->where('term_id', $this->termId)
+            ->where('section_id', $this->sectionId)
+            ->exists();
+
+        if (! $scheduleExists) {
+            Notification::make()
+                ->title(__('dashboard.notifications.timetable_publish_failed_title'))
+                ->body(__('dashboard.notifications.timetable_publish_failed_body_no_schedule'))
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $students = \App\Models\Auth\User::query()
+            ->students()
+            ->whereHas('student.enrollments', fn ($query) => $query
+                ->where('section_id', $this->sectionId)
+                ->where('status', 'active')
+            )
+            ->get();
+
+        if ($students->isEmpty()) {
+            Notification::make()
+                ->title(__('dashboard.notifications.timetable_publish_failed_title'))
+                ->body(__('dashboard.notifications.timetable_publish_failed_body'))
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $notification = new \App\Notifications\Admin\TimetablePublishedNotification('students');
+
+        foreach ($students as $student) {
+            $student->notify($notification);
+        }
+
+        $tokens = $students
+            ->whereNotNull('fcm_token')
+            ->pluck('fcm_token')
+            ->toArray();
+
+        if (! empty($tokens)) {
+            app(\App\Services\FirebaseService::class)
+                ->sendPushNotification($tokens, $notification->title(), $notification->body());
+        }
+
+        Notification::make()
+            ->title(__('dashboard.notifications.timetable_published_success_title'))
+            ->body(__('dashboard.notifications.timetable_published_success_body_student'))
+            ->success()
+            ->send();
+    }
+
     public ?int $termId = null;
     public ?int $sectionId = null;
 

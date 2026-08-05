@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\Filterable;
 use App\Models\Traits\HasAttachments;
-use App\Models\Communication\Attachment;
 use App\Models\Auth\User;
+use App\Observers\Communication\ComplaintObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 /**
  * نموذج الشكاوى
@@ -26,6 +27,7 @@ use App\Models\Auth\User;
  * @property-read User $user
  * @property-read User|null $assignee
  */
+#[ObservedBy(ComplaintObserver::class)]
 class Complaint extends Model
 {
     use Filterable, HasAttachments;

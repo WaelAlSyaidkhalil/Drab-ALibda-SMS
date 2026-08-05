@@ -11,6 +11,7 @@ use App\Models\Traits\HasAttachments;
 use App\Models\Auth\User;
 use App\Observers\Admin\NewsObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 
 /**
@@ -30,7 +31,7 @@ use Illuminate\Support\Carbon;
 #[ObservedBy(NewsObserver::class)]
 class News extends Model
 {
-    use Filterable, HasAttachments;
+    use Filterable, HasAttachments, Notifiable;
 
     protected $fillable = [
         'title',

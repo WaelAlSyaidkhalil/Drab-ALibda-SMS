@@ -14,8 +14,11 @@ use App\Models\Auth\User;
 use App\Models\Schedule\Schedule;
 use App\Models\Schedule\TeacherAttendance;
 use App\Models\Subjects\Subject;
+use App\Observers\Academic\TeacherObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Support\Carbon;
 
+#[ObservedBy(TeacherObserver::class)]
 /**
  * نموذج المعلم
  *

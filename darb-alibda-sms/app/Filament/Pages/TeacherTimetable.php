@@ -276,6 +276,55 @@ class TeacherTimetable extends Page implements HasForms, HasActions
             ->send();
     }
 
+      public function publishTeacherTimetable(): void
+    {
+        if (! $this->ensureContextSelected()) {
+            $this->notifyMissingContext();
+            return;
+        }
+
+        $scheduleExists = Schedule::query()
+            ->where('term_id', $this->termId)
+            ->whereHas('subject', fn ($query) => $query->where('teacher_id', $this->teacherId))
+            ->exists();
+
+        if (! $scheduleExists) {
+            Notification::make()
+                ->title(__('dashboard.notifications.timetable_publish_failed_title'))
+                ->body(__('dashboard.notifications.timetable_publish_failed_body_no_schedule'))
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $teacher = Teacher::find($this->teacherId);
+
+        if (! $teacher || ! $teacher->user) {
+            Notification::make()
+                ->title(__('dashboard.notifications.timetable_publish_failed_title'))
+                ->body(__('dashboard.notifications.timetable_publish_failed_body_no_teacher_user'))
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $notification = new \App\Notifications\Admin\TimetablePublishedNotification('teachers');
+        $teacher->user->notify($notification);
+
+        if (! empty($teacher->user->fcm_token)) {
+            app(\App\Services\FirebaseService::class)
+                ->sendPushNotification([$teacher->user->fcm_token], $notification->title(), $notification->body());
+        }
+
+        Notification::make()
+            ->title(__('dashboard.notifications.timetable_published_success_title'))
+            ->body(__('dashboard.notifications.timetable_published_success_body_teacher'))
+            ->success()
+            ->send();
+    }
+
       public function generateTimetableUsingORTools()
     {
 
