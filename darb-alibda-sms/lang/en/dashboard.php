@@ -104,7 +104,8 @@ return [
         'website' => 'Website',
         'save_success' => 'Data saved successfully',
         'missing_selection' => 'Missing Selection',
-        'missing_selection_message' => 'Please select Term and Section first.',
+        'missing_selection_message_for_student_timetable' => 'Please select Term and Section first.',
+        'missing_selection_message_for_teacher_timetable' => 'Please select Teacher and Class first.',
         'not_available' => 'N/A',
         'personal_information' => 'Personal Information',
         'account_details' => 'Account Details',
@@ -359,15 +360,12 @@ return [
         'complaint_status_updated_title' => 'Complaint status updated',
         'complaint_status_updated_body' => 'Your complaint ":title" status is now :status.',
         'timetable_published_title' => 'Timetable Published',
-        'timetable_published_body_student' => 'The student timetable has been published. Please check your schedule.',
-        'timetable_published_body_teacher' => 'The teacher timetable has been published. Please review your assigned schedule.',\
         'timetable_publish_failed_title' => 'Publish failed',
         'timetable_publish_failed_body_no_schedule' => 'No timetable was found to publish.',
         'timetable_publish_failed_body_no_students' => 'No students were found to send the timetable notification.',
         'timetable_publish_failed_body_no_teacher_user' => 'No user was found for the teacher to send the timetable notification.',
         'timetable_published_success_title' => 'Timetable Published',
-        'timetable_published_success_body_student' => 'The student timetable has been published to all students.',
-        'timetable_published_success_body_teacher' => 'The teacher timetable has been published to all teachers.',
+        'timetable_published_success_body' => 'The timetable has been published.',
     ],
 
     'validation' => [

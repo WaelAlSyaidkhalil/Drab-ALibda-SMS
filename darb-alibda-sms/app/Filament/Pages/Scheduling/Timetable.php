@@ -10,6 +10,7 @@ use App\Models\Subjects\Term;
 use App\Models\Subjects\Subject;
 use App\Models\Academic\Teacher;
 use BackedEnum;
+use App\Filament\Pages\Scheduling\Traits\PublishesClassTimetableNotifications;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -22,6 +23,7 @@ use Filament\Support\Icons\Heroicon;
 class Timetable extends Page implements HasForms
 {
     use InteractsWithForms;
+    use PublishesClassTimetableNotifications;
 
     protected string $view = 'filament.pages.scheduling.timetable';
 
@@ -54,12 +56,9 @@ class Timetable extends Page implements HasForms
             return;
         }
 
-        $scheduleExists = Schedule::query()
-            ->where('term_id', $this->termId)
-            ->where('section_id', $this->sectionId)
-            ->exists();
+        $classId = $this->getClassIdFromSection($this->sectionId);
 
-        if (! $scheduleExists) {
+        if (! $classId) {
             Notification::make()
                 ->title(__('dashboard.notifications.timetable_publish_failed_title'))
                 ->body(__('dashboard.notifications.timetable_publish_failed_body_no_schedule'))
@@ -69,43 +68,27 @@ class Timetable extends Page implements HasForms
             return;
         }
 
-        $students = \App\Models\Auth\User::query()
-            ->students()
-            ->whereHas('student.enrollments', fn ($query) => $query
-                ->where('section_id', $this->sectionId)
-                ->where('status', 'active')
-            )
-            ->get();
+        $result = $this->publishClassTimetable($this->termId, [$classId]);
 
-        if ($students->isEmpty()) {
+        if (! $result['success']) {
+            $message = match ($result['reason']) {
+                'no_schedule' => __('dashboard.notifications.timetable_publish_failed_body_no_schedule'),
+                'no_recipients' => __('dashboard.notifications.timetable_publish_failed_body_no_students'),
+                default => __('dashboard.notifications.timetable_publish_failed_body'),
+            };
+
             Notification::make()
                 ->title(__('dashboard.notifications.timetable_publish_failed_title'))
-                ->body(__('dashboard.notifications.timetable_publish_failed_body'))
+                ->body($message)
                 ->danger()
                 ->send();
 
             return;
         }
 
-        $notification = new \App\Notifications\Admin\TimetablePublishedNotification('students');
-
-        foreach ($students as $student) {
-            $student->notify($notification);
-        }
-
-        $tokens = $students
-            ->whereNotNull('fcm_token')
-            ->pluck('fcm_token')
-            ->toArray();
-
-        if (! empty($tokens)) {
-            app(\App\Services\FirebaseService::class)
-                ->sendPushNotification($tokens, $notification->title(), $notification->body());
-        }
-
         Notification::make()
             ->title(__('dashboard.notifications.timetable_published_success_title'))
-            ->body(__('dashboard.notifications.timetable_published_success_body_student'))
+            ->body(__('dashboard.notifications.timetable_published_success_body'))
             ->success()
             ->send();
     }
@@ -283,7 +266,7 @@ class Timetable extends Page implements HasForms
     {
         Notification::make()
             ->title(__('dashboard.labels.missing_selection'))
-            ->body(__('dashboard.labels.missing_selection_message'))
+            ->body(__('dashboard.labels.missing_selection_message_for_student_timetable'))
             ->danger()
             ->send();
     }
