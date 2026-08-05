@@ -36,6 +36,7 @@ class Suggestion extends Model
         'user_id',
         'title',
         'body',
+         'status',
         'is_acknowledged',
         'feedback',
     ];
@@ -83,18 +84,7 @@ class Suggestion extends Model
         return $query->where('is_acknowledged', true);
     }
 
-    /**
-     * البحث حسب الفئة
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $category
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeByCategory($query, string $category)
-    {
-        return $query->where('category', $category);
-    }
-
+    
     // ────── Methods ──────
 
     /**
