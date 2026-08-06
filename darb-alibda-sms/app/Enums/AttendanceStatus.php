@@ -7,6 +7,7 @@ enum AttendanceStatus: string
     case PRESENT = 'present';
     case ABSENT = 'absent';
     case LATE = 'late';
+    case EXCUSED = 'excused';
 
     public function label(): string
     {
@@ -14,6 +15,7 @@ enum AttendanceStatus: string
             self::PRESENT => __('dashboard.enums.attendance_status.present'),
             self::ABSENT => __('dashboard.enums.attendance_status.absent'),
             self::LATE => __('dashboard.enums.attendance_status.late'),
+            self::EXCUSED => __('dashboard.enums.attendance_status.excused'),
         };
     }
 
@@ -37,6 +39,16 @@ enum AttendanceStatus: string
             'success' => self::PRESENT,
             'danger' => self::ABSENT,
             'warning' => self::LATE,
+            'excused'=> self::EXCUSED,
         ];
     }
+    public function icon(): string
+{
+    return match ($this) {
+        self::PRESENT => '✅',
+        self::ABSENT => '❌',
+        self::LATE => '🟡',
+        self::EXCUSED => '🟢',
+    };
+}
 }

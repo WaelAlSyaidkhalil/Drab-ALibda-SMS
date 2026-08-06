@@ -11,9 +11,13 @@ use App\Models\Academic\Teacher;
 use App\Models\Auth\Role;
 use App\Models\Auth\User;
 use App\Models\Communication\AbsenceJustification;
+use App\Models\Communication\Complaint;
 use App\Models\Communication\Conversation;
 use App\Models\Communication\Message;
 use App\Models\Communication\News;
+use App\Models\Communication\SchoolInfo;
+use App\Models\Communication\Suggestion;
+use App\Models\Communication\TeacherNote;
 use App\Models\Grading\StudentSubjectResult;
 use App\Models\Schedule\Attendance;
 use App\Models\Schedule\Schedule;
@@ -132,6 +136,76 @@ class ParentApiTest extends TestCase
         $this->withToken($token)
             ->getJson('/api/parent/children/'.$student->id.'/driver')
             ->assertOk();
+    }
+
+    public function test_parent_can_view_detailed_notes_grades_schedule_and_school_info(): void
+    {
+        $parent = $this->createParentUser();
+        $student = $this->createStudentForParent($parent);
+        $this->seedAcademicData($student, $parent);
+
+        TeacherNote::create([
+            'student_id' => $student->id,
+            'teacher_id' => $student->parent?->id ?? $parent->id,
+            'title' => 'Homework reminder',
+            'content' => 'Please review the latest projects.',
+        ]);
+
+        SchoolInfo::create([
+            'name' => 'Drab Alibda School',
+            'description' => 'A modern school',
+            'address' => 'Riyadh',
+            'phone' => '0500000000',
+            'email' => 'info@example.com',
+            'website' => 'https://example.com',
+        ]);
+
+        $token = $this->loginParent($parent);
+
+        $this->withToken($token)
+            ->getJson('/api/parent/notes')
+            ->assertOk()
+            ->assertJsonPath('data.items.0.student.id', $student->id)
+            ->assertJsonPath('data.items.0.content', 'Please review the latest projects.');
+
+        $this->withToken($token)
+            ->getJson('/api/parent/children/'.$student->id.'/grades')
+            ->assertOk()
+            ->assertJsonPath('data.0.subject', 'Math')
+            ->assertJsonPath('data.0.assessment_type', 'yearly');
+
+        $this->withToken($token)
+            ->getJson('/api/parent/children/'.$student->id.'/schedule?day=Mon')
+            ->assertOk()
+            ->assertJsonPath('data.0.day', 'Mon');
+
+        $this->withToken($token)
+            ->getJson('/api/parent/school-info')
+            ->assertOk()
+            ->assertJsonPath('data.name', 'Drab Alibda School');
+    }
+
+    public function test_parent_can_submit_suggestions_and_complaints(): void
+    {
+        $parent = $this->createParentUser();
+        $token = $this->loginParent($parent);
+
+        $this->withToken($token)
+            ->postJson('/api/parent/suggestions', [
+                'title' => 'More sports activities',
+                'body' => 'Please add more activities for students.',
+            ])
+            ->assertCreated();
+
+        $this->withToken($token)
+            ->postJson('/api/parent/complaints', [
+                'title' => 'Transport issue',
+                'body' => 'The bus was late yesterday.',
+            ])
+            ->assertCreated();
+
+        $this->assertDatabaseHas('suggestions', ['user_id' => $parent->id, 'title' => 'More sports activities']);
+        $this->assertDatabaseHas('complaints', ['user_id' => $parent->id, 'title' => 'Transport issue']);
     }
 
     protected function createParentUser(): User
