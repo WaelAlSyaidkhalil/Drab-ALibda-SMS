@@ -31,7 +31,7 @@ use Illuminate\Support\Carbon;
 #[ObservedBy(NewsObserver::class)]
 class News extends Model
 {
-    use Filterable, HasAttachments, Notifiable;
+    use Filterable, HasAttachments;
 
     protected $fillable = [
         'title',

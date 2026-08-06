@@ -2,10 +2,11 @@
 
 namespace App\Observers\Academic;
 
+use App\Enums\StudentStatus;
+use App\Jobs\SendFirebaseNotificationJob;
 use App\Models\Academic\StudentEnrollment;
 use App\Notifications\Admin\StudentEnrolledNotification;
 use App\Notifications\Admin\StudentEnrollmentStatusUpdatedNotification;
-use App\Services\FirebaseService;
 
 class StudentEnrollmentObserver
 {
@@ -21,10 +22,10 @@ class StudentEnrollmentObserver
         }
 
         $notification = new StudentEnrolledNotification($enrollment);
-        $studentUser->notify($notification);
+        $studentUser->notifyNow($notification);
 
         if (! empty($studentUser->fcm_token)) {
-            app(FirebaseService::class)->sendPushNotification(
+            SendFirebaseNotificationJob::dispatch(
                 [$studentUser->fcm_token],
                 $notification->title(),
                 $notification->body()
@@ -37,7 +38,7 @@ class StudentEnrollmentObserver
      */
     public function updated(StudentEnrollment $enrollment): void
     {
-        if (! $enrollment->wasChanged('status') && ! $enrollment->wasChanged('final_result')) {
+        if (! $enrollment->wasChanged('status')) {
             return;
         }
 
@@ -47,11 +48,16 @@ class StudentEnrollmentObserver
             return;
         }
 
-        $notification = new StudentEnrollmentStatusUpdatedNotification($enrollment);
-        $studentUser->notify($notification);
+        $notification = new StudentEnrollmentStatusUpdatedNotification(
+            $enrollment->student?->full_name ?? __('dashboard.notifications.student'),
+            $enrollment->status->value,
+            $enrollment->status->label(),
+            $enrollment->final_average,
+        );
+        $studentUser->notifyNow($notification);
 
         if (! empty($studentUser->fcm_token)) {
-            app(FirebaseService::class)->sendPushNotification(
+            SendFirebaseNotificationJob::dispatch(
                 [$studentUser->fcm_token],
                 $notification->title(),
                 $notification->body()

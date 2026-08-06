@@ -2,9 +2,10 @@
 
 namespace App\Observers\Schedule;
 
+use App\Enums\AttendanceStatus;
+use App\Jobs\SendFirebaseNotificationJob;
 use App\Models\Schedule\TeacherAttendance;
 use App\Notifications\Admin\TeacherAbsentNotification;
-use App\Services\FirebaseService;
 
 class TeacherAttendanceObserver
 {
@@ -14,20 +15,20 @@ class TeacherAttendanceObserver
             return;
         }
 
-        if ($attendance->status !== 'absent') {
+        if ($attendance->status !== AttendanceStatus::ABSENT) {
             return;
         }
-
+            
         $teacherUser = $attendance->teacher?->user;
         if ($teacherUser === null) {
             return;
         }
 
         $notification = new TeacherAbsentNotification($attendance);
-        $teacherUser->notify($notification);
+        $teacherUser->notifyNow($notification);
 
         if (! empty($teacherUser->fcm_token)) {
-            app(FirebaseService::class)->sendPushNotification(
+            SendFirebaseNotificationJob::dispatch(
                 [$teacherUser->fcm_token],
                 $notification->title(),
                 $notification->body()

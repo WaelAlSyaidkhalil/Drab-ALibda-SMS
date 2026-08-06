@@ -3,13 +3,10 @@
 namespace App\Notifications\Admin;
 
 use App\Models\Communication\Suggestion;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class SuggestionStatusUpdatedNotification extends Notification implements ShouldQueue
+class SuggestionStatusUpdatedNotification extends Notification
 {
-    use Queueable;
 
     public function __construct(protected Suggestion $suggestion)
     {

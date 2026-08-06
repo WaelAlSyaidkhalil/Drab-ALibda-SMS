@@ -71,7 +71,7 @@ class TeacherAttendanceService
                 default => 'حضور',
             };
 
-            $student->parent->notify(new TeacherActionNotification(
+            $student->parent->notifyNow(new TeacherActionNotification(
                 $teacherUser,
                 $student,
                 'تحديث حالة الحضور',

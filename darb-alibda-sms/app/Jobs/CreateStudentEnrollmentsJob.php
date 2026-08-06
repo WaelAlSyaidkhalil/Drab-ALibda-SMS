@@ -9,12 +9,9 @@ use App\Models\Academic\SchoolClass;
 use App\Models\Academic\Section;
 use App\Models\Academic\StudentEnrollment;
 use App\Models\Traits\HasAcademicYear;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
 
-class CreateStudentEnrollmentsJob implements ShouldQueue
+class CreateStudentEnrollmentsJob
 {
-    use Queueable;
 
     /**
      * Create a new job instance.

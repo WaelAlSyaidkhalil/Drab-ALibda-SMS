@@ -3,13 +3,10 @@
 namespace App\Notifications\Admin;
 
 use App\Models\Schedule\TeacherAttendance;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class TeacherAbsentNotification extends Notification implements ShouldQueue
+class TeacherAbsentNotification extends Notification 
 {
-    use Queueable;
 
     public function __construct(protected TeacherAttendance $attendance)
     {

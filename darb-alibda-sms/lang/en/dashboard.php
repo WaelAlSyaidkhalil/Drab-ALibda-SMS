@@ -75,6 +75,7 @@ return [
     ],
 
     'labels' => [
+        'account' => 'Account',
         'teacher' => 'Teacher',
         'term' => 'Term',
         'section' => 'Section',
@@ -348,8 +349,16 @@ return [
     'notifications' => [
         'student_enrolled_title' => 'Student enrolled',
         'student_enrolled_body' => ':student has been enrolled in :section for the :year academic year.',
+        'student_enrollment_status_updated_title_success' => 'Congratulations!',
+        'student_enrollment_status_updated_title_failed' => 'Result update',
+        'student_enrollment_status_updated_title_withdrawn' => 'Enrollment withdrawn',
         'student_enrollment_status_updated_title' => 'Enrollment status updated',
-        'student_enrollment_status_updated_body' => ':student enrollment status in :section is now :status.',
+        'student_enrollment_status_updated_body_promoted' => ':student, great job! You passed and have been promoted with a final average of :average.',
+        'student_enrollment_status_updated_body_graduated' => ':student, congratulations! You have graduated with a final average of :average.',
+        'student_enrollment_status_updated_body_repeated' => ':student, you have not passed this year. Your final average is :average.',
+        'student_enrollment_status_updated_body_withdrawn' => ':student, your enrollment has been withdrawn. Final average: :average.',
+        'student_enrollment_status_updated_body' => ':student enrollment status is now :status.',
+        'student_enrollment_status_updated_body_with_average' => ':student enrollment status in :section is now :status with a final average of :average.',
         'student_enrollment_status_updated_body_with_result' => ':student enrollment status in :section is now :status and the final result is :result.',
         'teacher_created_title' => 'Teacher account created',
         'teacher_created_body' => ':teacher has been created and can now access the system.',

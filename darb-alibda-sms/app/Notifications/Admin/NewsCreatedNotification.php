@@ -3,13 +3,10 @@
 namespace App\Notifications\Admin;
 
 use App\Models\Communication\News;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class NewsCreatedNotification extends Notification implements ShouldQueue
+class NewsCreatedNotification extends Notification
 {
-    use Queueable;
 
     public function __construct(
         protected News $news,
@@ -30,7 +27,7 @@ class NewsCreatedNotification extends Notification implements ShouldQueue
             'title' => $this->title,
             'body' => $this->body,
             'news_id' => $this->news->id,
-            'audience' => (string) $this->news->audience,
+            'audience' => $this->news->audience,
             'type' => 'news',
         ];
     }

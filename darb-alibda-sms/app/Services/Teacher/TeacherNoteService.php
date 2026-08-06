@@ -206,7 +206,7 @@ class TeacherNoteService
 
             $student = Student::find($note->student_id);
             if ($student && $student->parent) {
-                $student->parent->notify(new TeacherActionNotification(
+                $student->parent->notifyNow(new TeacherActionNotification(
                     $teacherUser,
                     $student,
                     'ملاحظة جديدة من المعلم',

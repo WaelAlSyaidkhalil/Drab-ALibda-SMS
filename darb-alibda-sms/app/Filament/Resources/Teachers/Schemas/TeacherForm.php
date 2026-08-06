@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Teachers\Schemas;
 
 use App\Enums\Gender;
+use App\Models\Auth\User;
 use App\Services\Admin\GeneratePasswordService;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
@@ -30,11 +31,7 @@ class TeacherForm
                                 'required' => __('validation.custom.first_name.required'),
                                 'max' => __('validation.custom.first_name.max'),
                             ])
-                            ->live()
-                            ->afterStateUpdated(
-                                fn($state, callable $get, callable $set) =>
-                                $set('user.name', trim($state . ' ' . $get('last_name')))
-                            ),
+                            ->maxLength(255),
 
                         TextInput::make('last_name')
                             ->label(__('dashboard.labels.last_name'))
@@ -43,11 +40,8 @@ class TeacherForm
                                 'required' => __('validation.custom.last_name.required'),
                                 'max' => __('validation.custom.last_name.max'),
                             ])
-                            ->live()
-                            ->afterStateUpdated(
-                                fn($state, callable $get, callable $set) =>
-                                $set('user.name', trim($get('first_name') . ' ' . $state))
-                            ),
+                            ->maxLength(255),
+
                         TextInput::make('father_name')
                             ->label(__('dashboard.labels.father_name')),
 
@@ -69,46 +63,74 @@ class TeacherForm
                     ]),
                 Section::make(__('dashboard.labels.account_details'))
                     ->columns(2)
-                    ->relationship('user')
                     ->schema([
-                        TextInput::make('name')
-                            ->label(__('dashboard.labels.name'))
-                            ->disabled()
-                            ->dehydrated(),
-
-                        TextInput::make('phone')
-                            ->label(__('dashboard.labels.phone'))
+                        Select::make('user_id')
+                            ->label(__('dashboard.labels.account'))
+                            ->relationship(
+                                name: 'user',
+                                titleAttribute: 'name',
+                                modifyQueryUsing: fn($query) => $query->where('role_id', 2)
+                            )
+                            ->searchable()
+                            ->preload()
                             ->required()
-                            ->tel()
-                            ->unique(ignoreRecord: true)
-                            ->validationMessages([
-                                'required' => __('validation.custom.phone.required'),
-                                'unique' => __('validation.custom.phone.unique'),
-                                'regex' => __('validation.custom.phone.tel'),
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->label(__('dashboard.labels.name'))
+                                    ->required()
+                                    ->maxLength(255),
+
+                                TextInput::make('phone')
+                                    ->label(__('dashboard.labels.phone'))
+                                    ->required()
+                                    ->tel()
+                                    ->unique('users', 'phone')
+                                    ->validationMessages([
+                                        'required' => __('validation.custom.phone.required'),
+                                        'unique' => __('validation.custom.phone.unique'),
+                                        'regex' => __('validation.custom.phone.tel'),
+                                    ])
+                                    ->maxLength(20),
+
+                                TextInput::make('email')
+                                    ->label(__('dashboard.labels.email'))
+                                    ->required()
+                                    ->email()
+                                    ->unique('users', 'email')
+                                    ->validationMessages([
+                                        'required' => __('validation.custom.email.required'),
+                                        'email' => __('validation.custom.email.email'),
+                                        'unique' => __('validation.custom.email.unique'),
+                                    ])
+                                    ->maxLength(255),
+
+                                TextInput::make('password')
+                                    ->label(__('dashboard.labels.password'))
+                                    ->default(fn() => app(GeneratePasswordService::class)->generatePassword())
+                                    ->required(),
+
+                                Hidden::make('role_id')
+                                    ->default(2),
+
+                                Toggle::make('is_active')
+                                    ->label(__('dashboard.labels.active'))
+                                    ->default(true)
+                                    ->validationMessages([
+                                        'boolean' => __('validation.custom.is_active.boolean'),
+                                    ]),
                             ])
-                            ->maxLength(20),
+                            ->createOptionUsing(function (array $data) {
+                                $user = User::create([
+                                    'name' => $data['name'],
+                                    'phone' => $data['phone'],
+                                    'email' => $data['email'],
+                                    'password' => $data['password'],
+                                    'role_id' => $data['role_id'],
+                                    'is_active' => $data['is_active'] ?? true,
+                                ]);
 
-                        TextInput::make('email')
-                            ->label(__('dashboard.labels.email'))
-                            ->email()
-                            ->unique(ignoreRecord: true)
-                            ->validationMessages([
-                                'email' => __('validation.custom.email.email'),
-                                'unique' => __('validation.custom.email.unique'),
-                            ])
-                            ->maxLength(255),
-
-                        TextInput::make('password')
-                            ->label(__('dashboard.labels.password'))
-                            ->default(fn() => app(GeneratePasswordService::class)->generatePassword()),
-
-                        Hidden::make('role_id')
-                            ->default(2),
-
-                        TextInput::make('role_display')
-                            ->label(__('dashboard.labels.role'))
-                            ->placeholder(__('dashboard.labels.teacher'))
-                            ->disabled(),
+                                return $user->id;
+                            }),
                     ]),
                 Section::make(__('dashboard.labels.employment_information'))
                     ->columns(2)
@@ -169,16 +191,6 @@ class TeacherForm
                             ->tel()
                             ->validationMessages([
                                 'regex' => __('validation.custom.phone.tel'),
-                            ])
-                    ]),
-                Section::make(__('dashboard.labels.status'))
-                    ->relationship('user')
-                    ->schema([
-                        Toggle::make('is_active')
-                            ->label(__('dashboard.labels.active'))
-                            ->default(true)
-                            ->validationMessages([
-                                'boolean' => __('validation.custom.is_active.boolean'),
                             ]),
                     ]),
             ]);

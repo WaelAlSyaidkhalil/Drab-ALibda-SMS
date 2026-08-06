@@ -2,14 +2,10 @@
 
 namespace App\Notifications\Admin;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class TimetablePublishedNotification extends Notification implements ShouldQueue
+class TimetablePublishedNotification extends Notification 
 {
-    use Queueable;
-
     public function __construct(protected string $audience)
     {
     }

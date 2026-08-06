@@ -2,9 +2,9 @@
 
 namespace App\Observers\Communication;
 
+use App\Jobs\SendFirebaseNotificationJob;
 use App\Models\Communication\Complaint;
 use App\Notifications\Admin\ComplaintStatusUpdatedNotification;
-use App\Services\FirebaseService;
 
 class ComplaintObserver
 {
@@ -20,10 +20,10 @@ class ComplaintObserver
         }
 
         $notification = new ComplaintStatusUpdatedNotification($complaint);
-        $user->notify($notification);
+        $user->notifyNow($notification);
 
         if (! empty($user->fcm_token)) {
-            app(FirebaseService::class)->sendPushNotification(
+            SendFirebaseNotificationJob::dispatch(
                 [$user->fcm_token],
                 $notification->title(),
                 $notification->body()

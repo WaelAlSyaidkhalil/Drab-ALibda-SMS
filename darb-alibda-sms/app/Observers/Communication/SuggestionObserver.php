@@ -2,9 +2,9 @@
 
 namespace App\Observers\Communication;
 
+use App\Jobs\SendFirebaseNotificationJob;
 use App\Models\Communication\Suggestion;
 use App\Notifications\Admin\SuggestionStatusUpdatedNotification;
-use App\Services\FirebaseService;
 
 class SuggestionObserver
 {
@@ -20,10 +20,10 @@ class SuggestionObserver
         }
 
         $notification = new SuggestionStatusUpdatedNotification($suggestion);
-        $user->notify($notification);
+        $user->notifyNow($notification);
 
         if (! empty($user->fcm_token)) {
-            app(FirebaseService::class)->sendPushNotification(
+            SendFirebaseNotificationJob::dispatch(
                 [$user->fcm_token],
                 $notification->title(),
                 $notification->body()

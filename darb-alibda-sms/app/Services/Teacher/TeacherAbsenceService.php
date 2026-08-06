@@ -80,7 +80,7 @@ class TeacherAbsenceService
                 default => 'تم تحديثه',
             };
 
-            $justification->student->parent->notify(new TeacherActionNotification(
+            $justification->student->parent->notifyNow(new TeacherActionNotification(
                 $teacherUser,
                 $student,
                 'تم تحديث طلب الغياب',

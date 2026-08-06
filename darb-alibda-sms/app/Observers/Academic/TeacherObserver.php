@@ -2,9 +2,9 @@
 
 namespace App\Observers\Academic;
 
+use App\Jobs\SendFirebaseNotificationJob;
 use App\Models\Academic\Teacher;
 use App\Notifications\Admin\TeacherCreatedNotification;
-use App\Services\FirebaseService;
 
 class TeacherObserver
 {
@@ -20,11 +20,10 @@ class TeacherObserver
         }
 
         $notification = new TeacherCreatedNotification($teacher);
-
-        $user->notify($notification);
+        $user->notifyNow($notification);
 
         if (! empty($user->fcm_token)) {
-            app(FirebaseService::class)->sendPushNotification(
+            SendFirebaseNotificationJob::dispatch(
                 [$user->fcm_token],
                 $notification->title(),
                 $notification->body()

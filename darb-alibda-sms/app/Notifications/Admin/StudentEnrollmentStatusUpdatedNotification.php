@@ -2,45 +2,76 @@
 
 namespace App\Notifications\Admin;
 
-use App\Enums\MarkResult;
-use App\Models\Academic\StudentEnrollment;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use App\Enums\StudentStatus;
 use Illuminate\Notifications\Notification;
 
-class StudentEnrollmentStatusUpdatedNotification extends Notification implements ShouldQueue
+class StudentEnrollmentStatusUpdatedNotification extends Notification
 {
-    use Queueable;
-
-    public function __construct(protected StudentEnrollment $enrollment)
-    {
+    public function __construct(
+        protected string $studentName,
+        protected string $statusValue,
+        protected string $statusLabel,
+        protected ?float $finalAverage,
+    ) {
     }
 
     public function title(): string
     {
+        $status = StudentStatus::from($this->statusValue);
+
+        if ($status == StudentStatus::GRADUATED || $status == StudentStatus::PROMOTED) {
+            return __('dashboard.notifications.student_enrollment_status_updated_title_success');
+        }
+
+        if ($status == StudentStatus::REPEATED) {
+            return __('dashboard.notifications.student_enrollment_status_updated_title_failed');
+        }
+
+        if ($status == StudentStatus::WITHDRAWN) {
+            return __('dashboard.notifications.student_enrollment_status_updated_title_withdrawn');
+        }
+
         return __('dashboard.notifications.student_enrollment_status_updated_title');
     }
 
     public function body(): string
     {
-        $student = $this->enrollment->student?->full_name ?? __('dashboard.notifications.student');
-        $section = $this->enrollment->section?->full_name ?? '';
-        $status = $this->enrollment->status->label();
-        $finalResult = $this->enrollment->final_result;
+        $status = StudentStatus::from($this->statusValue);
+        $average = $this->finalAverage !== null
+            ? number_format($this->finalAverage, 2)
+            : null;
 
-        if ($finalResult !== null && $finalResult !== MarkResult::PENDING) {
-            return __('dashboard.notifications.student_enrollment_status_updated_body_with_result', [
-                'student' => $student,
-                'section' => $section,
-                'status' => $status,
-                'result' => $finalResult->label(),
+        if ($status == StudentStatus::GRADUATED && $average !== null) {
+            return __('dashboard.notifications.student_enrollment_status_updated_body_graduated', [
+                'student' => $this->studentName,
+                'average' => $average,
+            ]);
+        }
+
+        if ($status == StudentStatus::PROMOTED && $average !== null) {
+            return __('dashboard.notifications.student_enrollment_status_updated_body_promoted', [
+                'student' => $this->studentName,
+                'average' => $average,
+            ]);
+        }
+
+        if ($status == StudentStatus::REPEATED && $average !== null) {
+            return __('dashboard.notifications.student_enrollment_status_updated_body_repeated', [
+                'student' => $this->studentName,
+                'average' => $average,
+            ]);
+        }
+
+        if ($status == StudentStatus::WITHDRAWN && $average !== null) {
+            return __('dashboard.notifications.student_enrollment_status_updated_body_withdrawn', [
+                'student' => $this->studentName,
+                'average' => $average,
             ]);
         }
 
         return __('dashboard.notifications.student_enrollment_status_updated_body', [
-            'student' => $student,
-            'section' => $section,
-            'status' => $status,
+            'student' => $this->studentName,
+            'status' => $this->statusLabel,
         ]);
     }
 
@@ -52,20 +83,8 @@ class StudentEnrollmentStatusUpdatedNotification extends Notification implements
     public function toDatabase($notifiable): array
     {
         return [
-            'from' => 'school',
             'title' => $this->title(),
             'body' => $this->body(),
-            'type' => 'student_enrollment_status_updated',
-            'enrollment_id' => $this->enrollment->id,
-            'student_id' => $this->enrollment->student?->id,
-            'student_name' => $this->enrollment->student?->full_name,
-            'section_id' => $this->enrollment->section?->id,
-            'section_name' => $this->enrollment->section?->full_name,
-            'academic_year' => $this->enrollment->academic_year,
-            'status' => $this->enrollment->status->value,
-            'status_label' => $this->enrollment->status->label(),
-            'final_result' => $this->enrollment->final_result?->value,
-            'final_result_label' => $this->enrollment->final_result?->label(),
         ];
     }
 }

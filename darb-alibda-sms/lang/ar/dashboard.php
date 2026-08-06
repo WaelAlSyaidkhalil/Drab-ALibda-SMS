@@ -76,6 +76,7 @@ return [
     ],
 
     'labels' => [
+        'account' => 'الحساب',
         'teacher' => 'المعلم',
         'term' => 'الفصل',
         'section' => 'الشعبة',
@@ -351,6 +352,8 @@ return [
         'student_enrolled_body' => ':student تم تسجيله في :section للسنة الدراسية :year.',
         'student_enrollment_status_updated_title' => 'تم تحديث حالة التسجيل',
         'student_enrollment_status_updated_body' => 'حالة تسجيل :student في :section أصبحت :status.',
+        'student_enrollment_status_updated_body_with_average' => 'حالة تسجيل :student في :section أصبحت :status بمعدل نهائي :average.',
+        'student_enrollment_status_updated_body_graduated' => 'حالة تسجيل :student في :section أصبحت :status بمعدل نهائي :average. تهانينا!',
         'student_enrollment_status_updated_body_with_result' => 'حالة تسجيل :student في :section أصبحت :status والنتيجة النهائية :result.',
         'teacher_created_title' => 'تم إنشاء حساب المعلم',
         'teacher_created_body' => ':teacher تم إنشاء حسابه ويمكنه الآن الوصول إلى النظام.',

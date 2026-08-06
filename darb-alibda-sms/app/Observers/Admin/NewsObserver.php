@@ -2,10 +2,10 @@
 
 namespace App\Observers\Admin;
 
+use App\Jobs\SendFirebaseNotificationJob;
 use App\Models\Communication\News;
 use App\Models\User;
 use App\Notifications\Admin\NewsCreatedNotification;
-use App\Services\FirebaseService;
 use Illuminate\Support\Facades\Storage;
 
 class NewsObserver
@@ -27,7 +27,7 @@ class NewsObserver
         $users = $query->get();
 
         foreach ($users as $user) {
-            $user->notify(new NewsCreatedNotification($news, $title, $body));
+            $user->notifyNow(new NewsCreatedNotification($news, $title, $body));
         }
 
         $tokens = $users
@@ -36,7 +36,7 @@ class NewsObserver
             ->toArray();
 
         if (! empty($tokens)) {
-            app(FirebaseService::class)->sendPushNotification($tokens, $title, $body);
+            SendFirebaseNotificationJob::dispatch($tokens, $title, $body);
         }
     }
 

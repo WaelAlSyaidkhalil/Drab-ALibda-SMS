@@ -78,7 +78,7 @@ class TeacherMarkService
         $student = $studentMark->enrollment?->student;
         $teacherUser = Teacher::find($teacherId)?->user;
         if ($student && $student->parent && $teacherUser) {
-            $student->parent->notify(new TeacherActionNotification(
+            $student->parent->notifyNow(new TeacherActionNotification(
                 $teacherUser,
                 $student,
                 'تم إضافة علامة جديدة',
@@ -117,7 +117,7 @@ class TeacherMarkService
         $student = $studentMark->enrollment?->student;
         $teacherUser = Teacher::find($teacherId)?->user;
         if ($student && $student->parent && $teacherUser) {
-            $student->parent->notify(new TeacherActionNotification(
+            $student->parent->notifyNow(new TeacherActionNotification(
                 $teacherUser,
                 $student,
                 'تم تعديل العلامة',
