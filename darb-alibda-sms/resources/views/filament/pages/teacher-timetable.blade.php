@@ -63,6 +63,7 @@
 
     <div class="mt-6">
         <button class="generate-timetable-button" wire:click="generateTimetableUsingORTools">{{ __('dashboard.buttons.generate_timetable') }}</button>
+        <button class="publish-timetable-button" wire:click="publishTeacherTimetable">{{ __('dashboard.buttons.publish_timetable') }}</button>
     </div>
 
     <style>
@@ -165,7 +166,8 @@
             background: var(--gray-800);
         }
 
-        .generate-timetable-button {
+        .generate-timetable-button,
+        .publish-timetable-button {
             background-color: var(--primary-600);
             color: white;
             padding: 10px 20px;
@@ -176,7 +178,8 @@
             transition: background-color 0.3s ease;
         }
 
-        .generate-timetable-button:hover {
+        .generate-timetable-button:hover,
+        .publish-timetable-button:hover {
             background-color: var(--primary-700);
         }
 </style>

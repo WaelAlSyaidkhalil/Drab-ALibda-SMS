@@ -41,6 +41,7 @@ return new class extends Migration
                 ['section_id', 'term_id', 'day', 'time_slot_id'],
                 'unique_section_per_slot'
             );
+            $table->dateTime('published_at')->nullable()->comment('تاريخ نشر الجدول الدراسي');
         });
     }
 

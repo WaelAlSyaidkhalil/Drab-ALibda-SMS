@@ -10,6 +10,7 @@ use App\Models\Subjects\Term;
 use App\Models\Subjects\Subject;
 use App\Models\Academic\Teacher;
 use BackedEnum;
+use App\Filament\Pages\Scheduling\Traits\PublishesClassTimetableNotifications;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -22,6 +23,7 @@ use Filament\Support\Icons\Heroicon;
 class Timetable extends Page implements HasForms
 {
     use InteractsWithForms;
+    use PublishesClassTimetableNotifications;
 
     protected string $view = 'filament.pages.scheduling.timetable';
 
@@ -46,6 +48,50 @@ class Timetable extends Page implements HasForms
     protected static ?int $navigationSort = 2;
 
     public ?array $data = [];
+
+    public function publishStudentTimetable(): void
+    {
+        if (! $this->ensureContextSelected()) {
+            $this->notifyMissingContext();
+            return;
+        }
+
+        $classId = $this->getClassIdFromSection($this->sectionId);
+
+        if (! $classId) {
+            Notification::make()
+                ->title(__('dashboard.notifications.timetable_publish_failed_title'))
+                ->body(__('dashboard.notifications.timetable_publish_failed_body_no_schedule'))
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $result = $this->publishClassTimetable($this->termId, [$classId]);
+
+        if (! $result['success']) {
+            $message = match ($result['reason']) {
+                'no_schedule' => __('dashboard.notifications.timetable_publish_failed_body_no_schedule'),
+                'no_recipients' => __('dashboard.notifications.timetable_publish_failed_body_no_students'),
+                default => __('dashboard.notifications.timetable_publish_failed_body'),
+            };
+
+            Notification::make()
+                ->title(__('dashboard.notifications.timetable_publish_failed_title'))
+                ->body($message)
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        Notification::make()
+            ->title(__('dashboard.notifications.timetable_published_success_title'))
+            ->body(__('dashboard.notifications.timetable_published_success_body'))
+            ->success()
+            ->send();
+    }
 
     public ?int $termId = null;
     public ?int $sectionId = null;
@@ -220,7 +266,7 @@ class Timetable extends Page implements HasForms
     {
         Notification::make()
             ->title(__('dashboard.labels.missing_selection'))
-            ->body(__('dashboard.labels.missing_selection_message'))
+            ->body(__('dashboard.labels.missing_selection_message_for_student_timetable'))
             ->danger()
             ->send();
     }

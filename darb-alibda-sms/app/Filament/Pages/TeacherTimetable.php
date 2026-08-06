@@ -9,6 +9,7 @@ use App\Models\Academic\Teacher;
 use App\Models\Schedule\Schedule;
 use App\Models\Schedule\TimeSlot;
 use App\Models\Subjects\Subject;
+use App\Filament\Pages\Scheduling\Traits\PublishesClassTimetableNotifications;
 use App\Models\Subjects\Term;
 use BackedEnum;
 use Filament\Actions\Action;
@@ -26,6 +27,7 @@ class TeacherTimetable extends Page implements HasForms, HasActions
 {
     use InteractsWithForms;
     use InteractsWithActions;
+    use PublishesClassTimetableNotifications;
 
     protected string $view = 'filament.pages.teacher-timetable';
     protected static BackedEnum|string|null $navigationIcon = Heroicon::TableCells;
@@ -271,8 +273,52 @@ class TeacherTimetable extends Page implements HasForms, HasActions
     {
         Notification::make()
             ->title(__('dashboard.labels.missing_selection'))
-            ->body(__('dashboard.labels.missing_selection_message'))
+            ->body(__('dashboard.labels.missing_selection_message_for_teacher_timetable'))
             ->danger()
+            ->send();
+    }
+
+    public function publishTeacherTimetable(): void
+    {
+        if (! $this->ensureContextSelected()) {
+            $this->notifyMissingContext();
+            return;
+        }
+
+        $classIds = $this->getClassIdsForTeacher($this->termId, $this->teacherId);
+
+        if (empty($classIds)) {
+            Notification::make()
+                ->title(__('dashboard.notifications.timetable_publish_failed_title'))
+                ->body(__('dashboard.notifications.timetable_publish_failed_body_no_schedule'))
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $result = $this->publishClassTimetable($this->termId, $classIds);
+
+        if (! $result['success']) {
+            $message = match ($result['reason']) {
+                'no_schedule' => __('dashboard.notifications.timetable_publish_failed_body_no_schedule'),
+                'no_recipients' => __('dashboard.notifications.timetable_publish_failed_body_teacher'),
+                default => __('dashboard.notifications.timetable_publish_failed_body'),
+            };
+
+            Notification::make()
+                ->title(__('dashboard.notifications.timetable_publish_failed_title'))
+                ->body($message)
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        Notification::make()
+            ->title(__('dashboard.notifications.timetable_published_success_title'))
+            ->body(__('dashboard.notifications.timetable_published_success_body'))
+            ->success()
             ->send();
     }
 

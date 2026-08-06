@@ -13,6 +13,8 @@ use App\Models\Traits\HasStatus;
 use App\Models\Grading\StudentMark;
 use App\Models\Grading\StudentSubjectResult;
 use App\Enums\StudentStatus;
+use App\Observers\Academic\StudentEnrollmentObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Support\Carbon;
 
 /**
@@ -36,6 +38,8 @@ use Illuminate\Support\Carbon;
  * @property-read Collection $marks
  * @property-read Collection $subjectResults
  */
+
+#[ObservedBy(StudentEnrollmentObserver::class)]
 class StudentEnrollment extends Model
 {
     use Filterable, HasAcademicYear, HasStatus;

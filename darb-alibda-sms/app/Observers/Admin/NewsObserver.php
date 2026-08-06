@@ -4,6 +4,7 @@ namespace App\Observers\Admin;
 
 use App\Models\Communication\News;
 use App\Models\User;
+use App\Notifications\Admin\NewsCreatedNotification;
 use App\Services\FirebaseService;
 use Illuminate\Support\Facades\Storage;
 
@@ -23,12 +24,20 @@ class NewsObserver
             default    => User::query(),
         };
 
-        $tokens = $query
+        $users = $query->get();
+
+        foreach ($users as $user) {
+            $user->notify(new NewsCreatedNotification($news, $title, $body));
+        }
+
+        $tokens = $users
             ->whereNotNull('fcm_token')
             ->pluck('fcm_token')
             ->toArray();
 
-        // app(FirebaseService::class)->sendPushNotification($tokens, $title, $body);
+        if (! empty($tokens)) {
+            app(FirebaseService::class)->sendPushNotification($tokens, $title, $body);
+        }
     }
 
     /**

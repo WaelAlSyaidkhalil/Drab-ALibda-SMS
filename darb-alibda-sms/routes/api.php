@@ -18,6 +18,8 @@ use App\Http\Controllers\Teacher\NewsController;
 use App\Http\Controllers\Teacher\ScheduleController as TeacherScheduleController;
 use App\Http\Controllers\Teacher\AttendanceController as TeacherAttendanceController;
 use App\Http\Controllers\Teacher\TeacherMarkController;
+use App\Http\Controllers\Teacher\SuggestionController;
+use App\Http\Controllers\Teacher\ComplaintController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Teacher\NotificationController;
 
@@ -64,6 +66,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('teacher/notification/mark-all-as-read',[NotificationController::class,'markAllAsRead']);
     Route::post('teacher/notification/{notificationId}/mark-as-read',[NotificationController::class,'markAsRead']);
     Route::post('teacher/notification/{notificationId}',[NotificationController::class,'deleteNotification']);
+
+
+
+
+Route::get('teacher/suggestions',[SuggestionController::class, 'index']);
+Route::post('teacher/suggestion',[SuggestionController::class, 'store']);
+Route::get('teacher/suggestions/{suggestion}',[SuggestionController::class, 'show']);
+
+
+Route::get('teacher/complaints',[ComplaintController::class, 'index']);
+Route::post('teacher/complaints',[ComplaintController::class, 'store']);
+Route::get('teacher/complaints/{complaint}',[ComplaintController::class, 'show']);
+
+
+
 
 
     Route::post('parent/logout', [AuthController::class, 'logout']);

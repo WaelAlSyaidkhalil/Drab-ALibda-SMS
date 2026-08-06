@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\Filterable;
 use App\Models\Academic\Teacher;
+use App\Observers\Schedule\TeacherAttendanceObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Support\Carbon;
 
 /**
@@ -22,6 +24,7 @@ use Illuminate\Support\Carbon;
  *
  * @property-read Teacher $teacher
  */
+#[ObservedBy(TeacherAttendanceObserver::class)]
 class TeacherAttendance extends Model
 {
     use Filterable;

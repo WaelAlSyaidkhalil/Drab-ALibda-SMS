@@ -14,3 +14,6 @@ Schedule::command('school:generate-enrollments')
 
 Schedule::command('school:fill-attendance-table')
     ->dailyAt('00:00');
+
+Schedule::command('school:fill-teacher-attendance')
+    ->dailyAt('00:00');

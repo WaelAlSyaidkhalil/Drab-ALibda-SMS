@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\Filterable;
 use App\Models\Traits\HasAttachments;
 use App\Models\Auth\User;
+use App\Observers\Communication\SuggestionObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Support\Carbon;
 
 /**
@@ -25,6 +27,7 @@ use Illuminate\Support\Carbon;
  *
  * @property-read User $user
  */
+#[ObservedBy(SuggestionObserver::class)]
 class Suggestion extends Model
 {
     use Filterable, HasAttachments;
@@ -33,6 +36,7 @@ class Suggestion extends Model
         'user_id',
         'title',
         'body',
+         'status',
         'is_acknowledged',
         'feedback',
         'status',
@@ -81,18 +85,7 @@ class Suggestion extends Model
         return $query->where('is_acknowledged', true);
     }
 
-    /**
-     * البحث حسب الفئة
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param string $category
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeByCategory($query, string $category)
-    {
-        return $query->where('category', $category);
-    }
-
+    
     // ────── Methods ──────
 
     /**

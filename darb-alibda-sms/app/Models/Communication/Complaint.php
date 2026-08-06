@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Traits\Filterable;
 use App\Models\Traits\HasAttachments;
-use App\Models\Communication\Attachment;
 use App\Models\Auth\User;
+use App\Observers\Communication\ComplaintObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 /**
  * نموذج الشكاوى
@@ -26,6 +27,7 @@ use App\Models\Auth\User;
  * @property-read User $user
  * @property-read User|null $assignee
  */
+#[ObservedBy(ComplaintObserver::class)]
 class Complaint extends Model
 {
     use Filterable, HasAttachments;
@@ -61,36 +63,19 @@ class Complaint extends Model
 
     // ────── Scopes ──────
 
-    /**
-     * الشكاوى الجديدة
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeNew($query)
-    {
-        return $query->where('status', 'new');
-    }
+  public function scopePending($query)
+{
+    return $query->where('status', ComplaintStatus::PENDING->value);
+}
 
-    /**
-     * الشكاوى قيد المعالجة
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeInProgress($query)
-    {
-        return $query->where('status', 'in_progress');
-    }
+public function scopeInProgress($query)
+{
+    return $query->where('status', ComplaintStatus::IN_PROGRESS->value);
+}
 
-    /**
-     * الشكاوى المغلقة
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function scopeClosed($query)
-    {
-        return $query->where('status', 'closed');
-    }
+public function scopeResolved($query)
+{
+    return $query->where('status', ComplaintStatus::RESOLVED->value);
+}
+
 }
