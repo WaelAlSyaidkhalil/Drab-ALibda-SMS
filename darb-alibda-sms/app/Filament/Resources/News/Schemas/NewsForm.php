@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Communication\NewsResource\Forms;
+namespace App\Filament\Resources\News\Schemas;
 
 use App\Enums\AudienceType;
 use Filament\Forms\Components\RichEditor;

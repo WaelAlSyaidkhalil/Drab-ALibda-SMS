@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Parent;
+
 use App\Models\Academic\Section;
 use App\Models\Academic\Student;
 use App\Models\Academic\StudentEnrollment;
@@ -8,6 +9,7 @@ use App\Models\Schedule\Attendance;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Enums\StudentStatus;
 
 class AttendanceController extends ParentController
 {
@@ -23,8 +25,8 @@ class AttendanceController extends ParentController
         $lateDays = $attendances->where('status', 'late')->count();
         $excusedDays = $attendances->where('status', 'excused')->count();
 
-        $attendancePercentage = $totalDays > 0 
-            ? round(($presentDays / $totalDays) * 100, 2) 
+        $attendancePercentage = $totalDays > 0
+            ? round(($presentDays / $totalDays) * 100, 2)
             : 0;
 
         return $this->successResponse([
@@ -57,8 +59,8 @@ class AttendanceController extends ParentController
         $lateDays = $attendances->where('status', 'late')->count();
         $excusedDays = $attendances->where('status', 'excused')->count();
 
-        $attendancePercentage = $totalDays > 0 
-            ? round(($presentDays / $totalDays) * 100, 2) 
+        $attendancePercentage = $totalDays > 0
+            ? round(($presentDays / $totalDays) * 100, 2)
             : 0;
 
         // حساب ترتيب الطالب في الفصل
@@ -105,11 +107,15 @@ class AttendanceController extends ParentController
      */
     private function calculateClassRank(Student $student): array
     {
-        // جلب التسجيل الحالي للطالب (آخر تسجيل نشط)
+
+        // جلب آخر تسجيل فعّال أو معيد للطالب
         $currentEnrollment = StudentEnrollment::where('student_id', $student->id)
-            ->where('status', 'active')
-            ->orderBy('enrollment_date', 'desc')
-            ->orderBy('created_at', 'desc')
+            ->whereIn('status', [
+                StudentStatus::ACTIVE->value,
+                StudentStatus::REPEATED->value,
+            ])
+            ->latest('enrollment_date')
+            ->latest('created_at')
             ->first();
 
         if (!$currentEnrollment) {
@@ -127,9 +133,10 @@ class AttendanceController extends ParentController
             ];
         }
 
+
         // جلب الشعبة
         $section = Section::with('schoolClass')->find($currentEnrollment->section_id);
-        
+
         if (!$section) {
             return [
                 'rank' => null,
@@ -148,7 +155,10 @@ class AttendanceController extends ParentController
         // جلب جميع الطلاب المسجلين في نفس الشعبة
         $classStudents = StudentEnrollment::where('section_id', $currentEnrollment->section_id)
             ->where('academic_year', $currentEnrollment->academic_year)
-            ->where('status', 'active')
+            ->whereIn('status', [
+                StudentStatus::ACTIVE->value,
+                StudentStatus::REPEATED->value,
+            ])
             ->with('student')
             ->get();
 
@@ -169,7 +179,7 @@ class AttendanceController extends ParentController
 
         // حساب نسبة الحضور لكل طالب
         $ranking = [];
-        
+
         foreach ($classStudents as $enrollment) {
             $studentData = $enrollment->student;
             if ($studentData) {
@@ -177,7 +187,7 @@ class AttendanceController extends ParentController
                 $total = $attendances->count();
                 $present = $attendances->where('status', 'present')->count();
                 $percentage = $total > 0 ? round(($present / $total) * 100, 2) : 0;
-                
+
                 $ranking[] = [
                     'student_id' => $studentData->id,
                     'student_name' => $studentData->first_name . ' ' . $studentData->last_name,
@@ -211,8 +221,8 @@ class AttendanceController extends ParentController
         $studentRank = array_search($student->id, array_column($ranking, 'student_id'));
 
         // حساب متوسط الفصل
-        $averagePercentage = count($ranking) > 0 
-            ? round(array_sum(array_column($ranking, 'percentage')) / count($ranking), 2) 
+        $averagePercentage = count($ranking) > 0
+            ? round(array_sum(array_column($ranking, 'percentage')) / count($ranking), 2)
             : 0;
 
         // حساب عدد الطلاب الذين تفوقوا على هذا الطالب
@@ -249,11 +259,13 @@ class AttendanceController extends ParentController
             ->limit($limit)
             ->get()
             ->map(function ($attendance) {
+                $status = $attendance->status;
                 return [
+
                     'date' => $attendance->date->format('Y-m-d'),
-                    'status' => $attendance->status,
-                    'status_label' => $attendance->status_label,
-                    'icon' => $attendance->icon,
+                    'status' => $status->value,
+                    'status_label' => $status->label(),
+                    'icon' => $status->icon(),
                     'reason' => $attendance->reason,
                     'schedule_id' => $attendance->schedule_id,
                 ];
@@ -270,7 +282,10 @@ class AttendanceController extends ParentController
         $endDate = Carbon::now()->endOfMonth();
 
         $attendances = Attendance::where('student_id', $student->id)
-            ->whereBetween('date', [$startDate, $endDate])
+            ->whereBetween('date', [
+                $startDate->format('Y-m-d'),
+                $endDate->format('Y-m-d')
+            ])
             ->orderBy('date')
             ->get();
 
@@ -279,16 +294,18 @@ class AttendanceController extends ParentController
 
         while ($currentDate <= $endDate) {
             $dateStr = $currentDate->format('Y-m-d');
-            
-            if ($currentDate->dayOfWeek !== Carbon::FRIDAY && $currentDate->dayOfWeek !== Carbon::SATURDAY) {
-                $attendance = $attendances->firstWhere('date', $dateStr);
-                
+
+            if ($currentDate->dayOfWeek !== Carbon::FRIDAY) {
+                $attendance = $attendances->first(function ($item) use ($dateStr) {
+                    return $item->date->format('Y-m-d') === $dateStr;
+                });
+
                 $dailyStats[] = [
                     'date' => $dateStr,
                     'day_name' => $this->getArabicDayName($currentDate->dayOfWeek),
-                    'status' => $attendance ? $attendance->status : 'not_recorded',
-                    'status_label' => $attendance ? $attendance->status_label : 'غير مسجل',
-                    'icon' => $attendance ? $attendance->icon : '❓',
+                    'status' => $attendance ? $attendance->status->value : 'not_recorded',
+                    'status_label' => $attendance ? $attendance->status->label() : 'غير مسجل',
+                    'icon' => $attendance ? $attendance->status->icon() : '❓',
                     'is_weekend' => false,
                 ];
             } else {
@@ -301,7 +318,7 @@ class AttendanceController extends ParentController
                     'is_weekend' => true,
                 ];
             }
-            
+
             $currentDate->addDay();
         }
 
@@ -350,7 +367,7 @@ class AttendanceController extends ParentController
     private function getRecommendations(int $presentDays, int $totalDays): array
     {
         $percentage = $totalDays > 0 ? ($presentDays / $totalDays) * 100 : 0;
-        
+
         $recommendations = [];
 
         if ($percentage < 75) {
@@ -390,8 +407,8 @@ class AttendanceController extends ParentController
         $lateDays = $attendances->where('status', 'late')->count();
         $excusedDays = $attendances->where('status', 'excused')->count();
 
-        $attendancePercentage = $totalDays > 0 
-            ? round(($presentDays / $totalDays) * 100, 2) 
+        $attendancePercentage = $totalDays > 0
+            ? round(($presentDays / $totalDays) * 100, 2)
             : 0;
 
         return $this->successResponse([

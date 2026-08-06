@@ -39,6 +39,7 @@ class Suggestion extends Model
          'status',
         'is_acknowledged',
         'feedback',
+        'status',
     ];
 
     protected $casts = [

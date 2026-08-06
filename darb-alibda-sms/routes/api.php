@@ -9,6 +9,8 @@ use App\Http\Controllers\Parent\ExcuseRequestController;
 use App\Http\Controllers\Parent\NoteController;
 use App\Http\Controllers\Parent\AnnouncementController;
 use App\Http\Controllers\Parent\DriverController;
+use App\Http\Controllers\Parent\FeedbackController;
+use App\Http\Controllers\Parent\SchoolInfoController;
 use App\Http\Controllers\Teacher\AuthController as TeacherAuthController;
 use App\Http\Controllers\Teacher\DashboardController;
 use App\Http\Controllers\Teacher\AbsenceJustificationController;
@@ -100,4 +102,7 @@ Route::get('teacher/complaints/{complaint}',[ComplaintController::class, 'show']
     Route::get('parent/announcements', [AnnouncementController::class, 'index']);
     Route::get('parent/announcements/{id}', [AnnouncementController::class, 'show']);
     Route::get('parent/children/{student}/driver', [DriverController::class, 'show']);
+    Route::get('parent/school-info', [SchoolInfoController::class, 'show']);
+    Route::post('parent/suggestions', [FeedbackController::class, 'storeSuggestion']);
+    Route::post('parent/complaints', [FeedbackController::class, 'storeComplaint']);
 });
