@@ -2,10 +2,10 @@
 
 namespace App\Filament\Resources\News;
 
-use App\Filament\Resources\Communication\NewsResource\Forms\NewsForm;
 use App\Filament\Resources\News\Pages\ListNews;
 use App\Filament\Resources\News\Pages\CreateNews;
 use App\Filament\Resources\News\Pages\EditNews;
+use App\Filament\Resources\News\Schemas\NewsForm;
 use App\Filament\Resources\News\Tables\NewsTable;
 use App\Models\Communication\News;
 use BackedEnum;
