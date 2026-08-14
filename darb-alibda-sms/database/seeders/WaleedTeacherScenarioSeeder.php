@@ -3,11 +3,13 @@
 namespace Database\Seeders;
 
 use App\Enums\ClassType;
+use App\Enums\DayOfWeek;
 use App\Enums\Gender;
 use App\Enums\MarkResult;
 use App\Enums\StudentStatus;
 use App\Enums\SubjectComponentType;
 use App\Enums\TermType;
+use App\Enums\TimeSlotNumber;
 use App\Models\Academic\SchoolClass;
 use App\Models\Academic\Section;
 use App\Models\Academic\Student;
@@ -15,9 +17,12 @@ use App\Models\Academic\StudentEnrollment;
 use App\Models\Academic\Teacher;
 use App\Models\Auth\Role;
 use App\Models\Auth\User;
+use App\Models\Communication\AbsenceJustification;
 use App\Models\Communication\News;
 use App\Models\Grading\StudentMark;
 use App\Models\Grading\StudentSubjectResult;
+use App\Models\Schedule\Schedule;
+use App\Models\Schedule\TimeSlot;
 use App\Models\Subjects\Subject;
 use App\Models\Subjects\SubjectComponent;
 use App\Models\Subjects\Term;
@@ -389,6 +394,104 @@ class WaleedTeacherScenarioSeeder extends Seeder
             ]);
         }
 
-        $this->command->info('Created teacher scenario for Wael with 20 students, subjects, marks and notifications.');
+        $timeSlotMap = [];
+        foreach (TimeSlotNumber::cases() as $slotNumber) {
+            $timeSlot = TimeSlot::updateOrCreate(
+                ['period_number' => $slotNumber->value],
+                [
+                    'start_time' => match ($slotNumber) {
+                        TimeSlotNumber::FIRST => '08:00:00',
+                        TimeSlotNumber::SECOND => '08:45:00',
+                        TimeSlotNumber::THIRD => '09:30:00',
+                        TimeSlotNumber::FOURTH => '10:15:00',
+                        TimeSlotNumber::FIFTH => '11:00:00',
+                        TimeSlotNumber::SIXTH => '11:45:00',
+                        TimeSlotNumber::SEVENTH => '12:30:00',
+                    },
+                    'end_time' => match ($slotNumber) {
+                        TimeSlotNumber::FIRST => '08:45:00',
+                        TimeSlotNumber::SECOND => '09:30:00',
+                        TimeSlotNumber::THIRD => '10:15:00',
+                        TimeSlotNumber::FOURTH => '11:00:00',
+                        TimeSlotNumber::FIFTH => '11:45:00',
+                        TimeSlotNumber::SIXTH => '12:30:00',
+                        TimeSlotNumber::SEVENTH => '13:15:00',
+                    },
+                ]
+            );
+
+            $timeSlotMap[$slotNumber->value] = $timeSlot->id;
+        }
+
+        $days = [
+            DayOfWeek::SUNDAY,
+            DayOfWeek::MONDAY,
+            DayOfWeek::TUESDAY,
+            DayOfWeek::WEDNESDAY,
+            DayOfWeek::THURSDAY,
+        ];
+
+        $scheduledSubjects = array_values($subjectMap);
+
+        foreach ($days as $index => $day) {
+            $slotNumber = $index + 1;
+            $slotId = $timeSlotMap[$slotNumber] ?? null;
+
+            if (! $slotId || empty($scheduledSubjects)) {
+                continue;
+            }
+
+            $subject = $scheduledSubjects[$index % count($scheduledSubjects)];
+
+            Schedule::updateOrCreate(
+                [
+                    'section_id' => $section->id,
+                    'term_id' => $termMap[TermType::FIRST_TERM->value],
+                    'day' => $day->value,
+                    'time_slot_id' => $slotId,
+                ],
+                [
+                    'subject_id' => $subject->id,
+                    'published_at' => now(),
+                ]
+            );
+        }
+
+        $teacherStudents = Student::query()
+            ->whereHas('enrollments', fn ($query) => $query->where('section_id', $section->id)->where('status', StudentStatus::ACTIVE->value))
+            ->orderBy('id')
+            ->get();
+
+        $absenceDates = [
+            now()->subDays(2)->toDateString(),
+            now()->subDays(5)->toDateString(),
+            now()->subDays(8)->toDateString(),
+        ];
+
+        foreach ($teacherStudents->take(3) as $index => $student) {
+            $parentId = $student->parent_id;
+
+            if (! $parentId) {
+                continue;
+            }
+
+            AbsenceJustification::updateOrCreate(
+                [
+                    'student_id' => $student->id,
+                    'parent_id' => $parentId,
+                    'absence_date' => $absenceDates[$index] ?? now()->subDays($index + 2)->toDateString(),
+                ],
+                [
+                    'reason' => [
+                        'تعذر الوصول بسبب المرض مع توافر وصفة طبية.',
+                        'تغيب بسبب عطل في النقل من المنزل إلى المدرسة.',
+                        'غاب الطالب لظروف عائلية طارئة واجهت الأسرة.',
+                    ][$index] ?? 'تغيب بسبب ظروف عائلية طارئة.',
+                    'status' => 'pending',
+                ]
+            );
+        }
+
+        $this->command->info('Created teacher scenario for Wael with 20 students, subjects, timetable, and 3 pending absence justifications.');
     }
 }
