@@ -3,11 +3,24 @@
 namespace App\Observers\Communication;
 
 use App\Jobs\SendFirebaseNotificationJob;
+use App\Models\Auth\User;
 use App\Models\Communication\Suggestion;
 use App\Notifications\Admin\SuggestionStatusUpdatedNotification;
+use App\Notifications\Admin\SuggestionSubmittedNotification;
 
 class SuggestionObserver
 {
+    public function created(Suggestion $suggestion): void
+    {
+        $admins = User::query()->whereHas('role', function ($query) {
+            $query->where('name', 'admin');
+        })->get();
+
+        foreach ($admins as $admin) {
+            $admin->notifyNow(new SuggestionSubmittedNotification($suggestion));
+        }
+    }
+
     public function updated(Suggestion $suggestion): void
     {
         if (! $suggestion->wasChanged('status')) {

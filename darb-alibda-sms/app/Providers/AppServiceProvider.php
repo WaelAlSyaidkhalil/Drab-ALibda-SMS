@@ -37,5 +37,8 @@ class AppServiceProvider extends ServiceProvider
 
       //  Event::listen(TeacherLoggedIn::class, [SendLoginNotification::class, 'handle']);
       //  Event::listen(TeacherLoginFailed::class, [LogFailedLoginAttempt::class, 'handle']);
+
+        // Register Attendance observer to create notifications on absence/late
+        \App\Models\Schedule\Attendance::observe(\App\Observers\AttendanceObserver::class);
     }
 }
