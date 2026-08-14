@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ComplaintStatus;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -16,8 +17,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('title');
             $table->text('body');
-            $table->enum('status', ['pending', 'in_progress', 'resolved'])->default('pending');
-            $table->text('admin_reply')->nullable();
+            $table->enum('status', ComplaintStatus::getValues())->default('pending');
+            $table->text('response')->nullable();
+            $table->timestamp('resolved_at')->nullable();
             $table->timestamps();
         });
     }
