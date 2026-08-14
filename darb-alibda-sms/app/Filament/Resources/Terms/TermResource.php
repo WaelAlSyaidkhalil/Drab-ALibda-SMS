@@ -19,8 +19,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Validation\Rules\Unique;
 
 class TermResource extends Resource
 {
@@ -52,13 +54,24 @@ class TermResource extends Resource
                     ->label(__('dashboard.labels.term'))
                     ->options(TermType::options())
                     ->required()
+                    ->live()
                     ->validationMessages([
                         'required' => __('validation.custom.type.required'),
                     ]),
                 TextInput::make('academic_year')
                     ->label(__('dashboard.labels.academic_year'))
+                    ->regex('/^\d{4}-\d{4}$/')
+                    ->unique(
+                        table: 'terms',
+                        column: 'academic_year',
+                        ignoreRecord: true,
+                        modifyRuleUsing: fn (Unique $rule, Get $get) => $rule
+                            ->where('type', $get('type'))
+                    )
                     ->validationMessages([
                         'required' => __('validation.custom.academic_year.required'),
+                        'regex' => __('dashboard.validation.academic_year_regex'),
+                        'unique' => __('dashboard.validation.academic_year_unique'),
                     ]),
                 DatePicker::make('start_date')
                     ->label(__('dashboard.labels.start_time'))

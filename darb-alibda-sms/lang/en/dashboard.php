@@ -380,5 +380,7 @@ return [
     'validation' => [
         'end_time_after_start' => 'End time must be after start time.',
         'overlapping_time_slot' => 'This time slot overlaps with an existing time slot.',
+        'academic_year_regex' => 'The academic year must be in the format YYYY-YYYY.',
+        'academic_year_unique' => 'The academic year must be unique for this term type.',
     ],
 ];

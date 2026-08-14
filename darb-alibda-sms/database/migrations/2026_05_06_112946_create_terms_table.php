@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('academic_year'); // مثل: 2025-2026
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
+            $table->unique(['type', 'academic_year'], 'terms_type_academic_year_unique');
             $table->timestamps();
         });
     }

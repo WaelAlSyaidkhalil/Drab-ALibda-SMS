@@ -375,5 +375,7 @@ return [
     'validation' => [
         'end_time_after_start' => 'يجب أن يكون وقت النهاية بعد وقت البداية.',
         'overlapping_time_slot' => 'يتداخل هذا الفاصل الزمني مع فاصل موجود.',
+        'academic_year_regex' => 'يجب أن يكون العام الدراسي بتنسيق YYYY-YYYY.',
+        'academic_year_unique' => 'يجب أن يكون العام الدراسي فريداً لهذا النوع من الفصول.',
     ],
 ];
