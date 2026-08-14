@@ -406,8 +406,8 @@ class AdminSeeder extends Seeder
                     'title' => 'شكوى تجريبية ' . $i,
                     'body' => 'هذا نص شكوى تجريبية رقم ' . $i . ' للتحقق من لوحة الشكاوى.',
                     'status' => [ComplaintStatus::PENDING, ComplaintStatus::IN_PROGRESS, ComplaintStatus::RESOLVED][($i - 1) % 3]->value,
-                    // DB column is `admin_reply` (not `response`) per migration; resolved_at not present
-                    'admin_reply' => $i % 3 === 0 ? 'تم حل المشكلة بنجاح.' : null,
+                    // DB column is `response` (not `response`) per migration; resolved_at not present
+                    'response' => $i % 3 === 0 ? 'تم حل المشكلة بنجاح.' : null,
                 ]
             );
         }
