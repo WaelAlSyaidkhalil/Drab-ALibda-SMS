@@ -21,12 +21,24 @@ class PageController extends Controller
 
     public function testFirebase(): string
     {
+        $credentials = config('firebase.projects.app.credentials');
+
+        if (blank($credentials)) {
+            return "❌ FIREBASE_CREDENTIALS غير مضبوط في ملف .env";
+        }
+
+        if (! is_readable($credentials)) {
+            return "❌ ملف الاعتماد غير موجود أو غير قابل للقراءة: {$credentials}";
+        }
+
         try {
-            $factory = (new Factory)->withServiceAccount(config('firebase.projects.app.credentials'));
+            $factory = (new Factory)->withServiceAccount($credentials);
             $auth = $factory->createAuth();
 
             return "✅ الاتصال ناجح مع Firebase";
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            // \Throwable وليس \Exception: تمرير قيمة غير صالحة يرمي TypeError
+            // وهو من نوع \Error فلا يلتقطه catch (\Exception).
             return "❌ خطأ في الاتصال: " . $e->getMessage();
         }
     }
