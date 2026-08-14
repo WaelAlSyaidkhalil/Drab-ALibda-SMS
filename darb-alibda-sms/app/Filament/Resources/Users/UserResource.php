@@ -102,7 +102,14 @@ class UserResource extends Resource
                     ->label(__('dashboard.labels.password'))
                     ->password()
                     ->formatStateUsing(fn ($state) => '')
-                    ->dehydrateStateUsing(fn ($state, $record) => $record->role->name === UserRole::ADMIN ? Hash::make($state) : $state)
+                    ->dehydrateStateUsing(function ($state, $record) {
+                        if (empty($state)) {
+                            return $record->password;
+                        }
+                        return $record->role->name === UserRole::ADMIN ? Hash::make($state) : $state;
+                    })
+                    ->required(fn ($operation) => $operation === 'create')
+                    ->nullable()
                     ->minLength(8)
                     ->maxLength(255)
                     ->validationMessages([
@@ -116,10 +123,11 @@ class UserResource extends Resource
                     ->dehydrated(false)
                     ->password()
                     ->same('password')
+                    ->required(fn ($operation) => $operation === 'create')
+                    ->nullable()
                     ->minLength(8)
                     ->maxLength(255)
                     ->columnSpan(1)
-                    ->requiredWith('password')
                     ->validationMessages([
                         'same' => __('validation.custom.password_confirmation.same'),
                         'min' => __('validation.custom.password_confirmation.min'),
@@ -129,6 +137,7 @@ class UserResource extends Resource
                 Toggle::make('is_active')
                     ->label(__('dashboard.labels.active'))
                     ->default(true)
+                    ->hidden(fn ($record) => $record?->role?->name === UserRole::ADMIN)
                     ->validationMessages([
                         'boolean' => __('validation.custom.is_active.boolean'),
                     ])
