@@ -22,6 +22,10 @@ use App\Http\Controllers\Teacher\SuggestionController;
 use App\Http\Controllers\Teacher\ComplaintController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Teacher\NotificationController;
+use App\Http\Controllers\TestTableController;
+
+// مسار اختباري للتحقق من عمل خط النشر
+Route::get('test-table', [TestTableController::class, 'index']);
 
 Route::post('teacher/login', [TeacherAuthController::class, 'login']);
 Route::post('parent/login', [AuthController::class, 'login']);

@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             // AcademicGradingSeeder::class,
         // TeacherDashboardSeeder::class,
          TeacherNotificationsSeeder::class,
+            TestTableSeeder::class,
         ]);
     }
 }
