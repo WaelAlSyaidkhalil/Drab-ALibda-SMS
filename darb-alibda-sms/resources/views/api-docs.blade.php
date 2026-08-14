@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -21,7 +21,7 @@
 </head>
 <body>
     <div id="docs-header">
-        نظام مدرسة درب الإبداع الخاصة — توثيق واجهات API
+        Darb Al-Ibda School Management System — API Documentation
         <small>Spec: <a href="{{ url('/openapi.yaml') }}" style="color:#7fc4ff">/openapi.yaml</a></small>
     </div>
 

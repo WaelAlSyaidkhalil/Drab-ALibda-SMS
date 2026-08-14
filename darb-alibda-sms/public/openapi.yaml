@@ -4,72 +4,77 @@ info:
   title: Darb Al-Ibda School Management API
   version: 1.0.0
   description: |
-    واجهات برمجة التطبيقات لنظام مدرسة درب الإبداع الخاصة.
+    REST API for the Darb Al-Ibda private school management system.
 
-    ## الشكل العام للاستجابة
+    ## Response envelope
 
-    كل الاستجابات تعود بصيغة JSON بالمفاتيح التالية:
+    Every response is JSON with the following keys:
 
-    - `success`: قيمة منطقية (`true` عند النجاح، `false` عند الخطأ)
-    - `message`: رسالة نصية قصيرة بالعربية
-    - `data`: محتوى الاستجابة عند النجاح
-    - `errors`: تفاصيل الخطأ عند الفشل
+    - `success` — boolean; `true` on success, `false` on failure
+    - `message` — a short human-readable message (returned in Arabic by the server)
+    - `data` — the response payload on success
+    - `errors` — error details on failure
 
-    ## المصادقة
+    ## Authentication
 
-    كل المسارات المحمية تستخدم Laravel Sanctum. أرسل الترويسة:
+    Protected endpoints use Laravel Sanctum. Send the header:
 
     `Authorization: Bearer {token}`
 
-    يتم الحصول على `token` من `POST /api/teacher/login` أو `POST /api/parent/login`.
+    Obtain the token from `POST /api/teacher/login` or `POST /api/parent/login`.
+
+    ## Notes
+
+    - Validation failures return HTTP `422` with per-field messages under `errors.messages`.
+    - Endpoints that accept file uploads must be sent as `multipart/form-data`.
   contact:
-    name: Darb Al-Ibda SMS
+    name: Darb Al-Ibda School Management System
 
 servers:
   - url: /api
-    description: نفس النطاق الحالي (Same origin)
+    description: Current host
 
 tags:
   - name: Health
-    description: مسارات الفحص والتشخيص
-  - name: Teacher — Auth
-    description: مصادقة المعلم وملفه الشخصي
-  - name: Teacher — Dashboard
-    description: لوحة المعلم
-  - name: Teacher — Absence Justifications
-    description: طلبات تبرير الغياب
-  - name: Teacher — Schedule
-    description: البرنامج الدراسي للمعلم
-  - name: Teacher — Attendance
-    description: حضور الشعب والطلاب
-  - name: Teacher — News
-    description: الأخبار
-  - name: Teacher — Parent Notes
-    description: ملاحظات المعلم لأولياء الأمور
-  - name: Teacher — Marks
-    description: علامات الطلاب
-  - name: Teacher — Notifications
-    description: إشعارات المعلم
-  - name: Teacher — Suggestions
-    description: اقتراحات المعلم
-  - name: Teacher — Complaints
-    description: شكاوى المعلم
-  - name: Parent — Auth
-    description: مصادقة ولي الأمر وملفه الشخصي
-  - name: Parent — Children
-    description: بيانات الأبناء
-  - name: Parent — Attendance
-    description: حضور الأبناء
-  - name: Parent — Excuse Requests
-    description: طلبات تبرير الغياب من ولي الأمر
-  - name: Parent — Notes
-    description: ملاحظات المعلمين
-  - name: Parent — Announcements
-    description: الإعلانات والأخبار
-  - name: Parent — School
-    description: معلومات المدرسة والسائق
-  - name: Parent — Feedback
-    description: الاقتراحات والشكاوى
+    description: Diagnostic and deployment-check endpoints
+  - name: Teacher - Auth
+    description: Teacher authentication and profile
+  - name: Teacher - Dashboard
+    description: Teacher dashboard summary
+  - name: Teacher - Absence Justifications
+    description: Absence justification requests raised by parents
+  - name: Teacher - Schedule
+    description: Teacher teaching schedule
+  - name: Teacher - Attendance
+    description: Section and student attendance
+  - name: Teacher - News
+    description: School news feed
+  - name: Teacher - Parent Notes
+    description: Notes sent from teachers to parents
+  - name: Teacher - Marks
+    description: Student marks
+  - name: Teacher - Notifications
+    description: Teacher notifications
+  - name: Teacher - Suggestions
+    description: Suggestions submitted by teachers
+  - name: Teacher - Complaints
+    description: Complaints submitted by teachers
+  - name: Parent - Auth
+    description: Parent authentication and profile
+  - name: Parent - Children
+    description: Children data
+  - name: Parent - Attendance
+    description: Child attendance records
+  - name: Parent - Excuse Requests
+    description: Absence excuse requests submitted by parents
+  - name: Parent - Notes
+    description: Notes received from teachers
+  - name: Parent - Announcements
+    description: Announcements and news
+  - name: Parent - School
+    description: School information and transport
+  - name: Parent - Feedback
+    description: Suggestions and complaints
 
 security:
   - bearerAuth: []
@@ -81,31 +86,34 @@ paths:
   /test-table:
     get:
       tags: [Health]
-      summary: جلب السجلات الاختبارية
-      description: مسار عام للتحقق من أن آخر إصدار تم نشره على الخادم بنجاح.
+      summary: List test records
+      description: Public endpoint used to verify that the latest build was deployed successfully.
       operationId: getTestTable
       security: []
       responses:
         '200':
-          description: تم الجلب بنجاح
+          description: Records retrieved
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   status: { type: boolean, examples: [true] }
-                  message: { type: string, examples: ['تم جلب السجلات الاختبارية بنجاح.'] }
+                  message:
+                    type: string
+                    description: Server message (Arabic).
+                    examples: ['تم جلب السجلات الاختبارية بنجاح.']
                   count: { type: integer, examples: [3] }
                   data:
                     type: array
                     items: { $ref: '#/components/schemas/TestTable' }
 
-  # ─────────────────────── Teacher — Auth ───────────────────────
+  # ─────────────────────── Teacher - Auth ───────────────────────
 
   /teacher/login:
     post:
-      tags: [Teacher — Auth]
-      summary: تسجيل دخول المعلم
+      tags: [Teacher - Auth]
+      summary: Teacher login
       operationId: teacherLogin
       security: []
       requestBody:
@@ -115,7 +123,7 @@ paths:
             schema: { $ref: '#/components/schemas/TeacherLoginRequest' }
       responses:
         '200':
-          description: تم تسجيل الدخول بنجاح
+          description: Logged in successfully
           content:
             application/json:
               schema:
@@ -129,9 +137,9 @@ paths:
 
   /teacher/support:
     get:
-      tags: [Teacher — Auth]
-      summary: رسالة الدعم الفني
-      description: بيانات الدعم العامة مثل اسم المدرسة ورقم الهاتف والبريد الإلكتروني.
+      tags: [Teacher - Auth]
+      summary: Support contact details
+      description: Public support information such as school name, phone number and email.
       operationId: teacherSupport
       security: []
       responses:
@@ -139,9 +147,9 @@ paths:
 
   /teacher/me:
     get:
-      tags: [Teacher — Auth]
-      summary: بيانات المعلم الحالي
-      description: الملف الشخصي للمستخدم مع بيانات المعلم والمواد والشعب والجدول.
+      tags: [Teacher - Auth]
+      summary: Current teacher profile
+      description: The authenticated user's profile including teacher details, subjects, sections and schedule.
       operationId: teacherMe
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
@@ -149,9 +157,9 @@ paths:
 
   /teacher/profile:
     post:
-      tags: [Teacher — Auth]
-      summary: تحديث الملف الشخصي للمعلم
-      description: أرسل الطلب بنسق `multipart/form-data` عند رفع صورة `avatar`.
+      tags: [Teacher - Auth]
+      summary: Update teacher profile
+      description: Send as `multipart/form-data` when uploading an `avatar`.
       operationId: teacherUpdateProfile
       requestBody:
         required: false
@@ -167,36 +175,36 @@ paths:
 
   /teacher/logout:
     post:
-      tags: [Teacher — Auth]
-      summary: تسجيل خروج المعلم
+      tags: [Teacher - Auth]
+      summary: Teacher logout
       operationId: teacherLogout
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
 
-  # ───────────────────── Teacher — Dashboard ────────────────────
+  # ───────────────────── Teacher - Dashboard ────────────────────
 
   /teacher/dashboard:
     get:
-      tags: [Teacher — Dashboard]
-      summary: لوحة المعلم
-      description: ملخص يومي للمعلم — الحضور، الطلاب الناشطون، طلبات تبرير الغياب، الأخبار.
+      tags: [Teacher - Dashboard]
+      summary: Teacher dashboard
+      description: Daily summary for the teacher - attendance, active students, absence justification requests and news.
       operationId: teacherDashboard
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
 
-  # ─────────────── Teacher — Absence Justifications ─────────────
+  # ─────────────── Teacher - Absence Justifications ─────────────
 
   /teacher/absence-justifications:
     get:
-      tags: [Teacher — Absence Justifications]
-      summary: جلب طلبات تبرير الغياب
-      description: يعرض فقط الطلبات الخاصة بطلاب الشُعب التي يدرّسها المعلم.
+      tags: [Teacher - Absence Justifications]
+      summary: List absence justification requests
+      description: Returns only requests belonging to students in sections the teacher teaches.
       operationId: teacherAbsenceJustifications
       responses:
         '200':
-          description: تم الجلب بنجاح
+          description: Requests retrieved
           content:
             application/json:
               schema:
@@ -211,8 +219,8 @@ paths:
 
   /teacher/absence-justifications/update/{justificationId}:
     post:
-      tags: [Teacher — Absence Justifications]
-      summary: تحديث حالة طلب تبرير الغياب
+      tags: [Teacher - Absence Justifications]
+      summary: Update absence justification status
       operationId: teacherUpdateAbsenceJustification
       parameters:
         - $ref: '#/components/parameters/JustificationId'
@@ -238,8 +246,8 @@ paths:
 
   /teacher/absence-justifications/destroy/{justificationId}:
     post:
-      tags: [Teacher — Absence Justifications]
-      summary: حذف طلب تبرير الغياب
+      tags: [Teacher - Absence Justifications]
+      summary: Delete absence justification request
       operationId: teacherDeleteAbsenceJustification
       parameters:
         - $ref: '#/components/parameters/JustificationId'
@@ -248,16 +256,16 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '404': { $ref: '#/components/responses/NotFound' }
 
-  # ────────────────────── Teacher — Schedule ────────────────────
+  # ────────────────────── Teacher - Schedule ────────────────────
 
   /teacher/schedule/today:
     get:
-      tags: [Teacher — Schedule]
-      summary: برنامج اليوم
+      tags: [Teacher - Schedule]
+      summary: Today's schedule
       operationId: teacherScheduleToday
       responses:
         '200':
-          description: قائمة حصص المعلم لليوم الحالي
+          description: The teacher's lessons for the current day
           content:
             application/json:
               schema:
@@ -272,13 +280,13 @@ paths:
 
   /teacher/schedule/week:
     get:
-      tags: [Teacher — Schedule]
-      summary: برنامج الأسبوع
-      description: جدول الأسبوع مجمّع حسب اليوم، المفتاح هو اسم اليوم بالعربية.
+      tags: [Teacher - Schedule]
+      summary: Weekly schedule
+      description: The week's schedule grouped by day. Object keys are Arabic day names as returned by the server.
       operationId: teacherScheduleWeek
       responses:
         '200':
-          description: جدول الأسبوع مجمّعاً حسب اليوم
+          description: Weekly schedule grouped by day
           content:
             application/json:
               schema:
@@ -291,38 +299,35 @@ paths:
                         additionalProperties:
                           type: array
                           items: { $ref: '#/components/schemas/ScheduleEntry' }
-                        examples:
-                          - الأحد: []
-                            الاثنين: []
         '401': { $ref: '#/components/responses/Unauthenticated' }
 
-  # ───────────────────── Teacher — Attendance ───────────────────
+  # ───────────────────── Teacher - Attendance ───────────────────
 
   /teacher/sections-with-students:
     get:
-      tags: [Teacher — Attendance]
-      summary: جلب الشعب مع الطلاب وحالة الحضور
-      description: إذا لم يُرسل `date` يُستخدم التاريخ الحالي.
+      tags: [Teacher - Attendance]
+      summary: List sections with students and attendance state
+      description: If `date` is omitted the current date is used.
       operationId: teacherSectionsWithStudents
       parameters:
         - name: class_id
           in: query
           required: false
           schema: { type: integer }
-          description: تصفية حسب الصف
+          description: Filter by class.
         - name: section_id
           in: query
           required: false
           schema: { type: integer }
-          description: تصفية حسب الشعبة
+          description: Filter by section.
         - name: date
           in: query
           required: false
           schema: { type: string, format: date }
-          description: تاريخ الحضور بصيغة `YYYY-MM-DD`
+          description: Attendance date in `YYYY-MM-DD` format.
       responses:
         '200':
-          description: تم الجلب بنجاح
+          description: Sections retrieved
           content:
             application/json:
               schema:
@@ -337,10 +342,10 @@ paths:
 
   /teacher/attendance/sections/{sectionId}/batch-update:
     post:
-      tags: [Teacher — Attendance]
-      summary: تحديث حضور الشعبة دفعة واحدة
+      tags: [Teacher - Attendance]
+      summary: Batch-update section attendance
       description: |
-        إذا كانت الشعبة تحتوي على أكثر من حصة في نفس اليوم، استخدم `schedule_id` لتحديد الحصة المطلوبة.
+        If the section has more than one lesson on the same day, use `schedule_id` to target the intended lesson.
       operationId: teacherBatchUpdateAttendance
       parameters:
         - name: sectionId
@@ -354,7 +359,7 @@ paths:
             schema: { $ref: '#/components/schemas/BatchAttendanceRequest' }
       responses:
         '200':
-          description: تم تحديث الحضور بنجاح
+          description: Attendance updated
           content:
             application/json:
               schema:
@@ -366,13 +371,13 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '422': { $ref: '#/components/responses/ValidationError' }
 
-  # ─────────────────────── Teacher — News ───────────────────────
+  # ─────────────────────── Teacher - News ───────────────────────
 
   /teacher/news:
     get:
-      tags: [Teacher — News]
-      summary: جلب كل الأخبار
-      description: قائمة الأخبار مع حقل `is_read` لكل خبر.
+      tags: [Teacher - News]
+      summary: List all news
+      description: Returns the news list with an `is_read` flag on each item.
       operationId: teacherNewsIndex
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
@@ -380,12 +385,12 @@ paths:
 
   /teacher/news/unread-count:
     get:
-      tags: [Teacher — News]
-      summary: عدد الأخبار غير المقروءة
+      tags: [Teacher - News]
+      summary: Unread news count
       operationId: teacherNewsUnreadCount
       responses:
         '200':
-          description: تم الجلب بنجاح
+          description: Count retrieved
           content:
             application/json:
               schema:
@@ -401,8 +406,8 @@ paths:
 
   /teacher/news/{newsId}/mark-as-read:
     post:
-      tags: [Teacher — News]
-      summary: تعليم خبر كمقروء
+      tags: [Teacher - News]
+      summary: Mark a news item as read
       operationId: teacherMarkNewsAsRead
       parameters:
         - name: newsId
@@ -416,12 +421,12 @@ paths:
 
   /teacher/news/mark-all-as-read:
     post:
-      tags: [Teacher — News]
-      summary: تعليم كل الأخبار كمقروءة
+      tags: [Teacher - News]
+      summary: Mark all news as read
       operationId: teacherMarkAllNewsAsRead
       responses:
         '200':
-          description: تم التعليم بنجاح
+          description: News marked as read
           content:
             application/json:
               schema:
@@ -435,22 +440,22 @@ paths:
                           marked_count: { type: integer, examples: [12] }
         '401': { $ref: '#/components/responses/Unauthenticated' }
 
-  # ─────────────────── Teacher — Parent Notes ───────────────────
+  # ─────────────────── Teacher - Parent Notes ───────────────────
 
   /teacher/parent-notes:
     get:
-      tags: [Teacher — Parent Notes]
-      summary: جلب ملاحظات المعلم لأولياء الأمور
+      tags: [Teacher - Parent Notes]
+      summary: List notes sent to parents
       operationId: teacherParentNotesIndex
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
     post:
-      tags: [Teacher — Parent Notes]
-      summary: إرسال ملاحظة جديدة
+      tags: [Teacher - Parent Notes]
+      summary: Send a new note
       description: |
-        يمكن استهداف الطلاب عبر `student_ids` أو شُعب كاملة عبر `section_ids`.
-        أرسل الطلب بنسق `multipart/form-data` عند إرفاق ملفات.
+        Target individual students via `student_ids`, or whole sections via `section_ids`.
+        Send as `multipart/form-data` when including attachments.
       operationId: teacherParentNotesStore
       requestBody:
         required: true
@@ -467,8 +472,8 @@ paths:
 
   /teacher/parent-notes/{noteId}:
     post:
-      tags: [Teacher — Parent Notes]
-      summary: تعديل ملاحظة
+      tags: [Teacher - Parent Notes]
+      summary: Update a note
       operationId: teacherParentNotesUpdate
       parameters:
         - name: noteId
@@ -490,8 +495,8 @@ paths:
 
   /teacher/parent-notes/delete/{noteId}:
     post:
-      tags: [Teacher — Parent Notes]
-      summary: حذف ملاحظة
+      tags: [Teacher - Parent Notes]
+      summary: Delete a note
       operationId: teacherParentNotesDestroy
       parameters:
         - name: noteId
@@ -503,12 +508,12 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '404': { $ref: '#/components/responses/NotFound' }
 
-  # ────────────────────── Teacher — Marks ───────────────────────
+  # ────────────────────── Teacher - Marks ───────────────────────
 
   /teacher/marks/students:
     get:
-      tags: [Teacher — Marks]
-      summary: جلب الطلاب مع علاماتهم
+      tags: [Teacher - Marks]
+      summary: List students with their marks
       operationId: teacherMarksStudents
       parameters:
         - name: class_id
@@ -533,9 +538,9 @@ paths:
 
   /teacher/marks:
     post:
-      tags: [Teacher — Marks]
-      summary: إضافة علامة
-      description: حدّد الطالب إما عبر `enrollment_id` أو عبر `student_id` مع `class_id` و`section_id`.
+      tags: [Teacher - Marks]
+      summary: Create a mark
+      description: Identify the student either by `enrollment_id`, or by `student_id` together with `class_id` and `section_id`.
       operationId: teacherMarksStore
       requestBody:
         required: true
@@ -550,9 +555,9 @@ paths:
 
   /teacher/marks/{markId}:
     post:
-      tags: [Teacher — Marks]
-      summary: تعديل علامة
-      description: عند التعديل يُقبل الحقل `mark` فقط.
+      tags: [Teacher - Marks]
+      summary: Update a mark
+      description: On update only the `mark` field is accepted.
       operationId: teacherMarksUpdate
       parameters:
         - name: markId
@@ -576,8 +581,8 @@ paths:
 
   /teacher/marks/delete/{markId}:
     post:
-      tags: [Teacher — Marks]
-      summary: حذف علامة
+      tags: [Teacher - Marks]
+      summary: Delete a mark
       operationId: teacherMarksDestroy
       parameters:
         - name: markId
@@ -589,12 +594,12 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '404': { $ref: '#/components/responses/NotFound' }
 
-  # ─────────────────── Teacher — Notifications ──────────────────
+  # ─────────────────── Teacher - Notifications ──────────────────
 
   /teacher/notification:
     get:
-      tags: [Teacher — Notifications]
-      summary: جلب إشعارات المعلم
+      tags: [Teacher - Notifications]
+      summary: List teacher notifications
       operationId: teacherNotifications
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
@@ -602,8 +607,8 @@ paths:
 
   /teacher/notification/mark-all-as-read:
     post:
-      tags: [Teacher — Notifications]
-      summary: تعليم كل الإشعارات كمقروءة
+      tags: [Teacher - Notifications]
+      summary: Mark all notifications as read
       operationId: teacherNotificationsMarkAllAsRead
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
@@ -611,8 +616,8 @@ paths:
 
   /teacher/notification/{notificationId}/mark-as-read:
     post:
-      tags: [Teacher — Notifications]
-      summary: تعليم إشعار كمقروء
+      tags: [Teacher - Notifications]
+      summary: Mark a notification as read
       operationId: teacherNotificationMarkAsRead
       parameters:
         - $ref: '#/components/parameters/NotificationId'
@@ -623,8 +628,8 @@ paths:
 
   /teacher/notification/{notificationId}:
     post:
-      tags: [Teacher — Notifications]
-      summary: حذف إشعار
+      tags: [Teacher - Notifications]
+      summary: Delete a notification
       operationId: teacherNotificationDelete
       parameters:
         - $ref: '#/components/parameters/NotificationId'
@@ -633,12 +638,12 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '404': { $ref: '#/components/responses/NotFound' }
 
-  # ──────────────────── Teacher — Suggestions ───────────────────
+  # ──────────────────── Teacher - Suggestions ───────────────────
 
   /teacher/suggestions:
     get:
-      tags: [Teacher — Suggestions]
-      summary: جلب اقتراحات المعلم
+      tags: [Teacher - Suggestions]
+      summary: List teacher suggestions
       operationId: teacherSuggestionsIndex
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
@@ -646,8 +651,8 @@ paths:
 
   /teacher/suggestion:
     post:
-      tags: [Teacher — Suggestions]
-      summary: إرسال اقتراح جديد
+      tags: [Teacher - Suggestions]
+      summary: Submit a new suggestion
       operationId: teacherSuggestionStore
       requestBody:
         required: true
@@ -667,8 +672,8 @@ paths:
 
   /teacher/suggestions/{suggestion}:
     get:
-      tags: [Teacher — Suggestions]
-      summary: تفاصيل اقتراح
+      tags: [Teacher - Suggestions]
+      summary: Suggestion details
       operationId: teacherSuggestionShow
       parameters:
         - name: suggestion
@@ -680,19 +685,19 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '404': { $ref: '#/components/responses/NotFound' }
 
-  # ──────────────────── Teacher — Complaints ────────────────────
+  # ──────────────────── Teacher - Complaints ────────────────────
 
   /teacher/complaints:
     get:
-      tags: [Teacher — Complaints]
-      summary: جلب شكاوى المعلم
+      tags: [Teacher - Complaints]
+      summary: List teacher complaints
       operationId: teacherComplaintsIndex
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
     post:
-      tags: [Teacher — Complaints]
-      summary: إرسال شكوى جديدة
+      tags: [Teacher - Complaints]
+      summary: Submit a new complaint
       operationId: teacherComplaintStore
       requestBody:
         required: true
@@ -707,8 +712,8 @@ paths:
 
   /teacher/complaints/{complaint}:
     get:
-      tags: [Teacher — Complaints]
-      summary: تفاصيل شكوى
+      tags: [Teacher - Complaints]
+      summary: Complaint details
       operationId: teacherComplaintShow
       parameters:
         - name: complaint
@@ -720,12 +725,12 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '404': { $ref: '#/components/responses/NotFound' }
 
-  # ──────────────────────── Parent — Auth ───────────────────────
+  # ──────────────────────── Parent - Auth ───────────────────────
 
   /parent/login:
     post:
-      tags: [Parent — Auth]
-      summary: تسجيل دخول ولي الأمر
+      tags: [Parent - Auth]
+      summary: Parent login
       operationId: parentLogin
       security: []
       requestBody:
@@ -735,7 +740,7 @@ paths:
             schema: { $ref: '#/components/schemas/ParentLoginRequest' }
       responses:
         '200':
-          description: تم تسجيل الدخول بنجاح
+          description: Logged in successfully
           content:
             application/json:
               schema:
@@ -749,8 +754,8 @@ paths:
 
   /parent/logout:
     post:
-      tags: [Parent — Auth]
-      summary: تسجيل خروج ولي الأمر
+      tags: [Parent - Auth]
+      summary: Parent logout
       operationId: parentLogout
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
@@ -758,8 +763,8 @@ paths:
 
   /parent/change-password:
     post:
-      tags: [Parent — Auth]
-      summary: تغيير كلمة المرور
+      tags: [Parent - Auth]
+      summary: Change password
       operationId: parentChangePassword
       requestBody:
         required: true
@@ -775,7 +780,7 @@ paths:
                   type: string
                   format: password
                   minLength: 8
-                  description: يجب أن تطابق `new_password`.
+                  description: Must match `new_password`.
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
@@ -783,16 +788,16 @@ paths:
 
   /parent/profile:
     get:
-      tags: [Parent — Auth]
-      summary: جلب الملف الشخصي لولي الأمر
+      tags: [Parent - Auth]
+      summary: Get parent profile
       operationId: parentProfile
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
     post:
-      tags: [Parent — Auth]
-      summary: تحديث الملف الشخصي لولي الأمر
-      description: أرسل الطلب بنسق `multipart/form-data` عند رفع `profile_image`.
+      tags: [Parent - Auth]
+      summary: Update parent profile
+      description: Send as `multipart/form-data` when uploading a `profile_image`.
       operationId: parentUpdateProfile
       requestBody:
         required: false
@@ -806,12 +811,12 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '422': { $ref: '#/components/responses/ValidationError' }
 
-  # ────────────────────── Parent — Children ─────────────────────
+  # ────────────────────── Parent - Children ─────────────────────
 
   /parent/children:
     get:
-      tags: [Parent — Children]
-      summary: جلب قائمة الأبناء
+      tags: [Parent - Children]
+      summary: List children
       operationId: parentChildren
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
@@ -819,14 +824,14 @@ paths:
 
   /parent/children/{student}:
     get:
-      tags: [Parent — Children]
-      summary: تفاصيل الطالب
+      tags: [Parent - Children]
+      summary: Student details
       operationId: parentChildShow
       parameters:
         - $ref: '#/components/parameters/StudentId'
       responses:
         '200':
-          description: تم الجلب بنجاح
+          description: Student retrieved
           content:
             application/json:
               schema:
@@ -844,8 +849,8 @@ paths:
 
   /parent/children/{student}/schedule:
     get:
-      tags: [Parent — Children]
-      summary: البرنامج الدراسي للطالب
+      tags: [Parent - Children]
+      summary: Student schedule
       operationId: parentChildSchedule
       parameters:
         - $ref: '#/components/parameters/StudentId'
@@ -853,7 +858,7 @@ paths:
           in: query
           required: false
           schema: { type: string }
-          description: تصفية حسب اليوم.
+          description: Filter by day.
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
@@ -861,8 +866,8 @@ paths:
 
   /parent/children/{student}/grades:
     get:
-      tags: [Parent — Children]
-      summary: علامات الطالب
+      tags: [Parent - Children]
+      summary: Student grades
       operationId: parentChildGrades
       parameters:
         - $ref: '#/components/parameters/StudentId'
@@ -881,8 +886,8 @@ paths:
 
   /parent/children/{student}/driver:
     get:
-      tags: [Parent — School]
-      summary: بيانات سائق الطالب
+      tags: [Parent - School]
+      summary: Student's driver details
       operationId: parentChildDriver
       parameters:
         - $ref: '#/components/parameters/StudentId'
@@ -891,12 +896,12 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
-  # ───────────────────── Parent — Attendance ────────────────────
+  # ───────────────────── Parent - Attendance ────────────────────
 
   /parent/children/{student}/attendance:
     get:
-      tags: [Parent — Attendance]
-      summary: سجل حضور الطالب
+      tags: [Parent - Attendance]
+      summary: Student attendance record
       operationId: parentChildAttendance
       parameters:
         - $ref: '#/components/parameters/StudentId'
@@ -907,8 +912,8 @@ paths:
 
   /parent/children/{student}/attendance/report:
     get:
-      tags: [Parent — Attendance]
-      summary: تقرير حضور الطالب
+      tags: [Parent - Attendance]
+      summary: Student attendance report
       operationId: parentChildAttendanceReport
       parameters:
         - $ref: '#/components/parameters/StudentId'
@@ -919,8 +924,8 @@ paths:
 
   /parent/children/{student}/attendance/monthly/{month}/{year}:
     get:
-      tags: [Parent — Attendance]
-      summary: إحصائيات الحضور الشهرية
+      tags: [Parent - Attendance]
+      summary: Monthly attendance statistics
       operationId: parentChildAttendanceMonthly
       parameters:
         - $ref: '#/components/parameters/StudentId'
@@ -937,20 +942,20 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '403': { $ref: '#/components/responses/Forbidden' }
 
-  # ─────────────────── Parent — Excuse Requests ─────────────────
+  # ─────────────────── Parent - Excuse Requests ─────────────────
 
   /parent/excuse-requests:
     get:
-      tags: [Parent — Excuse Requests]
-      summary: جلب طلبات تبرير الغياب
+      tags: [Parent - Excuse Requests]
+      summary: List excuse requests
       operationId: parentExcuseRequestsIndex
       responses:
         '200': { $ref: '#/components/responses/GenericSuccess' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
     post:
-      tags: [Parent — Excuse Requests]
-      summary: إنشاء طلب تبرير غياب
-      description: أرسل الطلب بنسق `multipart/form-data` عند إرفاق ملف.
+      tags: [Parent - Excuse Requests]
+      summary: Create an excuse request
+      description: Send as `multipart/form-data` when including an attachment.
       operationId: parentExcuseRequestStore
       requestBody:
         required: true
@@ -968,8 +973,8 @@ paths:
 
   /parent/excuse-requests/{id}:
     get:
-      tags: [Parent — Excuse Requests]
-      summary: تفاصيل طلب تبرير غياب
+      tags: [Parent - Excuse Requests]
+      summary: Excuse request details
       operationId: parentExcuseRequestShow
       parameters:
         - $ref: '#/components/parameters/ResourceId'
@@ -978,17 +983,17 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '404': { $ref: '#/components/responses/NotFound' }
 
-  # ─────────────────────── Parent — Notes ───────────────────────
+  # ─────────────────────── Parent - Notes ───────────────────────
 
   /parent/notes:
     get:
-      tags: [Parent — Notes]
-      summary: جلب ملاحظات المعلمين
-      description: النتائج مقسّمة على صفحات بحجم 15 عنصراً.
+      tags: [Parent - Notes]
+      summary: List teacher notes
+      description: Paginated, 15 items per page.
       operationId: parentNotesIndex
       responses:
         '200':
-          description: تم الجلب بنجاح
+          description: Notes retrieved
           content:
             application/json:
               schema:
@@ -1007,14 +1012,14 @@ paths:
 
   /parent/notes/{id}:
     get:
-      tags: [Parent — Notes]
-      summary: تفاصيل ملاحظة
+      tags: [Parent - Notes]
+      summary: Note details
       operationId: parentNoteShow
       parameters:
         - $ref: '#/components/parameters/ResourceId'
       responses:
         '200':
-          description: تم الجلب بنجاح
+          description: Note retrieved
           content:
             application/json:
               schema:
@@ -1026,17 +1031,17 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '404': { $ref: '#/components/responses/NotFound' }
 
-  # ─────────────────── Parent — Announcements ───────────────────
+  # ─────────────────── Parent - Announcements ───────────────────
 
   /parent/announcements:
     get:
-      tags: [Parent — Announcements]
-      summary: قائمة الإعلانات
-      description: الإعلانات الموجّهة إلى `all` أو `parents`، مقسّمة على صفحات بحجم 15.
+      tags: [Parent - Announcements]
+      summary: List announcements
+      description: Announcements targeted at `all` or `parents`. Paginated, 15 items per page.
       operationId: parentAnnouncementsIndex
       responses:
         '200':
-          description: تم الجلب بنجاح
+          description: Announcements retrieved
           content:
             application/json:
               schema:
@@ -1055,14 +1060,14 @@ paths:
 
   /parent/announcements/{id}:
     get:
-      tags: [Parent — Announcements]
-      summary: تفاصيل إعلان
+      tags: [Parent - Announcements]
+      summary: Announcement details
       operationId: parentAnnouncementShow
       parameters:
         - $ref: '#/components/parameters/ResourceId'
       responses:
         '200':
-          description: تم الجلب بنجاح
+          description: Announcement retrieved
           content:
             application/json:
               schema:
@@ -1074,16 +1079,16 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '404': { $ref: '#/components/responses/NotFound' }
 
-  # ─────────────────────── Parent — School ──────────────────────
+  # ─────────────────────── Parent - School ──────────────────────
 
   /parent/school-info:
     get:
-      tags: [Parent — School]
-      summary: معلومات المدرسة
+      tags: [Parent - School]
+      summary: School information
       operationId: parentSchoolInfo
       responses:
         '200':
-          description: تم الجلب بنجاح
+          description: School information retrieved
           content:
             application/json:
               schema:
@@ -1094,12 +1099,12 @@ paths:
                       data: { $ref: '#/components/schemas/SchoolInfo' }
         '401': { $ref: '#/components/responses/Unauthenticated' }
 
-  # ────────────────────── Parent — Feedback ─────────────────────
+  # ────────────────────── Parent - Feedback ─────────────────────
 
   /parent/suggestions:
     post:
-      tags: [Parent — Feedback]
-      summary: إرسال اقتراح
+      tags: [Parent - Feedback]
+      summary: Submit a suggestion
       operationId: parentSuggestionStore
       requestBody:
         required: true
@@ -1114,8 +1119,8 @@ paths:
 
   /parent/complaints:
     post:
-      tags: [Parent — Feedback]
-      summary: إرسال شكوى
+      tags: [Parent - Feedback]
+      summary: Submit a complaint
       operationId: parentComplaintStore
       requestBody:
         required: true
@@ -1134,7 +1139,7 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
-      description: 'رمز Sanctum يُرسل كـ `Authorization: Bearer {token}`.'
+      description: 'Sanctum token sent as `Authorization: Bearer {token}`.'
 
   parameters:
     StudentId:
@@ -1142,7 +1147,7 @@ components:
       in: path
       required: true
       schema: { type: integer }
-      description: معرّف الطالب
+      description: Student ID.
     ResourceId:
       name: id
       in: path
@@ -1158,36 +1163,36 @@ components:
       in: path
       required: true
       schema: { type: string }
-      description: معرّف الإشعار (UUID).
+      description: Notification ID (UUID).
 
   responses:
     GenericSuccess:
-      description: تمت العملية بنجاح
+      description: Operation completed successfully
       content:
         application/json:
           schema: { $ref: '#/components/schemas/SuccessEnvelope' }
     ValidationError:
-      description: خطأ في التحقق من المدخلات
+      description: Input validation failed
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ValidationErrorEnvelope' }
     Unauthorized:
-      description: بيانات الدخول غير صحيحة
+      description: Invalid credentials
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ErrorEnvelope' }
     Unauthenticated:
-      description: الرجاء تسجيل الدخول أولاً
+      description: Authentication required
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ErrorEnvelope' }
     Forbidden:
-      description: ليس لديك صلاحية لهذه العملية
+      description: Not permitted to perform this action
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ErrorEnvelope' }
     NotFound:
-      description: المورد غير موجود
+      description: Resource not found
       content:
         application/json:
           schema: { $ref: '#/components/schemas/ErrorEnvelope' }
@@ -1198,18 +1203,24 @@ components:
       type: object
       properties:
         success: { type: boolean, examples: [true] }
-        message: { type: string, examples: ['تمت العملية بنجاح.'] }
+        message:
+          type: string
+          description: Server message (returned in Arabic).
+          examples: ['تمت العملية بنجاح.']
         data: {}
         meta:
           type: object
-          description: يظهر فقط عند وجود بيانات إضافية.
+          description: Present only when extra metadata is returned.
       required: [success, message]
 
     ErrorEnvelope:
       type: object
       properties:
         success: { type: boolean, examples: [false] }
-        message: { type: string, examples: ['غير مصرح بالدخول.'] }
+        message:
+          type: string
+          description: Server message (returned in Arabic).
+          examples: ['غير مصرح بالدخول.']
         errors: {}
       required: [success, message]
 
@@ -1217,13 +1228,17 @@ components:
       type: object
       properties:
         success: { type: boolean, examples: [false] }
-        message: { type: string, examples: ['تأكد من صحة البيانات المدخلة.'] }
+        message:
+          type: string
+          description: Server message (returned in Arabic).
+          examples: ['تأكد من صحة البيانات المدخلة.']
         errors:
           type: object
           properties:
             code: { type: string, examples: ['VALIDATION_ERROR'] }
             messages:
               type: object
+              description: Field name to list of error messages.
               additionalProperties:
                 type: array
                 items: { type: string }
@@ -1259,7 +1274,7 @@ components:
       type: object
       properties:
         id: { type: integer, examples: [2] }
-        name: { type: string, examples: ['أحمد علي'] }
+        name: { type: string, examples: ['Ahmed Ali'] }
         email: { type: [string, 'null'], format: email }
         phone: { type: [string, 'null'], examples: ['+9665XXXXXXXX'] }
         role: { type: string, examples: [teacher] }
@@ -1286,7 +1301,7 @@ components:
           format: password
           minLength: 8
           maxLength: 64
-          description: لا يقبل مسافات.
+          description: Must not contain whitespace.
         fcm_token:
           type: [string, 'null']
           maxLength: 2048
@@ -1313,11 +1328,14 @@ components:
     TeacherProfileUpdateRequest:
       type: object
       properties:
-        email: { type: [string, 'null'], format: email, description: يجب أن يكون فريداً. }
+        email:
+          type: [string, 'null']
+          format: email
+          description: Must be unique across users.
         avatar:
           type: [string, 'null']
           format: binary
-          description: صورة بصيغة jpeg/jpg/png/gif/webp وبحد أقصى 5 ميغابايت.
+          description: Image (jpeg/jpg/png/gif/webp), max 5 MB.
         address: { type: [string, 'null'], maxLength: 255 }
         phone_alt: { type: [string, 'null'], maxLength: 20 }
         experience_years: { type: [integer, 'null'], minimum: 0 }
@@ -1329,11 +1347,11 @@ components:
         phone:
           type: [string, 'null']
           pattern: '^\+?\d{10,15}$'
-          description: يجب أن يكون فريداً.
+          description: Must be unique across users.
         profile_image:
           type: [string, 'null']
           format: binary
-          description: صورة بصيغة jpeg/jpg/png/gif/webp وبحد أقصى 5 ميغابايت.
+          description: Image (jpeg/jpg/png/gif/webp), max 5 MB.
 
     FeedbackRequest:
       type: object
@@ -1351,17 +1369,16 @@ components:
         student_ids:
           type: [array, 'null']
           items: { type: integer }
-          description: معرّفات الطلاب المستهدفين.
+          description: IDs of the targeted students.
         section_ids:
           type: [array, 'null']
           items: { type: integer }
-          description: معرّفات الشعب المستهدفة.
+          description: IDs of the targeted sections.
         attachments:
           type: [array, 'null']
           items: { type: string, format: binary }
           description: >-
-            ملفات بصيغة jpg/jpeg/png/pdf/doc/docx/xlsx/xls/ppt/pptx/zip/rar
-            وبحد أقصى 20 ميغابايت لكل ملف.
+            Files (jpg/jpeg/png/pdf/doc/docx/xlsx/xls/ppt/pptx/zip/rar), max 20 MB each.
 
     StoreMarkRequest:
       type: object
@@ -1392,10 +1409,10 @@ components:
         date:
           type: [string, 'null']
           format: date
-          description: يُستخدم تاريخ اليوم إذا لم يُرسل.
+          description: Defaults to today when omitted.
         schedule_id:
           type: [integer, 'null']
-          description: لتحديد الحصة عندما يكون للشعبة أكثر من حصة في نفس اليوم.
+          description: Targets a specific lesson when the section has more than one that day.
         students:
           type: array
           minItems: 1
