@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             TeacherSeeder::class,
             ParentSeeder::class,
             StudentSeeder::class,
+            WaleedTeacherScenarioSeeder::class,
             // AcademicGradingSeeder::class,
         // TeacherDashboardSeeder::class,
          TeacherNotificationsSeeder::class,
