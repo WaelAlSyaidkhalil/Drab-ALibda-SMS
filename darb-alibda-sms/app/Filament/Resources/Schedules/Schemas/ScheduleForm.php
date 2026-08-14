@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\Schedules\Schemas;
 
 use App\Enums\DayOfWeek;
+use App\Models\Subjects\Subject;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
 
@@ -50,16 +52,6 @@ class ScheduleForm
                         fn ($record) => $record->full_name
                     ),
                 
-                Select::make('subject_id')
-                    ->label(__('dashboard.labels.subject'))
-                    ->relationship('subject', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required()
-                    ->validationMessages([
-                        'required' => __('validation.custom.subject_id.required'),
-                    ]),
-
                 Select::make('teacher_id')
                     ->label(__('dashboard.labels.teacher'))
                     ->relationship('teacher', 'first_name')
@@ -68,10 +60,21 @@ class ScheduleForm
                     )
                     ->searchable()
                     ->preload()
+                    ->live()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $subjectId = Subject::query()
+                            ->where('teacher_id', $state)
+                            ->value('id');
+
+                        $set('subject_id', $subjectId);
+                    })
                     ->required()
                     ->validationMessages([
                         'required' => __('validation.custom.teacher_id.required'),
                     ]),
+
+                Hidden::make('subject_id')
+                    ->default(null),
 
             ])
             ->columns(2);
