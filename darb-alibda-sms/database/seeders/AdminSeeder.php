@@ -119,23 +119,31 @@ class AdminSeeder extends Seeder
 
         $subjects = ['الرياضيات', 'اللغة العربية', 'العلوم', 'اللغة الإنجليزية', 'التاريخ', 'الجغرافيا', 'الفيزياء', 'الكيمياء', 'الأحياء', 'التربية البدنية', 'الديانة'];
         $numOfWeeklyHours = [6, 5, 3, 4, 2, 2, 3, 3, 3, 2, 2];
-        for ($i = 1; $i <= 11; $i++) {
-            for ($j = 1; $j <= 2; $j++) {
+
+        // Ensure we use existing class and teacher ids instead of assuming sequential ids
+        $classIds = SchoolClass::orderBy('id')->pluck('id')->toArray();
+        $teacherIds = Teacher::orderBy('id')->pluck('id')->toArray();
+
+        for ($i = 0; $i < count($subjects); $i++) {
+            foreach ($classIds as $classIndex => $classId) {
+                $teacherId = $teacherIds[$i % max(1, count($teacherIds))] ?? null;
+
                 Subject::updateOrCreate(
-                    ['code' => 'SUB' . $i . '_C' . $j],
+                    ['code' => 'SUB' . ($i + 1) . '_C' . ($classIndex + 1)],
                     [
-                        'name' => $subjects[$i - 1],
-                        'description' => 'مادة ' . $subjects[$i - 1],
-                        'teacher_id' => $i,
-                        'class_id' => $j,
+                        'name' => $subjects[$i],
+                        'description' => 'مادة ' . $subjects[$i],
+                        'teacher_id' => $teacherId,
+                        'class_id' => $classId,
                         'pass_mark' => 50,
                         'full_mark' => 100,
-                        'code' => 'SUB' . $i . '_C' . $j,
-                        'num_of_weekly_hours' => $numOfWeeklyHours[$i - 1],
+                        'code' => 'SUB' . ($i + 1) . '_C' . ($classIndex + 1),
+                        'num_of_weekly_hours' => $numOfWeeklyHours[$i],
                     ]
                 );
             }
         }
+
         return Subject::all();
     }
 
@@ -398,8 +406,8 @@ class AdminSeeder extends Seeder
                     'title' => 'شكوى تجريبية ' . $i,
                     'body' => 'هذا نص شكوى تجريبية رقم ' . $i . ' للتحقق من لوحة الشكاوى.',
                     'status' => [ComplaintStatus::PENDING, ComplaintStatus::IN_PROGRESS, ComplaintStatus::RESOLVED][($i - 1) % 3]->value,
-                    'response' => $i % 3 === 0 ? 'تم حل المشكلة بنجاح.' : null,
-                    'resolved_at' => $i % 3 === 0 ? Carbon::now()->subDays($i) : null,
+                    // DB column is `admin_reply` (not `response`) per migration; resolved_at not present
+                    'admin_reply' => $i % 3 === 0 ? 'تم حل المشكلة بنجاح.' : null,
                 ]
             );
         }
