@@ -46,7 +46,7 @@ class WaleedTeacherScenarioSeeder extends Seeder
                 'name' => 'وائل السيد خليل',
                 'phone' => '0985837696',
                 'role_id' => $teacherRole->id,
-                'password' => bcrypt('Password123'),
+                'password' => '0985837696',
                 'is_active' => true,
             ]
         );
