@@ -28,14 +28,17 @@ class ScheduleForm
                     ]),
 
                 Select::make('section_id')
-                ->label(__('dashboard.labels.section'))
-                ->relationship('section', 'name')
-                ->searchable()
-                ->preload()
-                ->required()
-                ->validationMessages([
-                    'required' => __('validation.custom.section_id.required'),
-                ]),
+                    ->label(__('dashboard.labels.section'))
+                    ->relationship('section', 'name')
+                    ->getOptionLabelFromRecordUsing(
+                        fn ($record) => $record->full_name
+                    )
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->validationMessages([
+                        'required' => __('validation.custom.section_id.required'),
+                    ]),
 
                 Select::make('day')
                     ->label(__('dashboard.labels.day'))
@@ -52,28 +55,25 @@ class ScheduleForm
                         fn ($record) => $record->full_name
                     ),
                 
-                Select::make('teacher_id')
-                    ->label(__('dashboard.labels.teacher'))
-                    ->relationship('teacher', 'first_name')
-                    ->getOptionLabelFromRecordUsing(
-                        fn ($record) => $record->full_name
-                    )
+                Select::make('subject_id')
+                    ->label(__('dashboard.labels.subject'))
+                    ->relationship('subject', 'name')
                     ->searchable()
                     ->preload()
                     ->live()
-                    ->afterStateUpdated(function ($state, callable $set) {
-                        $subjectId = Subject::query()
-                            ->where('teacher_id', $state)
-                            ->value('id');
-
-                        $set('subject_id', $subjectId);
-                    })
                     ->required()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $teacherId = Subject::query()
+                            ->whereKey($state)
+                            ->value('teacher_id');
+
+                        $set('teacher_id', $teacherId);
+                    })
                     ->validationMessages([
-                        'required' => __('validation.custom.teacher_id.required'),
+                        'required' => __('validation.custom.subject_id.required'),
                     ]),
 
-                Hidden::make('subject_id')
+                Hidden::make('teacher_id')
                     ->default(null),
 
             ])
