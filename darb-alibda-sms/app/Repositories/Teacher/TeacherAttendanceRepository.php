@@ -48,7 +48,7 @@ class TeacherAttendanceRepository
                 ->pluck('id');
 
             $attendance = Attendance::query()
-                ->whereIn('schedule_id', $scheduleIds)
+                ->where('section_id', $section->id)
                 ->whereDate('date', $date)
                 ->get();
 
@@ -163,7 +163,7 @@ class TeacherAttendanceRepository
     /**
      * مزامنة الحضور للشعبة بتاريخ محدد
      */
-    public function syncSectionAttendance(int $sectionId, string $date, Collection $studentStatuses, Collection $scheduleIds): array
+    public function syncSectionAttendance(int $sectionId, string $date, Collection $studentStatuses): array
     {
         $presentCount = 0;
         $absentCount = 0;
@@ -180,25 +180,23 @@ class TeacherAttendanceRepository
                 $lateCount++;
             }
 
-            foreach ($scheduleIds as $scheduleId) {
-                Attendance::updateOrCreate(
-                    [
-                        'schedule_id' => $scheduleId,
-                        'student_id' => $studentId,
-                        'date' => $date,
-                    ],
-                    [
-                        'status' => $status,
-                    ]
-                );
-            }
+            Attendance::updateOrCreate(
+                [
+                    'section_id' => $sectionId,
+                    'student_id' => $studentId,
+                    'date' => $date,
+                ],
+                [
+                    'status' => $status,
+                ]
+            );
         }
 
         return [
             'present' => $presentCount,
             'absent' => $absentCount,
             'late' => $lateCount,
-            'attendance_rate' => $presentCount *100 /$studentStatuses ->count()
+            'attendance_rate' => $presentCount * 100 / $studentStatuses->count()
         ];
     }
 }

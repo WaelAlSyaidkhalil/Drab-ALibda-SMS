@@ -34,7 +34,6 @@ class Attendance extends Model
 
     protected $fillable = [
         'section_id',
-        'schedule_id',
         'student_id',
         'status',
         'reason',
