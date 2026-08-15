@@ -8,7 +8,9 @@ use App\Models\Communication\Message;
 use App\Models\Academic\StudentEnrollment;
 use App\Models\Schedule\Attendance;
 use App\Models\Schedule\Schedule;
+use App\Enums\DayOfWeek;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class TeacherDashboardRepository
 {
@@ -21,22 +23,46 @@ class TeacherDashboardRepository
             ->values();
     }
 
+    /**
+     * الحصول على يوم الأسبوع الحالي بصيغة الـ enum
+     */
+    private function getTodayDayOfWeek(): string
+    {
+        $dayMap = [
+            0 => 'Sun',  // الأحد
+            1 => 'Mon',  // الاثنين
+            2 => 'Tue',  // الثلاثاء
+            3 => 'Wed',  // الأربعاء
+            4 => 'Thu',  // الخميس
+            5 => 'Fri',  // الجمعة
+            6 => 'Sat',  // السبت
+        ];
+        
+        return $dayMap[Carbon::today()->dayOfWeek];
+    }
+
     public function countTodayPresentStudents(int $teacherId): int
     {
+        $todayDay = $this->getTodayDayOfWeek();
+
+        // الحصول على الحصص المجدولة للمعلم في اليوم الحالي فقط
         $scheduleIds = Schedule::query()
             ->whereHas('subject', fn ($q) => $q->where('teacher_id', $teacherId))
+            ->where('day', $todayDay)
             ->pluck('id');
 
         if ($scheduleIds->isEmpty()) {
             return 0;
         }
 
+        // حساب الطلاب الحاضرين في هذه الحصص اليوم
         return Attendance::query()
             ->whereIn('schedule_id', $scheduleIds)
             ->whereDate('date', Carbon::today())
             ->where('status', 'present')
-            ->distinct('student_id')
-            ->count('student_id');
+            ->pluck('student_id')
+            ->unique()
+            ->count();
     }
 
     public function countActiveStudentsForTeacher(int $teacherId): int
