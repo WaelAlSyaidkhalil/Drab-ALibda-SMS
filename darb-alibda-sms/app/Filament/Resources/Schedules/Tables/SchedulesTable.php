@@ -40,7 +40,7 @@ class SchedulesTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('teacher.full_name')    
+                TextColumn::make('subject.teacher.full_name')
                     ->label(__('dashboard.labels.teacher'))
                     ->searchable()
                     ->sortable(),
