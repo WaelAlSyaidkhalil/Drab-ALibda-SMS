@@ -83,31 +83,6 @@ paths:
 
   # ─────────────────────────── Health ───────────────────────────
 
-  /test-table:
-    get:
-      tags: [Health]
-      summary: List test records
-      description: Public endpoint used to verify that the latest build was deployed successfully.
-      operationId: getTestTable
-      security: []
-      responses:
-        '200':
-          description: Records retrieved
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status: { type: boolean, examples: [true] }
-                  message:
-                    type: string
-                    description: Server message (Arabic).
-                    examples: ['تم جلب السجلات الاختبارية بنجاح.']
-                  count: { type: integer, examples: [3] }
-                  data:
-                    type: array
-                    items: { $ref: '#/components/schemas/TestTable' }
-
   # ─────────────────────── Teacher - Auth ───────────────────────
 
   /teacher/login:
@@ -1260,15 +1235,6 @@ components:
           properties:
             next_page_url: { type: [string, 'null'] }
             prev_page_url: { type: [string, 'null'] }
-
-    TestTable:
-      type: object
-      properties:
-        id: { type: integer, examples: [1] }
-        name: { type: string, examples: ['Test One'] }
-        description: { type: [string, 'null'] }
-        is_active: { type: boolean }
-        created_at: { type: [string, 'null'], format: date-time }
 
     User:
       type: object
