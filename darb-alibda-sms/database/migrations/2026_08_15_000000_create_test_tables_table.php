@@ -1,6 +1,5 @@
 <?php
 
-use Database\Seeders\TestTableSeeder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,9 +17,6 @@ return new class extends Migration
 
             $table->index('is_active');
         });
-
-        // النشر يشغّل migrate فقط، لذلك نزرع البيانات الاختبارية هنا.
-        (new TestTableSeeder())->run();
     }
 
     public function down(): void
