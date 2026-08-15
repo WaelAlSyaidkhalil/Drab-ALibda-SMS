@@ -17,8 +17,7 @@ class AttendancesTable
             ->columns([
                 TextColumn::make('student.full_name')
                     ->label(__('dashboard.labels.full_name'))
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
 
                 TextColumn::make('status')
                     ->label(__('dashboard.labels.status'))

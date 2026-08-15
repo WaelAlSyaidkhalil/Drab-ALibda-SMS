@@ -20,12 +20,10 @@ class StudentEnrollmentsTable
             ->columns([
                 TextColumn::make('student.full_name')
                     ->label(__('dashboard.labels.student'))
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
 
                 TextColumn::make('section.full_name')
-                    ->label(__('dashboard.labels.class_section'))
-                    ->sortable(),
+                    ->label(__('dashboard.labels.class_section')),
 
                 TextColumn::make('academic_year')
                     ->label(__('dashboard.labels.academic_year'))
@@ -45,8 +43,11 @@ class StudentEnrollmentsTable
                 TextColumn::make('student_subject_count')
                     ->label(__('dashboard.labels.subjects_count')),
 
-                TextColumn::make('final_average_display')
+                TextColumn::make('final_average')
                     ->label(__('dashboard.labels.final_average'))
+                    ->formatStateUsing(fn ($state) => $state === null
+                        ? __('dashboard.labels.not_available')
+                        : number_format((float) $state, 2) . ' / 100')
                     ->sortable()
                     ->placeholder(__('dashboard.labels.not_available')),
                 TextColumn::make('final_result')

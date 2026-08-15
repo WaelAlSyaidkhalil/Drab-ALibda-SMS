@@ -24,8 +24,7 @@ class TeachersTable
                         'first_name',
                         'father_name',
                         'last_name',
-                    ])
-                    ->sortable(),
+                    ]),
 
                 TextColumn::make('gender')
                     ->label(__('dashboard.labels.gender'))

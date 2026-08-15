@@ -23,8 +23,7 @@ class StudentsTable
                         'first_name',
                         'father_name',
                         'last_name',
-                    ])
-                    ->sortable(),
+                    ]),
 
                 TextColumn::make('registry_number')
                     ->label(__('dashboard.labels.registry_number'))
@@ -37,9 +36,11 @@ class StudentsTable
 
                 TextColumn::make('age')
                     ->label(__('dashboard.labels.age'))
-                    ->getStateUsing(fn ($record) => $record->birth_date? now()->diff($record->birth_date)->format('%y') : null)
+                    ->getStateUsing(fn ($record) => $record->age)
                     ->placeholder(__('dashboard.labels.not_available'))
-                    ->sortable(),
+                    ->sortable(query: function ($query, $direction) {
+                        $query->orderByRaw("TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) {$direction}");
+                    }),
 
                 TextColumn::make('parent.name')
                     ->label(__('dashboard.labels.parent_name'))

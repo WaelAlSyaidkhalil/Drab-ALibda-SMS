@@ -96,8 +96,7 @@ class TimeSlotResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('full_name')
-                    ->label(__('dashboard.labels.period'))
-                    ->sortable(),
+                    ->label(__('dashboard.labels.period')),
 
                 TextColumn::make('display_time')
                     ->label(__('dashboard.labels.time_range'))

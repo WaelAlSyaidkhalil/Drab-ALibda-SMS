@@ -91,8 +91,7 @@ class TermResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('term_name')
-                    ->label(__('dashboard.labels.name'))
-                    ->sortable(),
+                    ->label(__('dashboard.labels.name')),
 
                 TextColumn::make('academic_year')
                     ->label(__('dashboard.labels.academic_year'))
@@ -111,9 +110,7 @@ class TermResource extends Resource
                     ->label(__('dashboard.labels.status'))
                     ->formatStateUsing(fn ($state) => $state->label())
                     ->badge()
-                    ->colors(TermStatus::getColors())
-                    ->sortable(),
-            ])
+                    ->colors(TermStatus::getColors()),            ])
             ->filters([
                 SelectFilter::make('academic_year')
                     ->label(__('dashboard.labels.academic_year'))

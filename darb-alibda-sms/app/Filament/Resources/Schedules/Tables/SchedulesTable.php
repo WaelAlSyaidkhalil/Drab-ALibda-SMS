@@ -17,38 +17,70 @@ class SchedulesTable
         ->columns([
                 TextColumn::make('term.academic_year_and_term')
                     ->label(__('dashboard.labels.term'))
-                    ->sortable(),
-                    
-                TextColumn::make('section.full_name')    
+                    ->sortable(query: function ($query, $direction) {
+                        $query
+                            ->leftJoin('terms', 'schedules.term_id', '=', 'terms.id')
+                            ->orderBy('terms.academic_year', $direction)
+                            ->orderByRaw("CASE terms.type
+                                WHEN 'First_Term' THEN 1
+                                WHEN 'Second_Term' THEN 2
+                                ELSE 99
+                            END {$direction}");
+                    }),
+
+                TextColumn::make('section.full_name')
                     ->label(__('dashboard.labels.section'))
-                    ->searchable()
-                    ->sortable(),    
-                                    
+                    ->searchable(),
+
                 TextColumn::make('day')
-                ->label(__('dashboard.labels.day'))
-                ->formatStateUsing(fn ($state) => $state->label())
-                ->badge()
-                ->colors(DayOfWeek::getColors())
-                ->sortable(),
+                    ->label(__('dashboard.labels.day'))
+                    ->formatStateUsing(fn ($state) => $state->label())
+                    ->badge()
+                    ->colors(DayOfWeek::getColors())
+                    ->sortable(query: function ($query, $direction) {
+                        $query->orderByRaw("CASE schedules.day
+                            WHEN 'Sun' THEN 1
+                            WHEN 'Mon' THEN 2
+                            WHEN 'Tue' THEN 3
+                            WHEN 'Wed' THEN 4
+                            WHEN 'Thu' THEN 5
+                            ELSE 99
+                        END {$direction}");
+                    }),
 
-                TextColumn::make('timeSlot.full_name')    
+                TextColumn::make('timeSlot.full_name')
                     ->label(__('dashboard.labels.time_slot'))
-                    ->sortable(),
+                    ->sortable(query: function ($query, $direction) {
+                        $query
+                            ->leftJoin('time_slots', 'schedules.time_slot_id', '=', 'time_slots.id')
+                            ->orderBy('time_slots.period_number', $direction);
+                    }),
 
-                TextColumn::make('subject.name')    
+                TextColumn::make('subject.name')
                     ->label(__('dashboard.labels.subject'))
                     ->searchable()
-                    ->sortable(),
+                    ->sortable(query: function ($query, $direction) {
+                        $query
+                            ->leftJoin('subjects', 'schedules.subject_id', '=', 'subjects.id')
+                            ->orderBy('subjects.name', $direction);
+                    }),
 
                 TextColumn::make('subject.teacher.full_name')
                     ->label(__('dashboard.labels.teacher'))
                     ->searchable()
-                    ->sortable(),
+                    ->sortable(query: function ($query, $direction) {
+                        $query
+                            ->leftJoin('subjects as schedule_subjects', 'schedules.subject_id', '=', 'schedule_subjects.id')
+                            ->leftJoin('teachers', 'schedule_subjects.teacher_id', '=', 'teachers.id')
+                            ->orderBy('teachers.first_name', $direction)
+                            ->orderBy('teachers.last_name', $direction);
+                    }),
 
                 TextColumn::make('created_at')
                     ->label(__('dashboard.labels.created_at'))
                     ->date()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->sortable(),
             ])
             ->filters([
                 //

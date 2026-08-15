@@ -35,8 +35,7 @@ class SubjectsTable
                         'first_name',
                         'father_name',
                         'last_name',
-                    ])
-                    ->sortable(),
+                    ]),
 
                 TextColumn::make('full_mark')
                     ->label(__('dashboard.labels.full_mark'))

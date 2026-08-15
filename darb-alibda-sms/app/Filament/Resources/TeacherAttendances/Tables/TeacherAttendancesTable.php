@@ -17,8 +17,7 @@ class TeacherAttendancesTable
             ->columns([
                 TextColumn::make('teacher.full_name')
                     ->label(__('dashboard.labels.full_name'))
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
 
                 TextColumn::make('date')
                     ->label(__('dashboard.labels.date'))
