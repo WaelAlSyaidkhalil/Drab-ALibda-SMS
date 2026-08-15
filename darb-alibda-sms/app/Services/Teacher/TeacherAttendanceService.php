@@ -54,8 +54,7 @@ class TeacherAttendanceService
         $counts = $this->repository->syncSectionAttendance(
             $sectionId,
             Carbon::parse($date)->toDateString(),
-            collect($statuses),
-            $scheduleIds
+            collect($statuses)
         );
 
         $teacherUser = Teacher::find($teacherId)?->user;
