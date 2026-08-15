@@ -3,10 +3,14 @@
 namespace App\Filament\Resources\Schedules\Schemas;
 
 use App\Enums\DayOfWeek;
+use App\Models\Schedule\Schedule;
 use App\Models\Subjects\Subject;
+use Closure;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
+use Illuminate\Validation\Rules\Unique;
 
 class ScheduleForm
 {
@@ -24,7 +28,7 @@ class ScheduleForm
                     ->preload()
                     ->required()
                     ->validationMessages([
-                        'required' => __('validation.custom.term_id.required'),
+                        'required' => __('dashboard.validation.term_id_required'),
                     ]),
 
                 Select::make('section_id')
@@ -36,8 +40,18 @@ class ScheduleForm
                     ->searchable()
                     ->preload()
                     ->required()
+                    ->unique(
+                        table: 'schedules',
+                        column: 'section_id',
+                        ignoreRecord: true,
+                        modifyRuleUsing: fn (Unique $rule, Get $get) => $rule
+                            ->where('term_id', $get('term_id'))
+                            ->where('day', $get('day'))
+                            ->where('time_slot_id', $get('time_slot_id'))
+                    )
                     ->validationMessages([
-                        'required' => __('validation.custom.section_id.required'),
+                        'required' => __('dashboard.validation.section_id_required'),
+                        'unique' => __('dashboard.validation.section_id_unique'),
                     ]),
 
                 Select::make('day')
@@ -45,7 +59,7 @@ class ScheduleForm
                     ->options(DayOfWeek::options())
                     ->required()
                     ->validationMessages([
-                        'required' => __('validation.custom.day.required'),
+                        'required' => __('dashboard.validation.day_required'),
                     ]),
 
                 Select::make('time_slot_id')
@@ -62,6 +76,34 @@ class ScheduleForm
                     ->preload()
                     ->live()
                     ->required()
+                    ->rules([
+                        function (Get $get) {
+                            return function (string $attribute, mixed $value, Closure $fail) use ($get) {
+                                if (! $value || ! $get('term_id') || ! $get('day') || ! $get('time_slot_id')) {
+                                    return;
+                                }
+
+                                $teacherId = Subject::query()
+                                    ->whereKey($value)
+                                    ->value('teacher_id');
+
+                                if (! $teacherId) {
+                                    return;
+                                }
+
+                                $exists = Schedule::query()
+                                    ->where('term_id', $get('term_id'))
+                                    ->where('day', $get('day'))
+                                    ->where('time_slot_id', $get('time_slot_id'))
+                                    ->whereHas('subject', fn ($query) => $query->where('teacher_id', $teacherId))
+                                    ->exists();
+
+                                if ($exists) {
+                                    $fail(__('dashboard.validation.teacher_time_conflict'));
+                                }
+                            };
+                        },
+                    ])
                     ->afterStateUpdated(function ($state, callable $set) {
                         $teacherId = Subject::query()
                             ->whereKey($state)
@@ -70,7 +112,7 @@ class ScheduleForm
                         $set('teacher_id', $teacherId);
                     })
                     ->validationMessages([
-                        'required' => __('validation.custom.subject_id.required'),
+                        'required' => __('dashboard.validation.subject_id_required'),
                     ]),
 
                 Hidden::make('teacher_id')

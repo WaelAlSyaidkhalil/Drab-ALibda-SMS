@@ -91,7 +91,14 @@ class TermResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('term_name')
-                    ->label(__('dashboard.labels.name')),
+                    ->label(__('dashboard.labels.name'))
+                    ->sortable(query: function ($query, $direction) {
+                        $query->orderByRaw("CASE type
+                            WHEN 'First_Term' THEN 1
+                            WHEN 'Second_Term' THEN 2
+                            ELSE 99
+                        END {$direction}");
+                    }),
 
                 TextColumn::make('academic_year')
                     ->label(__('dashboard.labels.academic_year'))

@@ -42,8 +42,8 @@ class StudentSubjectResultsRelationManager extends RelationManager
                     )
                     ->ignore($this->getMountedTableActionRecord()))
                     ->validationMessages([
-                        'required' => __('validation.custom.subject_id.required'),
-                        'unique' => __('validation.custom.subject_id.unique'),
+                        'required' => __('dashboard.validation.subject_id_required'),
+                        'unique' => __('dashboard.validation.subject_id_unique'),
                     ]),
 
             TextInput::make('term1_mark')
@@ -52,9 +52,9 @@ class StudentSubjectResultsRelationManager extends RelationManager
                 ->minValue(0)
                 ->maxValue(100)
                 ->validationMessages([
-                    'numeric' => __('validation.custom.term1_mark.numeric'),
-                    'minValue' => __('validation.custom.term1_mark.minValue'),
-                    'maxValue' => __('validation.custom.term1_mark.maxValue'),
+                    'numeric' => __('dashboard.validation.term1_mark_numeric'),
+                    'minValue' => __('dashboard.validation.term1_mark_minValue'),
+                    'maxValue' => __('dashboard.validation.term1_mark_maxValue'),
                 ]),
 
             TextInput::make('term2_mark')
@@ -63,9 +63,9 @@ class StudentSubjectResultsRelationManager extends RelationManager
                 ->minValue(0)
                 ->maxValue(100)
                 ->validationMessages([
-                    'numeric' => __('validation.custom.term2_mark.numeric'),
-                    'minValue' => __('validation.custom.term2_mark.minValue'),
-                    'maxValue' => __('validation.custom.term2_mark.maxValue'),
+                    'numeric' => __('dashboard.validation.term2_mark_numeric'),
+                    'minValue' => __('dashboard.validation.term2_mark_minValue'),
+                    'maxValue' => __('dashboard.validation.term2_mark_maxValue'),
                 ]),
 
             TextInput::make('yearly_mark')
@@ -75,9 +75,9 @@ class StudentSubjectResultsRelationManager extends RelationManager
                 ->minValue(0)
                 ->maxValue(100)
                 ->validationMessages([
-                    'numeric' => __('validation.custom.yearly_mark.numeric'),
-                    'minValue' => __('validation.custom.yearly_mark.minValue'),
-                    'maxValue' => __('validation.custom.yearly_mark.maxValue'),
+                    'numeric' => __('dashboard.validation.yearly_mark_numeric'),
+                    'minValue' => __('dashboard.validation.yearly_mark_minValue'),
+                    'maxValue' => __('dashboard.validation.yearly_mark_maxValue'),
                 ]),
 
             Select::make('result')
@@ -85,7 +85,7 @@ class StudentSubjectResultsRelationManager extends RelationManager
                 ->disabled()
                 ->options(MarkResult::options())
                 ->validationMessages([
-                    'in' => __('validation.custom.result.in'),
+                    'in' => __('dashboard.validation.result.in'),
                 ]),
         ]);
     }
