@@ -1,0 +1,1614 @@
+openapi: 3.1.0
+
+info:
+  title: Darb Al-Ibda School Management API
+  version: 1.0.0
+  description: |
+    REST API for the Darb Al-Ibda private school management system.
+
+    ## Response envelope
+
+    Every response is JSON with the following keys:
+
+    - `success` — boolean; `true` on success, `false` on failure
+    - `message` — a short human-readable message (returned in Arabic by the server)
+    - `data` — the response payload on success
+    - `errors` — error details on failure
+
+    ## Authentication
+
+    Protected endpoints use Laravel Sanctum. Send the header:
+
+    `Authorization: Bearer {token}`
+
+    Obtain the token from `POST /api/teacher/login` or `POST /api/parent/login`.
+
+    ## Notes
+
+    - Validation failures return HTTP `422` with per-field messages under `errors.messages`.
+    - Endpoints that accept file uploads must be sent as `multipart/form-data`.
+  contact:
+    name: Darb Al-Ibda School Management System
+
+servers:
+  - url: /api
+    description: Current host
+
+tags:
+  - name: Health
+    description: Diagnostic and deployment-check endpoints
+  - name: Teacher - Auth
+    description: Teacher authentication and profile
+  - name: Teacher - Dashboard
+    description: Teacher dashboard summary
+  - name: Teacher - Absence Justifications
+    description: Absence justification requests raised by parents
+  - name: Teacher - Schedule
+    description: Teacher teaching schedule
+  - name: Teacher - Attendance
+    description: Section and student attendance
+  - name: Teacher - News
+    description: School news feed
+  - name: Teacher - Parent Notes
+    description: Notes sent from teachers to parents
+  - name: Teacher - Marks
+    description: Student marks
+  - name: Teacher - Notifications
+    description: Teacher notifications
+  - name: Teacher - Suggestions
+    description: Suggestions submitted by teachers
+  - name: Teacher - Complaints
+    description: Complaints submitted by teachers
+  - name: Parent - Auth
+    description: Parent authentication and profile
+  - name: Parent - Children
+    description: Children data
+  - name: Parent - Attendance
+    description: Child attendance records
+  - name: Parent - Excuse Requests
+    description: Absence excuse requests submitted by parents
+  - name: Parent - Notes
+    description: Notes received from teachers
+  - name: Parent - Announcements
+    description: Announcements and news
+  - name: Parent - School
+    description: School information and transport
+  - name: Parent - Feedback
+    description: Suggestions and complaints
+
+security:
+  - bearerAuth: []
+
+paths:
+
+  # ─────────────────────────── Health ───────────────────────────
+
+  /test-table:
+    get:
+      tags: [Health]
+      summary: List test records
+      description: Public endpoint used to verify that the latest build was deployed successfully.
+      operationId: getTestTable
+      security: []
+      responses:
+        '200':
+          description: Records retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: boolean, examples: [true] }
+                  message:
+                    type: string
+                    description: Server message (Arabic).
+                    examples: ['تم جلب السجلات الاختبارية بنجاح.']
+                  count: { type: integer, examples: [3] }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/TestTable' }
+
+  # ─────────────────────── Teacher - Auth ───────────────────────
+
+  /teacher/login:
+    post:
+      tags: [Teacher - Auth]
+      summary: Teacher login
+      operationId: teacherLogin
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TeacherLoginRequest' }
+      responses:
+        '200':
+          description: Logged in successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/AuthPayload' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /teacher/support:
+    get:
+      tags: [Teacher - Auth]
+      summary: Support contact details
+      description: Public support information such as school name, phone number and email.
+      operationId: teacherSupport
+      security: []
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+
+  /teacher/me:
+    get:
+      tags: [Teacher - Auth]
+      summary: Current teacher profile
+      description: The authenticated user's profile including teacher details, subjects, sections and schedule.
+      operationId: teacherMe
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /teacher/profile:
+    post:
+      tags: [Teacher - Auth]
+      summary: Update teacher profile
+      description: Send as `multipart/form-data` when uploading an `avatar`.
+      operationId: teacherUpdateProfile
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/TeacherProfileUpdateRequest' }
+          application/json:
+            schema: { $ref: '#/components/schemas/TeacherProfileUpdateRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /teacher/logout:
+    post:
+      tags: [Teacher - Auth]
+      summary: Teacher logout
+      operationId: teacherLogout
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  # ───────────────────── Teacher - Dashboard ────────────────────
+
+  /teacher/dashboard:
+    get:
+      tags: [Teacher - Dashboard]
+      summary: Teacher dashboard
+      description: Daily summary for the teacher - attendance, active students, absence justification requests and news.
+      operationId: teacherDashboard
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  # ─────────────── Teacher - Absence Justifications ─────────────
+
+  /teacher/absence-justifications:
+    get:
+      tags: [Teacher - Absence Justifications]
+      summary: List absence justification requests
+      description: Returns only requests belonging to students in sections the teacher teaches.
+      operationId: teacherAbsenceJustifications
+      responses:
+        '200':
+          description: Requests retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/AbsenceJustification' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /teacher/absence-justifications/update/{justificationId}:
+    post:
+      tags: [Teacher - Absence Justifications]
+      summary: Update absence justification status
+      operationId: teacherUpdateAbsenceJustification
+      parameters:
+        - $ref: '#/components/parameters/JustificationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [pending, approved, rejected]
+                review_note:
+                  type: [string, 'null']
+                  maxLength: 1000
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /teacher/absence-justifications/destroy/{justificationId}:
+    post:
+      tags: [Teacher - Absence Justifications]
+      summary: Delete absence justification request
+      operationId: teacherDeleteAbsenceJustification
+      parameters:
+        - $ref: '#/components/parameters/JustificationId'
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ────────────────────── Teacher - Schedule ────────────────────
+
+  /teacher/schedule/today:
+    get:
+      tags: [Teacher - Schedule]
+      summary: Today's schedule
+      operationId: teacherScheduleToday
+      responses:
+        '200':
+          description: The teacher's lessons for the current day
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/ScheduleEntry' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /teacher/schedule/week:
+    get:
+      tags: [Teacher - Schedule]
+      summary: Weekly schedule
+      description: The week's schedule grouped by day. Object keys are Arabic day names as returned by the server.
+      operationId: teacherScheduleWeek
+      responses:
+        '200':
+          description: Weekly schedule grouped by day
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        additionalProperties:
+                          type: array
+                          items: { $ref: '#/components/schemas/ScheduleEntry' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  # ───────────────────── Teacher - Attendance ───────────────────
+
+  /teacher/sections-with-students:
+    get:
+      tags: [Teacher - Attendance]
+      summary: List sections with students and attendance state
+      description: If `date` is omitted the current date is used.
+      operationId: teacherSectionsWithStudents
+      parameters:
+        - name: class_id
+          in: query
+          required: false
+          schema: { type: integer }
+          description: Filter by class.
+        - name: section_id
+          in: query
+          required: false
+          schema: { type: integer }
+          description: Filter by section.
+        - name: date
+          in: query
+          required: false
+          schema: { type: string, format: date }
+          description: Attendance date in `YYYY-MM-DD` format.
+      responses:
+        '200':
+          description: Sections retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/SectionWithStudents' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /teacher/attendance/sections/{sectionId}/batch-update:
+    post:
+      tags: [Teacher - Attendance]
+      summary: Batch-update section attendance
+      description: |
+        If the section has more than one lesson on the same day, use `schedule_id` to target the intended lesson.
+      operationId: teacherBatchUpdateAttendance
+      parameters:
+        - name: sectionId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/BatchAttendanceRequest' }
+      responses:
+        '200':
+          description: Attendance updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/BatchAttendanceResult' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  # ─────────────────────── Teacher - News ───────────────────────
+
+  /teacher/news:
+    get:
+      tags: [Teacher - News]
+      summary: List all news
+      description: Returns the news list with an `is_read` flag on each item.
+      operationId: teacherNewsIndex
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /teacher/news/unread-count:
+    get:
+      tags: [Teacher - News]
+      summary: Unread news count
+      operationId: teacherNewsUnreadCount
+      responses:
+        '200':
+          description: Count retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          unread_count: { type: integer, examples: [5] }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /teacher/news/{newsId}/mark-as-read:
+    post:
+      tags: [Teacher - News]
+      summary: Mark a news item as read
+      operationId: teacherMarkNewsAsRead
+      parameters:
+        - name: newsId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /teacher/news/mark-all-as-read:
+    post:
+      tags: [Teacher - News]
+      summary: Mark all news as read
+      operationId: teacherMarkAllNewsAsRead
+      responses:
+        '200':
+          description: News marked as read
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          marked_count: { type: integer, examples: [12] }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  # ─────────────────── Teacher - Parent Notes ───────────────────
+
+  /teacher/parent-notes:
+    get:
+      tags: [Teacher - Parent Notes]
+      summary: List notes sent to parents
+      operationId: teacherParentNotesIndex
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+    post:
+      tags: [Teacher - Parent Notes]
+      summary: Send a new note
+      description: |
+        Target individual students via `student_ids`, or whole sections via `section_ids`.
+        Send as `multipart/form-data` when including attachments.
+      operationId: teacherParentNotesStore
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/ParentNoteRequest' }
+          application/json:
+            schema: { $ref: '#/components/schemas/ParentNoteRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '201': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /teacher/parent-notes/{noteId}:
+    post:
+      tags: [Teacher - Parent Notes]
+      summary: Update a note
+      operationId: teacherParentNotesUpdate
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/ParentNoteRequest' }
+          application/json:
+            schema: { $ref: '#/components/schemas/ParentNoteRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /teacher/parent-notes/delete/{noteId}:
+    post:
+      tags: [Teacher - Parent Notes]
+      summary: Delete a note
+      operationId: teacherParentNotesDestroy
+      parameters:
+        - name: noteId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ────────────────────── Teacher - Marks ───────────────────────
+
+  /teacher/marks/students:
+    get:
+      tags: [Teacher - Marks]
+      summary: List students with their marks
+      operationId: teacherMarksStudents
+      parameters:
+        - name: class_id
+          in: query
+          required: false
+          schema: { type: integer }
+        - name: section_id
+          in: query
+          required: false
+          schema: { type: integer }
+        - name: subject_id
+          in: query
+          required: false
+          schema: { type: integer }
+        - name: term_id
+          in: query
+          required: false
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /teacher/marks:
+    post:
+      tags: [Teacher - Marks]
+      summary: Create a mark
+      description: Identify the student either by `enrollment_id`, or by `student_id` together with `class_id` and `section_id`.
+      operationId: teacherMarksStore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StoreMarkRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '201': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /teacher/marks/{markId}:
+    post:
+      tags: [Teacher - Marks]
+      summary: Update a mark
+      description: On update only the `mark` field is accepted.
+      operationId: teacherMarksUpdate
+      parameters:
+        - name: markId
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mark]
+              properties:
+                mark: { type: number, minimum: 0, examples: [18.5] }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /teacher/marks/delete/{markId}:
+    post:
+      tags: [Teacher - Marks]
+      summary: Delete a mark
+      operationId: teacherMarksDestroy
+      parameters:
+        - name: markId
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ─────────────────── Teacher - Notifications ──────────────────
+
+  /teacher/notification:
+    get:
+      tags: [Teacher - Notifications]
+      summary: List teacher notifications
+      operationId: teacherNotifications
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /teacher/notification/mark-all-as-read:
+    post:
+      tags: [Teacher - Notifications]
+      summary: Mark all notifications as read
+      operationId: teacherNotificationsMarkAllAsRead
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /teacher/notification/{notificationId}/mark-as-read:
+    post:
+      tags: [Teacher - Notifications]
+      summary: Mark a notification as read
+      operationId: teacherNotificationMarkAsRead
+      parameters:
+        - $ref: '#/components/parameters/NotificationId'
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /teacher/notification/{notificationId}:
+    post:
+      tags: [Teacher - Notifications]
+      summary: Delete a notification
+      operationId: teacherNotificationDelete
+      parameters:
+        - $ref: '#/components/parameters/NotificationId'
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ──────────────────── Teacher - Suggestions ───────────────────
+
+  /teacher/suggestions:
+    get:
+      tags: [Teacher - Suggestions]
+      summary: List teacher suggestions
+      operationId: teacherSuggestionsIndex
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /teacher/suggestion:
+    post:
+      tags: [Teacher - Suggestions]
+      summary: Submit a new suggestion
+      operationId: teacherSuggestionStore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, body]
+              properties:
+                title: { type: string, maxLength: 255 }
+                body: { type: string, minLength: 10 }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '201': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /teacher/suggestions/{suggestion}:
+    get:
+      tags: [Teacher - Suggestions]
+      summary: Suggestion details
+      operationId: teacherSuggestionShow
+      parameters:
+        - name: suggestion
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ──────────────────── Teacher - Complaints ────────────────────
+
+  /teacher/complaints:
+    get:
+      tags: [Teacher - Complaints]
+      summary: List teacher complaints
+      operationId: teacherComplaintsIndex
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+    post:
+      tags: [Teacher - Complaints]
+      summary: Submit a new complaint
+      operationId: teacherComplaintStore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FeedbackRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '201': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /teacher/complaints/{complaint}:
+    get:
+      tags: [Teacher - Complaints]
+      summary: Complaint details
+      operationId: teacherComplaintShow
+      parameters:
+        - name: complaint
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ──────────────────────── Parent - Auth ───────────────────────
+
+  /parent/login:
+    post:
+      tags: [Parent - Auth]
+      summary: Parent login
+      operationId: parentLogin
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ParentLoginRequest' }
+      responses:
+        '200':
+          description: Logged in successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/AuthPayload' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /parent/logout:
+    post:
+      tags: [Parent - Auth]
+      summary: Parent logout
+      operationId: parentLogout
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /parent/change-password:
+    post:
+      tags: [Parent - Auth]
+      summary: Change password
+      operationId: parentChangePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password, new_password_confirmation]
+              properties:
+                current_password: { type: string, format: password }
+                new_password: { type: string, format: password, minLength: 8 }
+                new_password_confirmation:
+                  type: string
+                  format: password
+                  minLength: 8
+                  description: Must match `new_password`.
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /parent/profile:
+    get:
+      tags: [Parent - Auth]
+      summary: Get parent profile
+      operationId: parentProfile
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+    post:
+      tags: [Parent - Auth]
+      summary: Update parent profile
+      description: Send as `multipart/form-data` when uploading a `profile_image`.
+      operationId: parentUpdateProfile
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/ParentProfileUpdateRequest' }
+          application/json:
+            schema: { $ref: '#/components/schemas/ParentProfileUpdateRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  # ────────────────────── Parent - Children ─────────────────────
+
+  /parent/children:
+    get:
+      tags: [Parent - Children]
+      summary: List children
+      operationId: parentChildren
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /parent/children/{student}:
+    get:
+      tags: [Parent - Children]
+      summary: Student details
+      operationId: parentChildShow
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200':
+          description: Student retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          student: { $ref: '#/components/schemas/StudentDetail' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /parent/children/{student}/schedule:
+    get:
+      tags: [Parent - Children]
+      summary: Student schedule
+      operationId: parentChildSchedule
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - name: day
+          in: query
+          required: false
+          schema: { type: string }
+          description: Filter by day.
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /parent/children/{student}/grades:
+    get:
+      tags: [Parent - Children]
+      summary: Student grades
+      operationId: parentChildGrades
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - name: academic_year
+          in: query
+          required: false
+          schema: { type: string }
+        - name: semester
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /parent/children/{student}/driver:
+    get:
+      tags: [Parent - School]
+      summary: Student's driver details
+      operationId: parentChildDriver
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ───────────────────── Parent - Attendance ────────────────────
+
+  /parent/children/{student}/attendance:
+    get:
+      tags: [Parent - Attendance]
+      summary: Student attendance record
+      operationId: parentChildAttendance
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /parent/children/{student}/attendance/report:
+    get:
+      tags: [Parent - Attendance]
+      summary: Student attendance report
+      operationId: parentChildAttendanceReport
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /parent/children/{student}/attendance/monthly/{month}/{year}:
+    get:
+      tags: [Parent - Attendance]
+      summary: Monthly attendance statistics
+      operationId: parentChildAttendanceMonthly
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - name: month
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1, maximum: 12 }
+        - name: year
+          in: path
+          required: true
+          schema: { type: integer, examples: [2026] }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ─────────────────── Parent - Excuse Requests ─────────────────
+
+  /parent/excuse-requests:
+    get:
+      tags: [Parent - Excuse Requests]
+      summary: List excuse requests
+      operationId: parentExcuseRequestsIndex
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+    post:
+      tags: [Parent - Excuse Requests]
+      summary: Create an excuse request
+      description: Send as `multipart/form-data` when including an attachment.
+      operationId: parentExcuseRequestStore
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { $ref: '#/components/schemas/ExcuseRequest' }
+          application/json:
+            schema: { $ref: '#/components/schemas/ExcuseRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '201': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /parent/excuse-requests/{id}:
+    get:
+      tags: [Parent - Excuse Requests]
+      summary: Excuse request details
+      operationId: parentExcuseRequestShow
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ─────────────────────── Parent - Notes ───────────────────────
+
+  /parent/notes:
+    get:
+      tags: [Parent - Notes]
+      summary: List teacher notes
+      description: Paginated, 15 items per page.
+      operationId: parentNotesIndex
+      responses:
+        '200':
+          description: Notes retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items: { $ref: '#/components/schemas/ParentNote' }
+                          pagination: { $ref: '#/components/schemas/Pagination' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /parent/notes/{id}:
+    get:
+      tags: [Parent - Notes]
+      summary: Note details
+      operationId: parentNoteShow
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Note retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/ParentNote' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ─────────────────── Parent - Announcements ───────────────────
+
+  /parent/announcements:
+    get:
+      tags: [Parent - Announcements]
+      summary: List announcements
+      description: Announcements targeted at `all` or `parents`. Paginated, 15 items per page.
+      operationId: parentAnnouncementsIndex
+      responses:
+        '200':
+          description: Announcements retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          items:
+                            type: array
+                            items: { $ref: '#/components/schemas/AnnouncementListItem' }
+                          pagination: { $ref: '#/components/schemas/PaginationFull' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /parent/announcements/{id}:
+    get:
+      tags: [Parent - Announcements]
+      summary: Announcement details
+      operationId: parentAnnouncementShow
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Announcement retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/AnnouncementDetail' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ─────────────────────── Parent - School ──────────────────────
+
+  /parent/school-info:
+    get:
+      tags: [Parent - School]
+      summary: School information
+      operationId: parentSchoolInfo
+      responses:
+        '200':
+          description: School information retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/SchoolInfo' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  # ────────────────────── Parent - Feedback ─────────────────────
+
+  /parent/suggestions:
+    post:
+      tags: [Parent - Feedback]
+      summary: Submit a suggestion
+      operationId: parentSuggestionStore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FeedbackRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '201': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /parent/complaints:
+    post:
+      tags: [Parent - Feedback]
+      summary: Submit a complaint
+      operationId: parentComplaintStore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FeedbackRequest' }
+      responses:
+        '200': { $ref: '#/components/responses/GenericSuccess' }
+        '201': { $ref: '#/components/responses/GenericSuccess' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: 'Sanctum token sent as `Authorization: Bearer {token}`.'
+
+  parameters:
+    StudentId:
+      name: student
+      in: path
+      required: true
+      schema: { type: integer }
+      description: Student ID.
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer }
+    JustificationId:
+      name: justificationId
+      in: path
+      required: true
+      schema: { type: integer }
+    NotificationId:
+      name: notificationId
+      in: path
+      required: true
+      schema: { type: string }
+      description: Notification ID (UUID).
+
+  responses:
+    GenericSuccess:
+      description: Operation completed successfully
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/SuccessEnvelope' }
+    ValidationError:
+      description: Input validation failed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ValidationErrorEnvelope' }
+    Unauthorized:
+      description: Invalid credentials
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    Unauthenticated:
+      description: Authentication required
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    Forbidden:
+      description: Not permitted to perform this action
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
+  schemas:
+
+    SuccessEnvelope:
+      type: object
+      properties:
+        success: { type: boolean, examples: [true] }
+        message:
+          type: string
+          description: Server message (returned in Arabic).
+          examples: ['تمت العملية بنجاح.']
+        data: {}
+        meta:
+          type: object
+          description: Present only when extra metadata is returned.
+      required: [success, message]
+
+    ErrorEnvelope:
+      type: object
+      properties:
+        success: { type: boolean, examples: [false] }
+        message:
+          type: string
+          description: Server message (returned in Arabic).
+          examples: ['غير مصرح بالدخول.']
+        errors: {}
+      required: [success, message]
+
+    ValidationErrorEnvelope:
+      type: object
+      properties:
+        success: { type: boolean, examples: [false] }
+        message:
+          type: string
+          description: Server message (returned in Arabic).
+          examples: ['تأكد من صحة البيانات المدخلة.']
+        errors:
+          type: object
+          properties:
+            code: { type: string, examples: ['VALIDATION_ERROR'] }
+            messages:
+              type: object
+              description: Field name to list of error messages.
+              additionalProperties:
+                type: array
+                items: { type: string }
+      required: [success, message]
+
+    Pagination:
+      type: object
+      properties:
+        total: { type: integer }
+        count: { type: integer }
+        per_page: { type: integer, examples: [15] }
+        current_page: { type: integer }
+        last_page: { type: integer }
+
+    PaginationFull:
+      allOf:
+        - $ref: '#/components/schemas/Pagination'
+        - type: object
+          properties:
+            next_page_url: { type: [string, 'null'] }
+            prev_page_url: { type: [string, 'null'] }
+
+    TestTable:
+      type: object
+      properties:
+        id: { type: integer, examples: [1] }
+        name: { type: string, examples: ['Test One'] }
+        description: { type: [string, 'null'] }
+        is_active: { type: boolean }
+        created_at: { type: [string, 'null'], format: date-time }
+
+    User:
+      type: object
+      properties:
+        id: { type: integer, examples: [2] }
+        name: { type: string, examples: ['Ahmed Ali'] }
+        email: { type: [string, 'null'], format: email }
+        phone: { type: [string, 'null'], examples: ['+9665XXXXXXXX'] }
+        role: { type: string, examples: [teacher] }
+        is_active: { type: boolean }
+        fcm_token: { type: [string, 'null'] }
+
+    AuthPayload:
+      type: object
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        token: { type: string, examples: ['32|abcdef...'] }
+        token_type: { type: string, examples: [Bearer] }
+
+    TeacherLoginRequest:
+      type: object
+      required: [phone, password]
+      properties:
+        phone:
+          type: string
+          pattern: '^\+?\d{10,15}$'
+          examples: ['+9665XXXXXXXX']
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 64
+          description: Must not contain whitespace.
+        fcm_token:
+          type: [string, 'null']
+          maxLength: 2048
+        remember:
+          type: boolean
+
+    ParentLoginRequest:
+      type: object
+      required: [phone, password]
+      properties:
+        phone:
+          type: string
+          pattern: '^\+?\d{10,15}$'
+          examples: ['+9665XXXXXXXX']
+        password:
+          type: string
+          format: password
+          minLength: 8
+          maxLength: 64
+        fcm_token:
+          type: [string, 'null']
+          maxLength: 2048
+
+    TeacherProfileUpdateRequest:
+      type: object
+      properties:
+        email:
+          type: [string, 'null']
+          format: email
+          description: Must be unique across users.
+        avatar:
+          type: [string, 'null']
+          format: binary
+          description: Image (jpeg/jpg/png/gif/webp), max 5 MB.
+        address: { type: [string, 'null'], maxLength: 255 }
+        phone_alt: { type: [string, 'null'], maxLength: 20 }
+        experience_years: { type: [integer, 'null'], minimum: 0 }
+
+    ParentProfileUpdateRequest:
+      type: object
+      properties:
+        name: { type: [string, 'null'], maxLength: 255 }
+        phone:
+          type: [string, 'null']
+          pattern: '^\+?\d{10,15}$'
+          description: Must be unique across users.
+        profile_image:
+          type: [string, 'null']
+          format: binary
+          description: Image (jpeg/jpg/png/gif/webp), max 5 MB.
+
+    FeedbackRequest:
+      type: object
+      required: [title, body]
+      properties:
+        title: { type: string, maxLength: 255 }
+        body: { type: string, maxLength: 5000 }
+
+    ParentNoteRequest:
+      type: object
+      required: [title, content]
+      properties:
+        title: { type: string, maxLength: 255 }
+        content: { type: string }
+        student_ids:
+          type: [array, 'null']
+          items: { type: integer }
+          description: IDs of the targeted students.
+        section_ids:
+          type: [array, 'null']
+          items: { type: integer }
+          description: IDs of the targeted sections.
+        attachments:
+          type: [array, 'null']
+          items: { type: string, format: binary }
+          description: >-
+            Files (jpg/jpeg/png/pdf/doc/docx/xlsx/xls/ppt/pptx/zip/rar), max 20 MB each.
+
+    StoreMarkRequest:
+      type: object
+      required: [subject_id, subject_component_id, term_id, mark]
+      properties:
+        enrollment_id: { type: [integer, 'null'] }
+        student_id: { type: [integer, 'null'] }
+        class_id: { type: [integer, 'null'] }
+        section_id: { type: [integer, 'null'] }
+        subject_id: { type: integer }
+        subject_component_id: { type: integer }
+        term_id: { type: integer }
+        mark: { type: number, minimum: 0, examples: [18.5] }
+
+    ExcuseRequest:
+      type: object
+      required: [student_id, absence_date, reason]
+      properties:
+        student_id: { type: integer }
+        absence_date: { type: string, format: date, examples: ['2026-06-15'] }
+        reason: { type: string, maxLength: 1000 }
+        attachment: { type: [string, 'null'], format: binary }
+
+    BatchAttendanceRequest:
+      type: object
+      required: [students]
+      properties:
+        date:
+          type: [string, 'null']
+          format: date
+          description: Defaults to today when omitted.
+        schedule_id:
+          type: [integer, 'null']
+          description: Targets a specific lesson when the section has more than one that day.
+        students:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [student_id, status]
+            properties:
+              student_id: { type: integer }
+              status:
+                type: string
+                enum: [present, absent, late]
+
+    BatchAttendanceResult:
+      type: object
+      properties:
+        section_id: { type: integer }
+        date: { type: string, format: date }
+        counts:
+          type: object
+          properties:
+            present: { type: integer }
+            absent: { type: integer }
+            late: { type: integer }
+            excused: { type: integer }
+            total: { type: integer }
+
+    TimeSlot:
+      type: object
+      properties:
+        id: { type: integer }
+        period_number: { type: integer }
+        name: { type: [string, 'null'] }
+        start_time: { type: [string, 'null'], examples: ['08:00'] }
+        end_time: { type: [string, 'null'], examples: ['08:45'] }
+
+    ScheduleEntry:
+      type: object
+      properties:
+        id: { type: integer }
+        subject: { type: [string, 'null'] }
+        section: { type: [string, 'null'] }
+        class: { type: [string, 'null'] }
+        day: { type: [string, 'null'] }
+        time_slot: { $ref: '#/components/schemas/TimeSlot' }
+        term: { type: [string, 'null'] }
+
+    AttendanceSummary:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        present: { type: integer }
+        absent: { type: integer }
+        late: { type: integer }
+        excused: { type: integer }
+        percentage: { type: number }
+
+    SectionStudent:
+      type: object
+      properties:
+        student_id: { type: integer }
+        enrollment_id: { type: [integer, 'null'] }
+        registry_number: { type: [string, 'null'] }
+        full_name: { type: [string, 'null'] }
+        first_name: { type: [string, 'null'] }
+        last_name: { type: [string, 'null'] }
+        email: { type: [string, 'null'], format: email }
+        phone: { type: [string, 'null'] }
+        gender: { type: [string, 'null'] }
+        birth_date: { type: [string, 'null'], format: date }
+        parent: { type: [object, 'null'] }
+        attendance_status: { type: [string, 'null'] }
+
+    SectionWithStudents:
+      type: object
+      properties:
+        section_id: { type: integer }
+        section_name: { type: [string, 'null'] }
+        section_full_name: { type: [string, 'null'] }
+        class_id: { type: [integer, 'null'] }
+        class_name: { type: [string, 'null'] }
+        total_students: { type: integer }
+        attendance: { $ref: '#/components/schemas/AttendanceSummary' }
+        schedules:
+          type: array
+          items: { $ref: '#/components/schemas/ScheduleEntry' }
+        students:
+          type: array
+          items: { $ref: '#/components/schemas/SectionStudent' }
+
+    AbsenceJustification:
+      type: object
+      properties:
+        id: { type: integer }
+        student: { type: [object, 'null'] }
+        parent: { type: [object, 'null'] }
+        absence_date: { type: [string, 'null'], format: date }
+        reason: { type: [string, 'null'] }
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        review_note: { type: [string, 'null'] }
+        reviewed_by: { type: [integer, 'null'] }
+        reviewed_at: { type: [string, 'null'], format: date-time }
+        attachments:
+          type: array
+          items: { $ref: '#/components/schemas/Attachment' }
+        created_at: { type: [string, 'null'], format: date-time }
+
+    Attachment:
+      type: object
+      properties:
+        id: { type: integer }
+        url: { type: [string, 'null'] }
+        name: { type: [string, 'null'] }
+        type: { type: [string, 'null'] }
+        mime_type: { type: [string, 'null'] }
+        size: { type: [integer, 'null'] }
+
+    StudentDetail:
+      type: object
+      properties:
+        id: { type: integer }
+        full_name: { type: [string, 'null'] }
+        personal_information:
+          type: object
+          properties:
+            first_name: { type: [string, 'null'] }
+            last_name: { type: [string, 'null'] }
+            father_name: { type: [string, 'null'] }
+            mother_name: { type: [string, 'null'] }
+            birth_date: { type: [string, 'null'], format: date }
+            gender: { type: [string, 'null'] }
+        academic_information:
+          type: object
+          properties:
+            classroom: { type: [string, 'null'] }
+            section: { type: [string, 'null'] }
+            academic_year: { type: [string, 'null'] }
+        attendance_summary:
+          type: object
+          properties:
+            present_days: { type: integer }
+            absent_days: { type: integer }
+            excused_absences: { type: integer }
+            unexcused_absences: { type: integer }
+            attendance_percentage: { type: number }
+
+    ParentNote:
+      type: object
+      properties:
+        id: { type: integer }
+        student:
+          type: object
+          properties:
+            id: { type: [integer, 'null'] }
+            full_name: { type: [string, 'null'] }
+            registry_number: { type: [string, 'null'] }
+        title: { type: [string, 'null'] }
+        content: { type: [string, 'null'] }
+        teacher:
+          type: [object, 'null']
+          properties:
+            id: { type: integer }
+            name: { type: [string, 'null'] }
+            email: { type: [string, 'null'], format: email }
+            phone: { type: [string, 'null'] }
+        created_at: { type: [string, 'null'], format: date-time }
+        updated_at: { type: [string, 'null'], format: date-time }
+
+    AnnouncementListItem:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: [string, 'null'] }
+        description: { type: [string, 'null'] }
+        thumbnail: { type: [string, 'null'] }
+        published_at: { type: [string, 'null'], format: date-time }
+
+    AnnouncementDetail:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: [string, 'null'] }
+        description: { type: [string, 'null'] }
+        attachments:
+          type: array
+          items: { $ref: '#/components/schemas/Attachment' }
+        published_at: { type: [string, 'null'], format: date-time }
+
+    SchoolInfo:
+      type: object
+      properties:
+        name: { type: [string, 'null'] }
+        logo: { type: [string, 'null'] }
+        address: { type: [string, 'null'] }
+        phone: { type: [string, 'null'] }
+        email: { type: [string, 'null'], format: email }
+        description: { type: [string, 'null'] }
+        website: { type: [string, 'null'] }

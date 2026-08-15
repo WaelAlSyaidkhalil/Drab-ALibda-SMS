@@ -1,28 +1,14 @@
 <?php
 
+use App\Http\Controllers\ApiDocsController;
+use App\Http\Controllers\PageController;
 use Illuminate\Support\Facades\Route;
-use Kreait\Firebase\Factory;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [PageController::class, 'home']);
 
+Route::get('/test-firebase', [PageController::class, 'testFirebase']);
 
-Route::get('/test-firebase', function () {
-    try {
-        $factory = (new Factory)->withServiceAccount(config('firebase.projects.app.credentials'));
-        $auth = $factory->createAuth();
+Route::get('/locale/{locale}', [PageController::class, 'switchLocale'])->name('locale.switch');
 
-        return "✅ الاتصال ناجح مع Firebase";
-    } catch (\Exception $e) {
-        return "❌ خطأ في الاتصال: " . $e->getMessage();
-    }
-});
-
-Route::get('/locale/{locale}', function (string $locale) {
-    abort_unless(in_array($locale, ['en', 'ar']), 404);
-
-    session(['locale' => $locale]);
-
-    return back();
-})->name('locale.switch');
+// توثيق واجهات API (Swagger UI)
+Route::get('/docs', [ApiDocsController::class, 'index'])->name('api.docs');

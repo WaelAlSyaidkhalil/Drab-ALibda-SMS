@@ -38,6 +38,20 @@ to switch the server's bootstrap over to the git-managed script:
 sudo cp /var/www/Drab-ALibda-SMS/scripts/deploy-bootstrap.sh /var/www/Drab-ALibda-SMS/deploy.sh && sudo chmod 755 /var/www/Drab-ALibda-SMS/deploy.sh
 ```
 
+## API documentation
+
+Published with the app on every deploy — no extra build step:
+
+- Swagger UI: `https://<host>/docs`
+- OpenAPI 3.1 spec: `https://<host>/openapi.yaml`
+
+The spec is hand-maintained at `darb-alibda-sms/public/openapi.yaml`. When you add or
+change a route in `routes/api.php`, update the spec in the same commit.
+
+Note: `routes/web.php` must stay free of Closure-based routes — `php artisan route:cache`
+in `scripts/deploy.sh` cannot serialize Closures and will abort the deploy. Use controller
+actions instead (see `app/Http/Controllers/PageController.php`).
+
 ## Server facts
 
 - Repo: `/var/www/Drab-ALibda-SMS` (Laravel app in `darb-alibda-sms/`)

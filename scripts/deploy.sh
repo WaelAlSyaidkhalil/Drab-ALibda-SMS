@@ -13,7 +13,7 @@ cd "$APP"
 log "composer install (prod)…"
 $PHP "$COMPOSER" install --no-interaction --prefer-dist --no-dev --optimize-autoloader
 
-log "migrate…";    $PHP artisan migrate --force
+log "migrate + seed…"; $PHP artisan migrate --force --seed
 log "assets…";     $PHP artisan storage:link || true; $PHP artisan filament:assets
 log "caches…";     $PHP artisan config:cache; $PHP artisan route:cache; $PHP artisan view:cache
 log "perms…";      chown -R www-data:www-data "$REPO"; chmod -R ug+rwX "$APP/storage" "$APP/bootstrap/cache"

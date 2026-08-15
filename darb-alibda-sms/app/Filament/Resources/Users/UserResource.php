@@ -5,9 +5,12 @@ namespace App\Filament\Resources\Users;
 use App\Enums\UserRole;
 use App\Filament\Resources\Users\Pages\ManageUsers;
 use App\Models\Auth\User;
+use App\Services\Admin\GeneratePasswordService;
 use BackedEnum;
 use Dom\Text;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
+use Filament\Notifications\Notification;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Resources\Resource;
@@ -102,12 +105,9 @@ class UserResource extends Resource
                     ->label(__('dashboard.labels.password'))
                     ->password()
                     ->formatStateUsing(fn ($state) => '')
-                    ->dehydrateStateUsing(function ($state, $record) {
-                        if (empty($state)) {
-                            return $record->password;
-                        }
-                        return $record->role->name === UserRole::ADMIN ? Hash::make($state) : $state;
-                    })
+                    // التشفير يتم عبر cast الحقل في النموذج.
+                    // اترك الحقل فارغاً عند التعديل للإبقاء على كلمة المرور الحالية.
+                    ->dehydrated(fn ($state) => filled($state))
                     ->required(fn ($operation) => $operation === 'create')
                     ->nullable()
                     ->minLength(8)
@@ -161,9 +161,6 @@ class UserResource extends Resource
                     ->label(__('dashboard.labels.phone'))
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('password')
-                    ->label(__('dashboard.labels.password'))
-                    ->formatStateUsing(fn ($state, $record) => $record->role->name === UserRole::ADMIN ? '********' : $state),
                 TextColumn::make('role.name')
                     ->label(__('dashboard.labels.role'))
                     ->formatStateUsing(fn ($state) => $state->label())
@@ -190,6 +187,26 @@ class UserResource extends Resource
             ])
             ->recordActions([
                 EditAction::make(),
+                Action::make('resetPassword')
+                    ->label(__('dashboard.labels.reset_password'))
+                    ->icon('heroicon-o-key')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalDescription(__('dashboard.labels.reset_password_confirm'))
+                    ->action(function (User $record): void {
+                        // كلمة المرور تُشفَّر تلقائياً عبر cast النموذج،
+                        // لذلك نعرض النص الأصلي هنا مرة واحدة فقط.
+                        $plain = GeneratePasswordService::generatePassword();
+
+                        $record->update(['password' => $plain]);
+
+                        Notification::make()
+                            ->title(__('dashboard.labels.reset_password_done'))
+                            ->body($plain . ' — ' . __('dashboard.labels.reset_password_copy'))
+                            ->success()
+                            ->persistent()
+                            ->send();
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

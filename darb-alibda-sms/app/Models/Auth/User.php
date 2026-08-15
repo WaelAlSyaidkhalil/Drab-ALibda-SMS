@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -44,9 +46,21 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
  * @property-read \Illuminate\Database\Eloquent\Collection $children
  * @property-read string $full_name
  */
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
     use HasApiTokens, HasFactory, Notifiable, Filterable;
+
+    /**
+     * صلاحية الدخول إلى لوحة التحكم.
+     *
+     * خارج بيئة local يطلب Filament تنفيذ هذه الواجهة، وإلا رفض الدخول بـ 403.
+     * مسموح للمدير فقط، وما لم يكن معطّلاً صراحةً (is_active قد تكون null
+     * للحسابات القديمة، ولا نعتبرها تعطيلاً).
+     */
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->isAdmin() && $this->is_active !== false;
+    }
 
     /**
      * الحقول القابلة للتعبئة
@@ -77,6 +91,9 @@ class User extends Authenticatable
         'is_active' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
+        // يشفّر كلمة المرور تلقائياً عند الحفظ من أي مكان (بذور، Filament، API).
+        // لا يعيد التشفير إذا كانت القيمة مشفّرة أصلاً.
+        'password' => 'hashed',
     ];
 
     // ────── العلاقات ──────

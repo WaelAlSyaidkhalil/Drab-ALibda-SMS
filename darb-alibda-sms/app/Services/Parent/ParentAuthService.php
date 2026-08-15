@@ -6,6 +6,7 @@ use App\Events\Parent\ParentLoggedIn;
 use App\Events\Parent\ParentLoginFailed;
 use App\Repositories\Parent\ParentAuthRepository;
 use App\Models\Auth\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -41,8 +42,7 @@ class ParentAuthService
             ]);
         }
 
-        // ✅ التعديل هنا: مقارنة النص العادي بدلاً من Hash::check()
-        if ($data['password'] !== $user->password) {
+        if (! Hash::check($data['password'], $user->password)) {
             RateLimiter::hit($this->throttleKey($phone, $ip));
 
             event(new ParentLoginFailed(
@@ -79,15 +79,14 @@ class ParentAuthService
 
     public function changePassword(User $user, array $data): void
     {
-        // ✅ التعديل هنا: مقارنة النص العادي بدلاً من Hash::check()
-        if ($data['current_password'] !== $user->password) {
+        if (! Hash::check($data['current_password'], $user->password)) {
             throw ValidationException::withMessages([
                 'current_password' => 'كلمة المرور الحالية غير صحيحة.',
             ]);
         }
 
         $user->update([
-            // ✅ التعديل هنا: تخزين النص العادي بدلاً من Hash::make()
+            // يتم التشفير تلقائياً عبر cast الحقل 'password' => 'hashed'.
             'password' => $data['new_password'],
         ]);
     }

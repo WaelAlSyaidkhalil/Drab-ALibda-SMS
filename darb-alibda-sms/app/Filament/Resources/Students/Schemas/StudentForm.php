@@ -99,8 +99,14 @@ class StudentForm
 
                                 TextInput::make('password')
                                     ->label(__('dashboard.labels.password'))
+                                    ->password()
+                                    ->revealable()
                                     ->default(fn () => app(GeneratePasswordService::class)->generatePassword())
-                                    ->required(),
+                                    // كلمة المرور مخزّنة مشفّرة، فلا تُعرض عند التعديل.
+                                    // اتركها فارغة للإبقاء على كلمة المرور الحالية.
+                                    ->formatStateUsing(fn ($state, $operation) => $operation === 'create' ? $state : '')
+                                    ->dehydrated(fn ($state) => filled($state))
+                                    ->required(fn ($operation) => $operation === 'create'),
 
                                 Hidden::make('role_id')
                                     ->default(4),

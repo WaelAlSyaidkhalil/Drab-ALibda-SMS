@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             SchoolInfoSeeder::class,
+            AdminDashboardSeeder::class,
           // AdminSeeder::class,
             TeacherSeeder::class,
             ParentSeeder::class,
@@ -22,7 +23,6 @@ class DatabaseSeeder extends Seeder
             // AcademicGradingSeeder::class,
         // TeacherDashboardSeeder::class,
          TeacherNotificationsSeeder::class,
-            TestTableSeeder::class,
         ]);
     }
 }
