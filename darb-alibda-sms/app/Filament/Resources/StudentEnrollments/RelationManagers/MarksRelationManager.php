@@ -70,7 +70,7 @@ class MarksRelationManager extends RelationManager
                 ->label(__('dashboard.labels.term'))
                 ->relationship('term', 'id')
                 ->getOptionLabelFromRecordUsing(
-                    fn($record): string => $record->term_name ?? 'Unknown'
+                    fn($record): string => $record->academic_year_and_term ?? $record->term_name ?? 'Unknown'
                 )
                 ->searchable()
                 ->preload()
@@ -129,7 +129,7 @@ class MarksRelationManager extends RelationManager
                     ->label(__('dashboard.labels.term'))
                     ->relationship('term', 'id')
                     ->getOptionLabelFromRecordUsing(
-                        fn($record): string => $record->term_name ?? 'Unknown'
+                        fn($record): string => $record->academic_year_and_term ?? $record->term_name ?? 'Unknown'
                     ),
 
                 SelectFilter::make('status')
