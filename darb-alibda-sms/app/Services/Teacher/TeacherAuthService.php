@@ -3,7 +3,6 @@
 namespace App\Services\Teacher;
 
 use App\Events\Teacher\TeacherLoginFailed;
-use App\Events\Teacher\TeacherLoggedIn;
 use App\Repositories\Teacher\TeacherAuthRepository;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
@@ -62,8 +61,6 @@ class TeacherAuthService
         $token = $user
             ->createToken('teacher-api-token')
             ->plainTextToken;
-
-        event(new TeacherLoggedIn($user, $ip));
 
         return [
             'user' => $user,
