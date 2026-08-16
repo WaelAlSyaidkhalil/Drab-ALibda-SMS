@@ -38,8 +38,8 @@ class TimeSlot extends Model
 
     protected $casts = [
         'period_number' => TimeSlotNumber::class,
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
+        'start_time' => 'time',
+        'end_time' => 'time',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
