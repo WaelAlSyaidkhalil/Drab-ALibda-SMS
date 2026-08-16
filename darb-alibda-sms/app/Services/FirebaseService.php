@@ -1,11 +1,9 @@
 <?php
 
-
 namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Factory;
-use App\Models\Auth\User;
 
 class FirebaseService
 {
@@ -13,43 +11,48 @@ class FirebaseService
 
     public function __construct()
     {
-        // تهيئة المصنع مرة واحدة عند استدعاء الخدمة
-        $credentials = config('firebase.projects.'.config('firebase.default').'.credentials');
+        $credentials = env('FIREBASE_CREDENTIALS');
 
-        if ($credentials) {
-            $factory = (new Factory)->withServiceAccount($credentials);
-        } else {
-            $factory = new Factory();
+        if (!$credentials) {
+            throw new \RuntimeException('FIREBASE_CREDENTIALS is not configured.');
         }
+
+        $credentialsPath = base_path($credentials);
+
+        if (!file_exists($credentialsPath)) {
+            throw new \RuntimeException(
+                "Firebase credentials file not found: {$credentialsPath}"
+            );
+        }
+
+        $factory = (new Factory)
+            ->withServiceAccount($credentialsPath);
 
         $this->messaging = $factory->createMessaging();
     }
 
     public function sendPushNotification($tokens, $title, $body)
     {
-        foreach($tokens as $token)
-        {
-
-            $message = [
-                'token' => $token,
-                'notification' => [
-                    'title' => $title,
-                    'body' => $body,
-                ],
-            ];
-
+        foreach ($tokens as $token) {
             try {
+                $message = [
+                    'token' => $token,
+                    'notification' => [
+                        'title' => $title,
+                        'body' => $body,
+                    ],
+                ];
 
                 $this->messaging->send($message);
-                return true;
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
+                Log::error(
+                    'Firebase Notification Error: ' . $e->getMessage()
+                );
 
-                Log::error("Firebase Notification Error: " . $e->getMessage());
                 return false;
             }
         }
+
+        return true;
     }
 }
-
-
