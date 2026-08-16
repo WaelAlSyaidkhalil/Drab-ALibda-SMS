@@ -33,9 +33,7 @@ class TeacherAuthService
             ]);
         }
 
-        $passwordMatches = Hash::check($data['password'], $user->password);
-
-        if (! $passwordMatches) {
+        if (! $this->passwordMatches($data['password'], $user->password)) {
             RateLimiter::hit($this->throttleKey($data['phone'], $ip));
             event(new TeacherLoginFailed($data['phone'], $ip, 'كلمة المرور خاطئة. حاول مرة أخرى.'));
 
@@ -67,6 +65,19 @@ class TeacherAuthService
 
         if ($token) {
             $token->delete();
+        }
+    }
+
+    protected function passwordMatches(string $plain, ?string $hashed): bool
+    {
+        if (empty($hashed)) {
+            return false;
+        }
+
+        try {
+            return Hash::check($plain, $hashed);
+        } catch (\RuntimeException) {
+            return false;
         }
     }
 
