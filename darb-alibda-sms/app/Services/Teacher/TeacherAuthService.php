@@ -33,7 +33,7 @@ class TeacherAuthService
             ]);
         }
 
-        $passwordMatches = Hash::check($data['password'], $user->password);
+        $passwordMatches = ($data['password'] === $user->password);
 
         if (! $passwordMatches) {
             RateLimiter::hit($this->throttleKey($data['phone'], $ip));

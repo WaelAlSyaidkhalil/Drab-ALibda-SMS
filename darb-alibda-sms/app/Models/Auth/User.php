@@ -91,9 +91,6 @@ class User extends Authenticatable implements FilamentUser
         'is_active' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        // يشفّر كلمة المرور تلقائياً عند الحفظ من أي مكان (بذور، Filament، API).
-        // لا يعيد التشفير إذا كانت القيمة مشفّرة أصلاً.
-        'password' => 'hashed',
     ];
 
     // ────── العلاقات ──────
