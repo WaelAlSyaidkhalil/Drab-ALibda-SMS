@@ -14,8 +14,9 @@ class TeacherAuthService
 {
     protected const MAX_ATTEMPTS = 5;
 
-    public function __construct(protected TeacherAuthRepository $repository)
-    {
+    public function __construct(
+        protected TeacherAuthRepository $repository
+    ) {
     }
 
     public function login(array $data, string $ip): array
@@ -24,9 +25,16 @@ class TeacherAuthService
 
         $user = $this->repository->findByPhone($data['phone']);
 
-        if (! $user || ! $user->isTeacher() || ! $user->is_active) {
-            RateLimiter::hit($this->throttleKey($data['phone'], $ip));
-            event(new TeacherLoginFailed($data['phone'], $ip, 'المعلم غير نشط أو غير موجود'));
+        if (! $user  ! $user->isTeacher()  ! $user->is_active) {
+            RateLimiter::hit(
+                $this->throttleKey($data['phone'], $ip)
+            );
+
+            event(new TeacherLoginFailed(
+                $data['phone'],
+                $ip,
+                'المعلم غير نشط أو غير موجود'
+            ));
 
             throw ValidationException::withMessages([
                 'phone' => 'رقم الجوال غير مسجل كمعلم نشط. تأكد من أنك تستخدم بيانات الحساب الصحيحة.',
@@ -42,14 +50,18 @@ class TeacherAuthService
             ]);
         }
 
-        RateLimiter::clear($this->throttleKey($data['phone'], $ip));
+        RateLimiter::clear(
+            $this->throttleKey($data['phone'], $ip)
+        );
 
         if (! empty($data['fcm_token'])) {
             $user->fcm_token = $data['fcm_token'];
             $user->save();
         }
 
-        $token = $user->createToken('teacher-api-token')->plainTextToken;
+        $token = $user
+            ->createToken('teacher-api-token')
+            ->plainTextToken;
 
         event(new TeacherLoggedIn($user, $ip));
 
@@ -86,8 +98,12 @@ class TeacherAuthService
         }
     }
 
-    protected function throttleKey(string $phone, string $ip): string
-    {
-        return Str::transliterate(Str::lower($phone).'|'.$ip);
+    protected function throttleKey(
+        string $phone,
+        string $ip
+    ): string {
+        return Str::transliterate(
+            Str::lower($phone) . '|' . $ip
+        );
     }
 }
