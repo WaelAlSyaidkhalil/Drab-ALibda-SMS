@@ -53,6 +53,7 @@ class NewsForm
                             ->label(__('dashboard.labels.images'))
                             ->multiple()
                             ->image()
+                            ->maxSize(51200)
                             ->disk('public')
                             ->directory('news/images')
                             ->reorderable()
@@ -67,6 +68,7 @@ class NewsForm
                         FileUpload::make('videos')
                             ->label(__('dashboard.labels.videos'))
                             ->multiple()
+                            ->maxSize(51200)
                             ->acceptedFileTypes([
                                 'video/mp4',
                                 'video/webm',
