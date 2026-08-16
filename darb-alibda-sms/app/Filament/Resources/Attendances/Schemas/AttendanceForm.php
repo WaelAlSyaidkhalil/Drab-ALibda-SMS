@@ -24,7 +24,7 @@ class AttendanceForm
                     ->preload()
                     ->required()
                     ->validationMessages([
-                        'required' => __('validation.custom.student_id.required'),
+                        'required' => __('dashboard.validation.student_id_required'),
                     ]),
 
                 Select::make('status')
@@ -32,14 +32,14 @@ class AttendanceForm
                     ->options(AttendanceStatus::options())
                     ->required()
                     ->validationMessages([
-                        'required' => __('validation.custom.status.required'),
+                        'required' => __('dashboard.validation.status_required'),
                     ]),
 
                 DatePicker::make('date')
                     ->label(__('dashboard.labels.date'))
                     ->required()
                     ->validationMessages([
-                        'required' => __('validation.custom.date.required'),
+                        'required' => __('dashboard.validation.date_required'),
                     ]),
 
                 Textarea::make('reason')
@@ -47,7 +47,7 @@ class AttendanceForm
                     ->columnSpanFull()
                     ->maxLength(500)
                     ->validationMessages([
-                        'max' => __('validation.custom.reason.max'),
+                        'max' => __('dashboard.validation.reason_max'),
                     ])
                     ->placeholder(__('dashboard.labels.optional')),
             ]);

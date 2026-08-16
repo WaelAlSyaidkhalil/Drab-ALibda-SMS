@@ -24,8 +24,8 @@ class NewsForm
                             ->label(__('dashboard.labels.title'))
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.title.required'),
-                                'max' => __('validation.custom.title.max'),
+                                'required' => __('dashboard.validation.title_required'),
+                                'max' => __('dashboard.validation.title_max'),
                             ])
                             ->maxLength(255),
 
@@ -33,7 +33,7 @@ class NewsForm
                             ->label(__('dashboard.labels.audience'))
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.audience.required'),
+                                'required' => __('dashboard.validation.audience_required'),
                             ])
                             ->options(AudienceType::options()),
 
@@ -41,7 +41,7 @@ class NewsForm
                             ->label(__('dashboard.labels.body'))
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.body.required'),
+                                'required' => __('dashboard.validation.body_required'),
                             ])
                             ->columnSpanFull(),
                     ]),

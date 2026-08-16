@@ -56,7 +56,7 @@ class TermResource extends Resource
                     ->required()
                     ->live()
                     ->validationMessages([
-                        'required' => __('validation.custom.type.required'),
+                        'required' => __('dashboard.validation.type_required'),
                     ]),
                 TextInput::make('academic_year')
                     ->label(__('dashboard.labels.academic_year'))
@@ -69,19 +69,19 @@ class TermResource extends Resource
                             ->where('type', $get('type'))
                     )
                     ->validationMessages([
-                        'required' => __('validation.custom.academic_year.required'),
+                        'required' => __('dashboard.validation.academic_year_required'),
                         'regex' => __('dashboard.validation.academic_year_regex'),
                         'unique' => __('dashboard.validation.academic_year_unique'),
                     ]),
                 DatePicker::make('start_date')
                     ->label(__('dashboard.labels.start_time'))
                     ->validationMessages([
-                        'date' => __('validation.custom.start_date.date'),
+                        'date' => __('dashboard.validation.start_date_date'),
                     ]),
                 DatePicker::make('end_date')
                     ->label(__('dashboard.labels.end_time'))
                     ->validationMessages([
-                        'date' => __('validation.custom.end_date.date'),
+                        'date' => __('dashboard.validation.end_date_date'),
                     ]),
             ]);
     }

@@ -49,7 +49,7 @@ class TimeSlotResource extends Resource
                 ->seconds(false)
                 ->required()
                 ->validationMessages([
-                    'required' => __('validation.custom.start_time.required'),
+                    'required' => __('dashboard.validation.start_time_required'),
                 ]),
 
             TimePicker::make('end_time')
@@ -86,7 +86,7 @@ class TimeSlotResource extends Resource
                         }
                     };
                 })->validationMessages([
-                    'required' => __('validation.custom.end_time.required'),
+                    'required' => __('dashboard.validation.end_time_required'),
                 ]),
         ]);
     }

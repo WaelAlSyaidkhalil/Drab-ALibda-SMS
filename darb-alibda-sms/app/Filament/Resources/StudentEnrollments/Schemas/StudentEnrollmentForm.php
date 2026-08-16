@@ -26,7 +26,7 @@ class StudentEnrollmentForm
                 ->preload()
                 ->required()
                 ->validationMessages([
-                    'required' => __('validation.custom.student_id.required'),
+                    'required' => __('dashboard.validation.student_id_required'),
                 ]),
 
             Select::make('section_id')
@@ -39,7 +39,7 @@ class StudentEnrollmentForm
                 ->preload()
                 ->required()
                 ->validationMessages([
-                    'required' => __('validation.custom.section_id.required'),
+                    'required' => __('dashboard.validation.section_id_required'),
                 ]),
 
             TextInput::make('academic_year')
@@ -47,15 +47,15 @@ class StudentEnrollmentForm
                 ->required()
                 ->maxLength(20)
                 ->validationMessages([
-                    'required' => __('validation.custom.academic_year.required'),
-                    'max' => __('validation.custom.academic_year.max'),
+                    'required' => __('dashboard.validation.academic_year_required'),
+                    'max' => __('dashboard.validation.academic_year_max'),
                 ]),
 
             DatePicker::make('enrollment_date')
                 ->label(__('dashboard.labels.enrollment_date'))
                 ->required()
                 ->validationMessages([
-                    'required' => __('validation.custom.enrollment_date.required'),
+                    'required' => __('dashboard.validation.enrollment_date_required'),
                 ]),
 
             Select::make('status')
@@ -63,7 +63,7 @@ class StudentEnrollmentForm
                 ->options(StudentStatus::options())
                 ->required()
                 ->validationMessages([
-                    'required' => __('validation.custom.status.required'),
+                    'required' => __('dashboard.validation.status_required'),
                 ]),
 
             Select::make('final_result')
@@ -73,7 +73,7 @@ class StudentEnrollmentForm
                 ->disabled()
                 ->required()
                 ->validationMessages([
-                    'required' => __('validation.custom.final_result.required'),
+                    'required' => __('dashboard.validation.final_result_required'),
                 ]),
 
             TextInput::make('final_average')
@@ -82,7 +82,7 @@ class StudentEnrollmentForm
                 ->disabled()
                 ->suffix('%')
                 ->validationMessages([
-                    'numeric' => __('validation.custom.final_average.numeric'),
+                    'numeric' => __('dashboard.validation.final_average_numeric'),
                 ]),
             
 
@@ -90,7 +90,7 @@ class StudentEnrollmentForm
                 ->label(__('dashboard.labels.notes'))
                 ->columnSpanFull()
                 ->validationMessages([
-                    'max' => __('validation.custom.notes.max'),
+                    'max' => __('dashboard.validation.notes_max'),
                 ])
             ]);
     }

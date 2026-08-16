@@ -23,7 +23,7 @@ class TeacherAttendanceForm
                     ->preload()
                     ->required()
                     ->validationMessages([
-                        'required' => __('validation.custom.teacher_id.required'),
+                        'required' => __('dashboard.validation.teacher_id_required'),
                     ]),
 
                 Select::make('status')
@@ -31,14 +31,14 @@ class TeacherAttendanceForm
                     ->options(AttendanceStatus::options())
                     ->required()
                     ->validationMessages([
-                        'required' => __('validation.custom.status.required'),
+                        'required' => __('dashboard.validation.status_required'),
                     ]),
 
                 DatePicker::make('date')
                     ->label(__('dashboard.labels.date'))
                     ->required()
                     ->validationMessages([
-                        'required' => __('validation.custom.date.required'),
+                        'required' => __('dashboard.validation.date_required'),
                     ]),
             ]);
     }

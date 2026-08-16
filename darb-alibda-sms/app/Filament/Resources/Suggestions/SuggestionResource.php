@@ -49,7 +49,7 @@ class SuggestionResource extends Resource
                 ->options(SuggestionStatus::options())
                 ->required()
                 ->validationMessages([
-                    'required' => __('validation.custom.status.required'),
+                    'required' => __('dashboard.validation.status_required'),
                 ]),
 
                 Textarea::make('feedback')
@@ -57,7 +57,7 @@ class SuggestionResource extends Resource
                 ->rows(4)
                 ->columnSpanFull()
                 ->validationMessages([
-                    'required' => __('validation.custom.feedback.required'),
+                    'required' => __('dashboard.validation.feedback_required'),
                 ]),
 
                 Toggle::make('is_acknowledged')

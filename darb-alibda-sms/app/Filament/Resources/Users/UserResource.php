@@ -59,7 +59,7 @@ class UserResource extends Resource
                     ->label(__('dashboard.labels.name'))
                     ->required()
                     ->validationMessages([
-                        'required' => __('validation.custom.name.required'),
+                        'required' => __('dashboard.validation.name_required'),
                     ])
                     ->columnSpan(1),
 
@@ -69,9 +69,9 @@ class UserResource extends Resource
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->validationMessages([
-                        'required' => __('validation.custom.email.required'),
-                        'email' => __('validation.custom.email.email'),
-                        'unique' => __('validation.custom.email.unique'),
+                        'required' => __('dashboard.validation.email_required'),
+                        'email' => __('dashboard.validation.email_email'),
+                        'unique' => __('dashboard.validation.email_unique'),
                     ])
                     ->columnSpan(1),
 
@@ -81,9 +81,9 @@ class UserResource extends Resource
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->validationMessages([
-                        'required' => __('validation.custom.phone.required'),
-                        'unique' => __('validation.custom.phone.unique'),
-                        'regex' => __('validation.custom.phone.tel'),
+                        'required' => __('dashboard.validation.phone_required'),
+                        'unique' => __('dashboard.validation.phone_unique'),
+                        'regex' => __('dashboard.validation.phone_tel'),
                     ])
                     ->columnSpan(1),
 
@@ -98,7 +98,7 @@ class UserResource extends Resource
                     )
                     ->required()
                     ->validationMessages([
-                        'required' => __('validation.custom.role_id.required'),
+                        'required' => __('dashboard.validation.role_id_required'),
                     ]),
 
                 TextInput::make('password')
@@ -113,8 +113,8 @@ class UserResource extends Resource
                     ->minLength(8)
                     ->maxLength(255)
                     ->validationMessages([
-                        'min' => __('validation.custom.password.min'),
-                        'max' => __('validation.custom.password.max'),
+                        'min' => __('dashboard.validation.password_min'),
+                        'max' => __('dashboard.validation.password_max'),
                     ])
                     ->columnSpan(1),
 
@@ -129,9 +129,9 @@ class UserResource extends Resource
                     ->maxLength(255)
                     ->columnSpan(1)
                     ->validationMessages([
-                        'same' => __('validation.custom.password_confirmation.same'),
-                        'min' => __('validation.custom.password_confirmation.min'),
-                        'max' => __('validation.custom.password_confirmation.max'),
+                        'same' => __('dashboard.validation.password_confirmation_same'),
+                        'min' => __('dashboard.validation.password_confirmation_min'),
+                        'max' => __('dashboard.validation.password_confirmation_max'),
                     ]),
 
                 Toggle::make('is_active')
@@ -139,7 +139,7 @@ class UserResource extends Resource
                     ->default(true)
                     ->hidden(fn ($record) => $record?->role?->name === UserRole::ADMIN)
                     ->validationMessages([
-                        'boolean' => __('validation.custom.is_active.boolean'),
+                        'boolean' => __('dashboard.validation.is_active_boolean'),
                     ])
                     ->columnSpanFull(),
             ]);

@@ -36,8 +36,8 @@ class SectionsRelationManager extends RelationManager
                     ->maxLength(255)
                     ->columnSpan(1)
                     ->validationMessages([
-                        'required' => __('validation.custom.name.required'),
-                        'max' => __('validation.custom.name.max'),
+                        'required' => __('dashboard.validation.name_required'),
+                        'max' => __('dashboard.validation.name_max'),
                     ]),
                 TextInput::make('capacity')
                     ->label(__('dashboard.labels.capacity'))
@@ -45,7 +45,7 @@ class SectionsRelationManager extends RelationManager
                     ->required()
                     ->columnSpan(1)
                     ->validationMessages([
-                        'required' => __('validation.custom.capacity.required'),
+                        'required' => __('dashboard.validation.capacity_required'),
                     ]),
             ]);
     }

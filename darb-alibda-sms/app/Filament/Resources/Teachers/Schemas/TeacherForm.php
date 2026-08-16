@@ -28,8 +28,8 @@ class TeacherForm
                             ->label(__('dashboard.labels.first_name'))
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.first_name.required'),
-                                'max' => __('validation.custom.first_name.max'),
+                                'required' => __('dashboard.validation.first_name_required'),
+                                'max' => __('dashboard.validation.first_name_max'),
                             ])
                             ->maxLength(255),
 
@@ -37,8 +37,8 @@ class TeacherForm
                             ->label(__('dashboard.labels.last_name'))
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.last_name.required'),
-                                'max' => __('validation.custom.last_name.max'),
+                                'required' => __('dashboard.validation.last_name_required'),
+                                'max' => __('dashboard.validation.last_name_max'),
                             ])
                             ->maxLength(255),
 
@@ -58,7 +58,7 @@ class TeacherForm
                             ->options(Gender::options())
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.gender.required'),
+                                'required' => __('dashboard.validation.gender_required'),
                             ]),
                     ]),
                 Section::make(__('dashboard.labels.account_details'))
@@ -86,9 +86,9 @@ class TeacherForm
                                     ->tel()
                                     ->unique('users', 'phone')
                                     ->validationMessages([
-                                        'required' => __('validation.custom.phone.required'),
-                                        'unique' => __('validation.custom.phone.unique'),
-                                        'regex' => __('validation.custom.phone.tel'),
+                                        'required' => __('dashboard.validation.phone_required'),
+                                        'unique' => __('dashboard.validation.phone_unique'),
+                                        'regex' => __('dashboard.validation.phone_tel'),
                                     ])
                                     ->maxLength(20),
 
@@ -98,9 +98,9 @@ class TeacherForm
                                     ->email()
                                     ->unique('users', 'email')
                                     ->validationMessages([
-                                        'required' => __('validation.custom.email.required'),
-                                        'email' => __('validation.custom.email.email'),
-                                        'unique' => __('validation.custom.email.unique'),
+                                        'required' => __('dashboard.validation.email_required'),
+                                        'email' => __('dashboard.validation.email_email'),
+                                        'unique' => __('dashboard.validation.email_unique'),
                                     ])
                                     ->maxLength(255),
 
@@ -122,7 +122,7 @@ class TeacherForm
                                     ->label(__('dashboard.labels.active'))
                                     ->default(true)
                                     ->validationMessages([
-                                        'boolean' => __('validation.custom.is_active.boolean'),
+                                        'boolean' => __('dashboard.validation.is_active_boolean'),
                                     ]),
                             ])
                             ->createOptionUsing(function (array $data) {
@@ -145,7 +145,7 @@ class TeacherForm
                             ->label(__('dashboard.labels.employee_number'))
                             ->unique(ignoreRecord: true)
                             ->validationMessages([
-                                'unique' => __('validation.custom.employee_number.unique'),
+                                'unique' => __('dashboard.validation.employee_number_unique'),
                             ]),
 
                         DatePicker::make('hire_date')
@@ -166,8 +166,8 @@ class TeacherForm
                             ->minValue(0)
                             ->default(0)
                             ->validationMessages([
-                                'numeric' => __('validation.custom.experience_years.numeric'),
-                                'min' => __('validation.custom.experience_years.min'),
+                                'numeric' => __('dashboard.validation.experience_years_numeric'),
+                                'min' => __('dashboard.validation.experience_years_min'),
                             ]),
                     ]),
                 Section::make(__('dashboard.labels.official_information'))
@@ -181,8 +181,8 @@ class TeacherForm
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->validationMessages([
-                                'required' => __('validation.custom.national_id.required'),
-                                'unique' => __('validation.custom.national_id.unique'),
+                                'required' => __('dashboard.validation.national_id_required'),
+                                'unique' => __('dashboard.validation.national_id_unique'),
                             ]),
                     ]),
                 Section::make(__('dashboard.labels.contact_information'))
@@ -196,7 +196,7 @@ class TeacherForm
                             ->label(__('dashboard.labels.alternative_phone'))
                             ->tel()
                             ->validationMessages([
-                                'regex' => __('validation.custom.phone.tel'),
+                                'regex' => __('dashboard.validation.phone_tel'),
                             ]),
                     ]),
             ]);

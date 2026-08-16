@@ -25,8 +25,8 @@ class StudentForm
                             ->label(__('dashboard.labels.first_name'))
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.first_name.required'),
-                                'max' => __('validation.custom.first_name.max'),
+                                'required' => __('dashboard.validation.first_name_required'),
+                                'max' => __('dashboard.validation.first_name_max'),
                             ])
                             ->maxLength(255),
 
@@ -34,8 +34,8 @@ class StudentForm
                             ->label(__('dashboard.labels.last_name'))
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.last_name.required'),
-                                'max' => __('validation.custom.last_name.max'),
+                                'required' => __('dashboard.validation.last_name_required'),
+                                'max' => __('dashboard.validation.last_name_max'),
                             ])
                             ->maxLength(255),
 
@@ -43,14 +43,14 @@ class StudentForm
                             ->label(__('dashboard.labels.father_name'))
                             ->maxLength(255)
                             ->validationMessages([
-                                'max' => __('validation.custom.father_name.max'),
+                                'max' => __('dashboard.validation.father_name_max'),
                             ]),
 
                         TextInput::make('mother_name')
                             ->label(__('dashboard.labels.mother_name'))
                             ->maxLength(255)
                             ->validationMessages([
-                                'max' => __('validation.custom.mother_name.max'),
+                                'max' => __('dashboard.validation.mother_name_max'),
                             ]),
 
                         Select::make('gender')
@@ -58,7 +58,7 @@ class StudentForm
                             ->options(Gender::options())
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.gender.required'),
+                                'required' => __('dashboard.validation.gender_required'),
                             ]),
 
                         DatePicker::make('birth_date')
@@ -129,7 +129,7 @@ class StudentForm
                             ->label(__('dashboard.labels.national_id'))
                             ->unique(ignoreRecord: true)
                             ->validationMessages([
-                                'unique' => __('validation.custom.national_id.unique'),
+                                'unique' => __('dashboard.validation.national_id_unique'),
                             ])
                             ->maxLength(50),
 
@@ -139,8 +139,8 @@ class StudentForm
                             ->placeholder(__('dashboard.labels.not_available'))
                             ->unique(ignoreRecord: true)
                             ->validationMessages([
-                                'required' => __('validation.custom.registry_number.required'),
-                                'unique' => __('validation.custom.registry_number.unique'),
+                                'required' => __('dashboard.validation.registry_number_required'),
+                                'unique' => __('dashboard.validation.registry_number_unique'),
                             ])
                             ->maxLength(50),
                     ])->columns(2),
@@ -151,7 +151,7 @@ class StudentForm
                             ->label(__('dashboard.labels.active'))
                             ->default(true)
                             ->validationMessages([
-                                'boolean' => __('validation.custom.is_active.boolean'),
+                                'boolean' => __('dashboard.validation.is_active_boolean'),
                             ]),
                     ]),
             ])->columns(1);

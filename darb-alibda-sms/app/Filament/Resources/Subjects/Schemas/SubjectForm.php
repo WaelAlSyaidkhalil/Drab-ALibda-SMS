@@ -20,8 +20,8 @@ class SubjectForm
                             ->label(__('dashboard.labels.name'))
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.name.required'),
-                                'max' => __('validation.custom.name.max'),
+                                'required' => __('dashboard.validation.name_required'),
+                                'max' => __('dashboard.validation.name_max'),
                             ])
                             ->maxLength(255),
 
@@ -31,8 +31,8 @@ class SubjectForm
                             ->unique(ignoreRecord: true)
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.code.required'),
-                                'unique' => __('validation.custom.code.unique'),
+                                'required' => __('dashboard.validation.code_required'),
+                                'unique' => __('dashboard.validation.code_unique'),
                             ]),
 
                         Select::make('class_id')
@@ -43,7 +43,7 @@ class SubjectForm
                             ->preload()
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.class_id.required'),
+                                'required' => __('dashboard.validation.class_id_required'),
                             ]),
 
                         Select::make('teacher_id')
@@ -54,7 +54,7 @@ class SubjectForm
                             ->preload()
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.teacher_id.required'),
+                                'required' => __('dashboard.validation.teacher_id_required'),
                             ]),
 
                         TextInput::make('full_mark')
@@ -64,9 +64,9 @@ class SubjectForm
                             ->minValue(1)
                             ->required()
                             ->validationMessages([
-                                'required' => __('validation.custom.full_mark.required'),
-                                'numeric' => __('validation.custom.full_mark.numeric'),
-                                'min' => __('validation.custom.full_mark.min'),
+                                'required' => __('dashboard.validation.full_mark_required'),
+                                'numeric' => __('dashboard.validation.full_mark_numeric'),
+                                'min' => __('dashboard.validation.full_mark_min'),
                             ]),
 
                         TextInput::make('pass_mark')
@@ -77,10 +77,10 @@ class SubjectForm
                             ->required()
                             ->lte('full_mark')
                             ->validationMessages([
-                                'required' => __('validation.custom.pass_mark.required'),
-                                'numeric' => __('validation.custom.pass_mark.numeric'),
-                                'min' => __('validation.custom.pass_mark.min'),
-                                'lte' => __('validation.custom.pass_mark.lte'),
+                                'required' => __('dashboard.validation.pass_mark_required'),
+                                'numeric' => __('dashboard.validation.pass_mark_numeric'),
+                                'min' => __('dashboard.validation.pass_mark_min'),
+                                'lte' => __('dashboard.validation.pass_mark_lte'),
                             ]),
 
                         Textarea::make('description')
