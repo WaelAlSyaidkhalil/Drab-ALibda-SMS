@@ -14,8 +14,9 @@ class TeacherAuthService
 {
     protected const MAX_ATTEMPTS = 5;
 
-    public function __construct(protected TeacherAuthRepository $repository)
-    {
+    public function __construct(
+        protected TeacherAuthRepository $repository
+    ) {
     }
 
     public function login(array $data, string $ip): array
@@ -24,32 +25,53 @@ class TeacherAuthService
 
         $user = $this->repository->findByPhone($data['phone']);
 
-        if (! $user || ! $user->isTeacher() || ! $user->is_active) {
-            RateLimiter::hit($this->throttleKey($data['phone'], $ip));
-            event(new TeacherLoginFailed($data['phone'], $ip, 'المعلم غير نشط أو غير موجود'));
+        if (! $user  ! $user->isTeacher()  ! $user->is_active) {
+            RateLimiter::hit(
+                $this->throttleKey($data['phone'], $ip)
+            );
+
+            event(new TeacherLoginFailed(
+                $data['phone'],
+                $ip,
+                'المعلم غير نشط أو غير موجود'
+            ));
 
             throw ValidationException::withMessages([
                 'phone' => 'رقم الجوال غير مسجل كمعلم نشط. تأكد من أنك تستخدم بيانات الحساب الصحيحة.',
             ]);
         }
 
-        if (! $this->passwordMatches($data['password'], $user->password)) {
-            RateLimiter::hit($this->throttleKey($data['phone'], $ip));
-            event(new TeacherLoginFailed($data['phone'], $ip, 'كلمة المرور خاطئة. حاول مرة أخرى.'));
+        if (! $this->passwordMatches(
+            $data['password'],
+            $user->password
+        )) {
+            RateLimiter::hit(
+                $this->throttleKey($data['phone'], $ip)
+            );
+
+            event(new TeacherLoginFailed(
+                $data['phone'],
+                $ip,
+                'كلمة المرور خاطئة. حاول مرة أخرى.'
+            ));
 
             throw ValidationException::withMessages([
                 'password' => 'كلمة المرور خاطئة. حاول مرة أخرى.',
             ]);
         }
 
-        RateLimiter::clear($this->throttleKey($data['phone'], $ip));
+        RateLimiter::clear(
+            $this->throttleKey($data['phone'], $ip)
+        );
 
         if (! empty($data['fcm_token'])) {
             $user->fcm_token = $data['fcm_token'];
             $user->save();
         }
 
-        $token = $user->createToken('teacher-api-token')->plainTextToken;
+        $token = $user
+            ->createToken('teacher-api-token')
+            ->plainTextToken;
 
         event(new TeacherLoggedIn($user, $ip));
 
@@ -59,17 +81,17 @@ class TeacherAuthService
         ];
     }
 
-    public function logoutCurrentToken($user): void
-    {
-        $token = $user->currentAccessToken();
-
-        if ($token) {
-            $token->delete();
-        }
-    }
-
-    protected function passwordMatches(string $plain, ?string $hashed): bool
-    {
+    /**
+     * التحقق من كلمة المرور بأمان.
+     *
+     * إذا كانت القيمة المخزنة غير صالحة أو غير متوافقة
+     * مع خوارزمية التجزئة، يتم التعامل معها كبيانات دخول خاطئة
+     * بدلاً من إعادة خطأ 500.
+     */
+    protected function passwordMatches(
+        string $plain,
+        ?string $hashed
+    ): bool {
         if (empty($hashed)) {
             return false;
         }
@@ -81,17 +103,37 @@ class TeacherAuthService
         }
     }
 
-    protected function ensureNotRateLimited(string $phone, string $ip): void
+    public function logoutCurrentToken($user): void
     {
-        if (RateLimiter::tooManyAttempts($this->throttleKey($phone, $ip), self::MAX_ATTEMPTS)) {
+        $token = $user->currentAccessToken();
+
+        if ($token) {
+            $token->delete();
+        }
+    }
+
+    protected function ensureNotRateLimited(
+        string $phone,
+        string $ip
+    ): void {
+        if (
+            RateLimiter::tooManyAttempts(
+                $this->throttleKey($phone, $ip),
+                self::MAX_ATTEMPTS
+            )
+        ) {
             throw ValidationException::withMessages([
                 'phone' => 'لقد تجاوزت حد محاولات تسجيل الدخول. انتظر دقيقة وحاول مرة أخرى.',
             ]);
         }
     }
 
-    protected function throttleKey(string $phone, string $ip): string
-    {
-        return Str::transliterate(Str::lower($phone).'|'.$ip);
+    protected function throttleKey(
+        string $phone,
+        string $ip
+    ): string {
+        return Str::transliterate(
+            Str::lower($phone) . '|' . $ip
+        );
     }
 }
