@@ -42,7 +42,7 @@ class ParentAuthService
             ]);
         }
 
-        if (! Hash::check($data['password'], $user->password)) {
+        if (! $this->passwordMatches($data['password'], $user->password)) {
             RateLimiter::hit($this->throttleKey($phone, $ip));
 
             event(new ParentLoginFailed(
@@ -97,6 +97,25 @@ class ParentAuthService
 
         if ($token) {
             $token->delete();
+        }
+    }
+
+    /**
+     * التحقق من كلمة المرور بأمان.
+     * إذا كانت القيمة المخزنة غير مشفرة بخوارزمية bcrypt (مثل نص صريح
+     * أو خوارزمية أخرى) فإن Hash::check يرمي استثناءً؛ نتعامل معه هنا
+     * كبيانات دخول خاطئة بدلاً من إعادة خطأ 500.
+     */
+    protected function passwordMatches(string $plain, ?string $hashed): bool
+    {
+        if (empty($hashed)) {
+            return false;
+        }
+
+        try {
+            return Hash::check($plain, $hashed);
+        } catch (\RuntimeException) {
+            return false;
         }
     }
 
