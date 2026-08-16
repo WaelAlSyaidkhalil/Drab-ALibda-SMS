@@ -5,12 +5,16 @@ namespace App\Http\Controllers\Parent;
 use App\Http\Requests\Parent\ParentExcuseRequest;
 use App\Models\Academic\Student;
 use App\Models\Communication\AbsenceJustification;
+use App\Notifications\Admin\AdminFeedbackNotification;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ExcuseRequestController extends ParentController
 {
+    public function __construct(protected NotificationService $notificationService) {}
+
     public function store(ParentExcuseRequest $request): JsonResponse
     {
         $student = Student::findOrFail($request->student_id);
@@ -38,6 +42,25 @@ class ExcuseRequestController extends ParentController
             ]);
         }
 
+        $admins = $this->notificationService->getAdminUsers();
+
+        $notification = new AdminFeedbackNotification(
+            type: 'absence_excuse',
+            title: 'طلب تبرير غياب جديد',
+            body: 'أرسل ولي الأمر ' . ($request->user()->name ?? 'مستخدم') . ' طلب تبرير غياب للطالب ' . $student->full_name . ' بتاريخ ' . $justification->absence_date->toDateString(),
+            relatedId: $justification->id,
+            relatedTitle: 'طلب تبرير غياب',
+            userId: $request->user()->id,
+            userName: $request->user()->name,
+            excuseRequestId: $justification->id,
+            parentId: $request->user()->id,
+            parentName: $request->user()->name,
+            studentId: $student->id,
+            studentName: $student->full_name,
+        );
+
+        $this->notificationService->sendMany($admins, $notification);
+
         return $this->createdResponse([
             'id' => $justification->id,
             'student_id' => $justification->student_id,
@@ -52,7 +75,7 @@ class ExcuseRequestController extends ParentController
             ->latest('created_at')
             ->get();
 
-        return $this->successResponse($requests->map(fn ($requestItem) => [
+        return $this->successResponse($requests->map(fn($requestItem) => [
             'id' => $requestItem->id,
             'student_id' => $requestItem->student_id,
             'absence_date' => $requestItem->absence_date?->toDateString(),
