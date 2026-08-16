@@ -2,16 +2,21 @@
 
 namespace App\Http\Controllers\Parent;
 
+use App\Enums\ComplaintStatus;
+use App\Enums\SuggestionStatus;
 use App\Http\Requests\Parent\ParentComplaintRequest;
 use App\Http\Requests\Parent\ParentSuggestionRequest;
+use App\Models\Auth\User;
 use App\Models\Communication\Complaint;
 use App\Models\Communication\Suggestion;
+use App\Notifications\Admin\AdminFeedbackNotification;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
-use App\Enums\SuggestionStatus;
-use App\Enums\ComplaintStatus;
 
 class FeedbackController extends ParentController
 {
+    public function __construct(protected NotificationService $notificationService) {}
+
     public function storeSuggestion(ParentSuggestionRequest $request): JsonResponse
     {
         $user = $request->user();
@@ -27,6 +32,20 @@ class FeedbackController extends ParentController
             'status' => SuggestionStatus::Pending->value,
             'is_acknowledged' => false,
         ]);
+
+        $admins = $this->notificationService->getAdminUsers();
+
+        $notification = new AdminFeedbackNotification(
+            type: 'suggestion',
+            title: 'تم إرسال اقتراح جديد',
+            body: 'تم إرسال اقتراح جديد بعنوان: ' . $suggestion->title . ' من المستخدم ' . ($user->name ?? 'مستخدم'),
+            relatedId: $suggestion->id,
+            relatedTitle: $suggestion->title,
+            userId: $user->id,
+            userName: $user->name,
+        );
+
+        $this->notificationService->sendMany($admins, $notification);
 
         return $this->createdResponse([
             'id' => $suggestion->id,
@@ -52,6 +71,20 @@ class FeedbackController extends ParentController
             'body' => $request->string('body')->toString(),
             'status' => ComplaintStatus::PENDING->value,
         ]);
+
+        $admins = $this->notificationService->getAdminUsers();
+
+        $notification = new AdminFeedbackNotification(
+            type: 'complaint',
+            title: 'تم إرسال شكوى جديدة',
+            body: 'تم إرسال شكوى جديدة بعنوان: ' . $complaint->title . ' من المستخدم ' . ($user->name ?? 'مستخدم'),
+            relatedId: $complaint->id,
+            relatedTitle: $complaint->title,
+            userId: $user->id,
+            userName: $user->name,
+        );
+
+        $this->notificationService->sendMany($admins, $notification);
 
         return $this->createdResponse([
             'id' => $complaint->id,
