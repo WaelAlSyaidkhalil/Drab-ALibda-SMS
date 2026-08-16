@@ -42,7 +42,7 @@ class ParentAuthService
             ]);
         }
 
-        if ($data['password'] !== $user->password) {
+        if (! Hash::check($data['password'], $user->password)) {
             RateLimiter::hit($this->throttleKey($phone, $ip));
 
             event(new ParentLoginFailed(
@@ -79,13 +79,14 @@ class ParentAuthService
 
     public function changePassword(User $user, array $data): void
     {
-        if ($data['current_password'] !== $user->password) {
+        if (! Hash::check($data['current_password'], $user->password)) {
             throw ValidationException::withMessages([
                 'current_password' => 'كلمة المرور الحالية غير صحيحة.',
             ]);
         }
 
         $user->update([
+            // يتم التشفير تلقائياً عبر cast الحقل 'password' => 'hashed'.
             'password' => $data['new_password'],
         ]);
     }
