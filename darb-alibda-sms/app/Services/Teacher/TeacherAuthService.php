@@ -25,7 +25,7 @@ class TeacherAuthService
 
         $user = $this->repository->findByPhone($data['phone']);
 
-        if (! $user  ! $user->isTeacher()  ! $user->is_active) {
+        if (! $user || ! $user->isTeacher() || ! $user->is_active) {
             RateLimiter::hit(
                 $this->throttleKey($data['phone'], $ip)
             );
