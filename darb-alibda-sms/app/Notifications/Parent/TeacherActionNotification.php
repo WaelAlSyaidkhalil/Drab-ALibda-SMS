@@ -24,7 +24,7 @@ class TeacherActionNotification extends Notification
      */
     public function via($notifiable): array
     {
-        return ['database', 'fcm'];
+        return ['database'];
     }
 
     /**

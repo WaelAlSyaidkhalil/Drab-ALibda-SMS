@@ -23,7 +23,7 @@ class ComplaintSubmittedNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['database', 'fcm'];
+        return ['database'];
     }
 
     public function toDatabase($notifiable): array
