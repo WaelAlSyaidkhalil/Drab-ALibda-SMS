@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Kreait\Firebase\Factory;
 
 class FirebaseService
@@ -11,13 +12,15 @@ class FirebaseService
 
     public function __construct()
     {
-        $credentials = env('FIREBASE_CREDENTIALS');
+        $credentials = config('services.firebase.credentials');
 
         if (!$credentials) {
             throw new \RuntimeException('FIREBASE_CREDENTIALS is not configured.');
         }
 
-        $credentialsPath = base_path($credentials);
+        $credentialsPath = Str::startsWith($credentials, '/')
+            ? $credentials
+            : base_path($credentials);
 
         if (!file_exists($credentialsPath)) {
             throw new \RuntimeException(
