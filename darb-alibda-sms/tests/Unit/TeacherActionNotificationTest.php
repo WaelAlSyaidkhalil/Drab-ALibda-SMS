@@ -29,7 +29,7 @@ class TeacherActionNotificationTest extends TestCase
 
         $payload = $notification->toDatabase($teacher);
 
-        $this->assertSame('parent', $payload['from']);
+        $this->assertSame('teacher', $payload['from']);
         $this->assertSame('سعد علي الحميدي', $payload['student_name']);
         $this->assertStringContainsString('سعد علي الحميدي', $payload['body']);
     }
