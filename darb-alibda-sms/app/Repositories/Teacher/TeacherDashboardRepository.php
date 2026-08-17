@@ -45,19 +45,21 @@ class TeacherDashboardRepository
     {
         $todayDay = $this->getTodayDayOfWeek();
 
-        // الحصول على الحصص المجدولة للمعلم في اليوم الحالي فقط
-        $scheduleIds = Schedule::query()
+        // الحصول على شعب الحصص المجدولة للمعلم في اليوم الحالي فقط
+        $sectionIds = Schedule::query()
             ->whereHas('subject', fn ($q) => $q->where('teacher_id', $teacherId))
             ->where('day', $todayDay)
-            ->pluck('id');
+            ->pluck('section_id')
+            ->unique();
 
-        if ($scheduleIds->isEmpty()) {
+        if ($sectionIds->isEmpty()) {
             return 0;
         }
 
-        // حساب الطلاب الحاضرين في هذه الحصص اليوم
+        // حساب الطلاب الحاضرين في هذه الشعب اليوم
+        // (جدول الحضور مرتبط بالشعبة section_id وليس بالحصة)
         return Attendance::query()
-            ->whereIn('schedule_id', $scheduleIds)
+            ->whereIn('section_id', $sectionIds)
             ->whereDate('date', Carbon::today())
             ->where('status', 'present')
             ->pluck('student_id')

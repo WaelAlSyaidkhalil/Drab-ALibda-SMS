@@ -35,7 +35,7 @@ class TeacherAbsenceService
                 'email' => $j->parent->email,
                 'phone' => $j->parent->phone,
             ],
-            'absence_date' => $j->absence_date->format('Y-m-d'),
+            'absence_date' => $j->absence_date?->format('Y-m-d'),
             'reason' => $j->reason,
             'status' => $j->status,
             'review_note' => $j->review_note,
@@ -46,7 +46,7 @@ class TeacherAbsenceService
                 'path' => $a->path,
                 'file_name' => $a->file_name,
             ]),
-            'created_at' => $j->created_at->format('Y-m-d H:i:s'),
+            'created_at' => $j->created_at?->format('Y-m-d H:i:s'),
         ]);
     }
 
