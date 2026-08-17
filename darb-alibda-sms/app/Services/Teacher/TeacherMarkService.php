@@ -2,9 +2,8 @@
 
 namespace App\Services\Teacher;
 
-use App\Models\Academic\Student;
+use App\Jobs\SendFirebaseNotificationJob;
 use App\Models\Academic\Teacher;
-use App\Models\Auth\User;
 use App\Models\Grading\StudentMark;
 use App\Models\Subjects\SubjectComponent;
 use App\Notifications\Parent\TeacherActionNotification;
@@ -78,13 +77,23 @@ class TeacherMarkService
         $student = $studentMark->enrollment?->student;
         $teacherUser = Teacher::find($teacherId)?->user;
         if ($student && $student->parent && $teacherUser) {
-            $student->parent->notifyNow(new TeacherActionNotification(
+            $notification = new TeacherActionNotification(
                 $teacherUser,
                 $student,
                 'تم إضافة علامة جديدة',
                 sprintf('تم إضافة علامة جديدة ل %s في المادة %s.', $student->getFullNameAttribute(), $studentMark->subject->name),
                 ['type' => 'mark']
-            ));
+            );
+
+            $student->parent->notifyNow($notification);
+
+            if (! empty($student->parent->fcm_token)) {
+                SendFirebaseNotificationJob::dispatch(
+                    [$student->parent->fcm_token],
+                    $notification->getFirebaseTitle(),
+                    $notification->getFirebaseBody()
+                );
+            }
         }
 
         return $this->formatMark($studentMark);
@@ -117,13 +126,23 @@ class TeacherMarkService
         $student = $studentMark->enrollment?->student;
         $teacherUser = Teacher::find($teacherId)?->user;
         if ($student && $student->parent && $teacherUser) {
-            $student->parent->notifyNow(new TeacherActionNotification(
+            $notification = new TeacherActionNotification(
                 $teacherUser,
                 $student,
                 'تم تعديل العلامة',
                 sprintf('تم تعديل العلامة الخاصة بـ %s.', $student->getFullNameAttribute()),
                 ['type' => 'mark_update']
-            ));
+            );
+
+            $student->parent->notifyNow($notification);
+
+            if (! empty($student->parent->fcm_token)) {
+                SendFirebaseNotificationJob::dispatch(
+                    [$student->parent->fcm_token],
+                    $notification->getFirebaseTitle(),
+                    $notification->getFirebaseBody()
+                );
+            }
         }
 
         return $this->formatMark($studentMark);

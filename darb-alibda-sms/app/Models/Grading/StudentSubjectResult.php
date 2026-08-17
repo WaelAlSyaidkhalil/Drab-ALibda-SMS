@@ -8,9 +8,6 @@ use App\Models\Traits\Filterable;
 use App\Models\Academic\StudentEnrollment;
 use App\Models\Subjects\Subject;
 use App\Enums\MarkResult;
-use App\Observers\Admin\StudentSubjectResultObserver;
-use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-
 /**
  * نموذج نتائج الطالب في المواد
  * يمثل كشف العلامات السنوي — يتم تحديثه تلقائياً من student_marks
@@ -29,7 +26,6 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
  * @property-read Subject $subject
  */
 
-#[ObservedBy([StudentSubjectResultObserver::class])]
 class StudentSubjectResult extends Model
 {
     use Filterable;

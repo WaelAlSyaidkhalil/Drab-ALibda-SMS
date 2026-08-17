@@ -2,6 +2,7 @@
 
 namespace App\Services\Teacher;
 
+use App\Jobs\SendFirebaseNotificationJob;
 use App\Models\Academic\Student;
 use App\Models\Communication\TeacherNote;
 use App\Notifications\Parent\TeacherActionNotification;
@@ -206,13 +207,23 @@ class TeacherNoteService
 
             $student = Student::find($note->student_id);
             if ($student && $student->parent) {
-                $student->parent->notifyNow(new TeacherActionNotification(
+                $notification = new TeacherActionNotification(
                     $teacherUser,
                     $student,
                     'ملاحظة جديدة من المعلم',
                     sprintf('أرسل المعلم ملاحظة جديدة إلى %s.', $student->getFullNameAttribute()),
                     ['type' => 'note']
-                ));
+                );
+
+                $student->parent->notifyNow($notification);
+
+                if (! empty($student->parent->fcm_token)) {
+                    SendFirebaseNotificationJob::dispatch(
+                        [$student->parent->fcm_token],
+                        $notification->getFirebaseTitle(),
+                        $notification->getFirebaseBody()
+                    );
+                }
             }
         }
 
@@ -251,5 +262,5 @@ class TeacherNoteService
 
         return 'document';
     }
-    }
+}
 

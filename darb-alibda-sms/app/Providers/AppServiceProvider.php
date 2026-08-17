@@ -39,8 +39,9 @@ class AppServiceProvider extends ServiceProvider
         AuthenticationException::redirectUsing(fn() => null);
         AuthenticateSessionMiddleware::redirectUsing(fn() => null);
 
-        //  Event::listen(TeacherLoggedIn::class, [SendLoginNotification::class, 'handle']);
-        //  Event::listen(TeacherLoginFailed::class, [LogFailedLoginAttempt::class, 'handle']);
+        // Firebase login notification for teacher has been disabled.
+        // Event::listen(TeacherLoggedIn::class, [SendLoginNotification::class, 'handle']);
+        // Event::listen(TeacherLoginFailed::class, [LogFailedLoginAttempt::class, 'handle']);
 
         Event::listen(NotificationSent::class, function (NotificationSent $event): void {
             if (
