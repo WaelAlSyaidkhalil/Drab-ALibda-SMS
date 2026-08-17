@@ -278,18 +278,18 @@ class Timetable extends Page implements HasForms
         // Call the OR-Tools scheduling service to generate the timetable
         $success = app('App\Services\Admin\ORToolsSchedulerService')->generateTimetable();
 
-        if ($success) {
-            Notification::make()
-                ->title(__('dashboard.labels.timetable_generated'))
-                ->success()
-                ->send();
+        // if ($success) {
+        //     Notification::make()
+        //         ->title(__('dashboard.labels.timetable_generated'))
+        //         ->success()
+        //         ->send();
 
-            $this->loadGrid();
-        } else {
-            Notification::make()
-                ->title(__('dashboard.labels.timetable_generation_failed'))
-                ->danger()
-                ->send();
-        }
+        //     $this->loadGrid();
+        // } else {
+        //     Notification::make()
+        //         ->title(__('dashboard.labels.timetable_generation_failed'))
+        //         ->danger()
+        //         ->send();
+        // }
     }
 }
