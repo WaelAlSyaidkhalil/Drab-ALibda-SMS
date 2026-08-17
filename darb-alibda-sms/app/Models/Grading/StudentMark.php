@@ -9,25 +9,23 @@ use App\Models\Academic\StudentEnrollment;
 use App\Models\Subjects\Subject;
 use App\Models\Subjects\SubjectComponent;
 use App\Models\Subjects\Term;
+use App\Observers\Admin\StudentSubjectResultObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 /**
  * نموذج علامات الطالب
- * يخزن علامة الطالب في كل مكون من مكونات المادة
- * 
- * @property int $id
- * @property int $enrollment_id        FK → enrollments
- * @property int $subject_id           FK → subjects
- * @property int $subject_component_id         FK → subject_components
- * @property int $term_id              FK → terms
- * @property float $mark               العلامة (0-100 أو حسب النطاق المحدد)
- * @property \Illuminate\Support\Carbon $created_at
- * @property \Illuminate\Support\Carbon $updated_at
- * 
- * @property-read StudentEnrollment $enrollment
- * @property-read Subject $subject
- * @property-read SubjectComponent $component
- * @property-read Term $term
+ *
+ * يخزن علامة الطالب في مكوّن محدد من المادة
+ * ضمن فصل دراسي محدد.
+ *
+ * نظام العلامات:
+ * - كتابي: من 50
+ * - شفهي: من 30
+ * - وظائف / عملي: من 20
+ *
+ * مجموع مكونات الفصل = 100
  */
+#[ObservedBy([StudentSubjectResultObserver::class])]
 class StudentMark extends Model
 {
     use Filterable;
@@ -46,12 +44,12 @@ class StudentMark extends Model
         'updated_at' => 'datetime',
     ];
 
-    // ────── العلاقات ──────
+    // ─────────────────────────────────────────────
+    // العلاقات
+    // ─────────────────────────────────────────────
 
     /**
-     * التسجيل الأكاديمي للطالب
-     * 
-     * @return BelongsTo
+     * التسجيل الأكاديمي للطالب.
      */
     public function enrollment(): BelongsTo
     {
@@ -59,9 +57,7 @@ class StudentMark extends Model
     }
 
     /**
-     * المادة
-     * 
-     * @return BelongsTo
+     * المادة.
      */
     public function subject(): BelongsTo
     {
@@ -69,9 +65,12 @@ class StudentMark extends Model
     }
 
     /**
-     * مكون المادة (كتابي، شفهي...)
-     * 
-     * @return BelongsTo
+     * مكوّن المادة.
+     *
+     * مثال:
+     * - Written
+     * - Oral
+     * - Practical / Homework
      */
     public function subjectComponent(): BelongsTo
     {
@@ -79,164 +78,162 @@ class StudentMark extends Model
     }
 
     /**
-     * الفصل الدراسي
-     * 
-     * @return BelongsTo
+     * الفصل الدراسي.
      */
     public function term(): BelongsTo
     {
         return $this->belongsTo(Term::class);
     }
 
-    // ────── Scopes ──────
+    // ─────────────────────────────────────────────
+    // Scopes
+    // ─────────────────────────────────────────────
 
-    /**
-     * البحث حسب التسجيل
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $enrollmentId
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
     public function scopeForEnrollment($query, int $enrollmentId)
     {
         return $query->where('enrollment_id', $enrollmentId);
     }
 
-    /**
-     * البحث حسب المادة
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $subjectId
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
     public function scopeForSubject($query, int $subjectId)
     {
         return $query->where('subject_id', $subjectId);
     }
 
-    /**
-     * البحث حسب الفصل
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $termId
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
     public function scopeForTerm($query, int $termId)
     {
         return $query->where('term_id', $termId);
     }
 
-    /**
-     * البحث حسب المكون
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $componentId
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
     public function scopeForComponent($query, int $componentId)
     {
         return $query->where('subject_component_id', $componentId);
     }
 
-    /**
-     * العلامات أعلى من حد معين
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param float $minMark
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
     public function scopeAbove($query, float $minMark)
     {
         return $query->where('mark', '>=', $minMark);
     }
 
-    /**
-     * العلامات أقل من حد معين
-     * 
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param float $maxMark
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
     public function scopeBelow($query, float $maxMark)
     {
         return $query->where('mark', '<', $maxMark);
     }
 
-    // ────── Methods ──────
+    // ─────────────────────────────────────────────
+    // Methods
+    // ─────────────────────────────────────────────
 
     /**
-     * حساب النسبة المئوية للعلامة
-     * 
-     * @return float
+     * الحد الأعلى لعلامة هذا المكوّن.
+     *
+     * يتم أخذه من subject_components.out_of.
+     *
+     * المتوقع:
+     * - Written    => 50
+     * - Oral       => 30
+     * - Practical  => 20
+     */
+    public function getMaxMark(): float
+    {
+        return (float) ($this->subjectComponent?->out_of ?? 0);
+    }
+
+    /**
+     * حساب النسبة المئوية للعلامة.
+     *
+     * مثال:
+     * 35 / 50 = 70%
+     * 24 / 30 = 80%
+     * 18 / 20 = 90%
      */
     public function getPercentage(): float
     {
-        if ($this->subjectComponent->out_of === 0) {
+        $maxMark = $this->getMaxMark();
+
+        if ($maxMark <= 0) {
             return 0;
         }
 
-        return round(($this->mark / $this->subjectComponent->out_of) * 100, 2);
+        return round(($this->mark / $maxMark) * 100, 2);
     }
 
     /**
-     * التحقق من أن العلامة ناجحة (بناءً على حد النجاح للمادة)
-     * 
-     * @return bool
-     */
-    public function isPassing(): bool
-    {
-        return $this->mark >= $this->subject->pass_mark;
-    }
-
-    /**
-     * التحقق من أن العلامة صحيحة (ضمن النطاق المسموح)
-     * 
-     * @return bool
+     * التحقق من صحة العلامة.
+     *
+     * العلامة يجب أن تكون:
+     *
+     * 0 <= mark <= out_of
+     *
+     * مثال:
+     * الكتابي:
+     * 35 / 50 => صحيح
+     *
+     * الشفهي:
+     * 25 / 30 => صحيح
+     *
+     * الوظائف:
+     * 18 / 20 => صحيح
+     *
+     * أما:
+     * 40 / 30 => غير صحيحة
      */
     public function isValid(): bool
     {
-        return $this->mark >= 0 && $this->mark <= $this->component->out_of;
+        $maxMark = $this->getMaxMark();
+
+        if ($maxMark <= 0) {
+            return false;
+        }
+
+        return $this->mark >= 0
+            && $this->mark <= $maxMark;
     }
 
-    // ────── Accessors ──────
+    /**
+     * الحصول على اسم المكوّن.
+     */
+    public function getComponentName(): string
+    {
+        return $this->subjectComponent?->description
+            ?? $this->subjectComponent?->type?->value
+            ?? 'مكوّن';
+    }
+
+    // ─────────────────────────────────────────────
+    // Accessors
+    // ─────────────────────────────────────────────
 
     /**
-     * النسبة المئوية للعلامة
-     * 
-     * @return string
+     * النسبة المئوية للعلامة.
      */
     public function getPercentageDisplayAttribute(): string
     {
-        return round($this->getPercentage(), 2) . '%';
+        return $this->getPercentage() . '%';
     }
 
     /**
-     * العلامة مع النطاق
-     * 
-     * @return string
+     * العلامة مع الحد الأعلى.
+     *
+     * مثال:
+     * 35 / 50
      */
     public function getMarkDisplayAttribute(): string
     {
-        return round($this->mark, 2) . ' / ' . $this->subjectComponent->out_of;
+        return round($this->mark, 2)
+            . ' / '
+            . $this->getMaxMark();
     }
 
     /**
-     * حالة العلامة (ناجح/راسب)
-     * 
-     * @return string
-     */
-    public function getStatusLabelAttribute(): string
-    {
-        return $this->isPassing() ? 'ناجح ✅' : 'راسب ❌';
-    }
-
-    /**
-     * تفاصيل العلامة
-     * 
-     * @return string
+     * تفاصيل العلامة.
+     *
+     * مثال:
+     * الكتابي: 35 / 50 (70%)
      */
     public function getDetailAttribute(): string
     {
-        return "{$this->component->name}: {$this->mark_display} ({$this->percentage_display})";
+        return "{$this->getComponentName()}: "
+            . "{$this->mark_display} "
+            . "({$this->percentage_display})";
     }
 }
