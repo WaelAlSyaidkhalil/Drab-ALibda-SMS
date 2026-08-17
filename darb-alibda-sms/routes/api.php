@@ -22,6 +22,7 @@ use App\Http\Controllers\Teacher\SuggestionController;
 use App\Http\Controllers\Teacher\ComplaintController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Teacher\NotificationController;
+use App\Http\Controllers\Parent\NotificationController as ParentNotificationController;
 
 Route::post('teacher/login', [TeacherAuthController::class, 'login']);
 Route::post('parent/login', [AuthController::class, 'login']);
@@ -62,26 +63,31 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('teacher/marks/{markId}', [TeacherMarkController::class, 'update']);
     Route::post('teacher/marks/delete/{markId}', [TeacherMarkController::class, 'destroy']);
 
-    Route::get('teacher/notification',[NotificationController::class,'showNotification']);
-    Route::post('teacher/notification/mark-all-as-read',[NotificationController::class,'markAllAsRead']);
-    Route::post('teacher/notification/{notificationId}/mark-as-read',[NotificationController::class,'markAsRead']);
-    Route::post('teacher/notification/{notificationId}',[NotificationController::class,'deleteNotification']);
+    Route::get('teacher/notification', [NotificationController::class, 'showNotification']);
+    Route::post('teacher/notification/mark-all-as-read', [NotificationController::class, 'markAllAsRead']);
+    Route::post('teacher/notification/{notificationId}/mark-as-read', [NotificationController::class, 'markAsRead']);
+    Route::post('teacher/notification/{notificationId}', [NotificationController::class, 'deleteNotification']);
 
 
 
 
-Route::get('teacher/suggestions',[SuggestionController::class, 'index']);
-Route::post('teacher/suggestion',[SuggestionController::class, 'store']);
-Route::get('teacher/suggestions/{suggestion}',[SuggestionController::class, 'show']);
+    Route::get('teacher/suggestions', [SuggestionController::class, 'index']);
+    Route::post('teacher/suggestion', [SuggestionController::class, 'store']);
+    Route::get('teacher/suggestions/{suggestion}', [SuggestionController::class, 'show']);
 
 
-Route::get('teacher/complaints',[ComplaintController::class, 'index']);
-Route::post('teacher/complaints',[ComplaintController::class, 'store']);
-Route::get('teacher/complaints/{complaint}',[ComplaintController::class, 'show']);
+    Route::get('teacher/complaints', [ComplaintController::class, 'index']);
+    Route::post('teacher/complaints', [ComplaintController::class, 'store']);
+    Route::get('teacher/complaints/{complaint}', [ComplaintController::class, 'show']);
 
 
 
 
+
+    Route::get('parent/notification', [ParentNotificationController::class, 'showNotification']);
+    Route::post('parent/notification/mark-all-as-read', [ParentNotificationController::class, 'markAllAsRead']);
+    Route::post('parent/notification/{notificationId}/mark-as-read', [ParentNotificationController::class, 'markAsRead']);
+    Route::post('parent/notification/{notificationId}', [ParentNotificationController::class, 'deleteNotification']);
 
     Route::post('parent/logout', [AuthController::class, 'logout']);
     Route::post('parent/change-password', [AuthController::class, 'changePassword']);
