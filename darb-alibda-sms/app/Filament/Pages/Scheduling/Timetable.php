@@ -52,7 +52,7 @@ class Timetable extends Page implements HasForms
     public function publishStudentTimetable(): void
     {
         if (! $this->ensureContextSelected()) {
-            $this->notifyMissingContext();
+            // $this->notifyMissingContext();
             return;
         }
 
@@ -198,7 +198,7 @@ class Timetable extends Page implements HasForms
     public function openCell(string $day, int $slotId): void
     {
         if (! $this->ensureContextSelected()) {
-            $this->notifyMissingContext();
+            // $this->notifyMissingContext();
             return;
         }
 
