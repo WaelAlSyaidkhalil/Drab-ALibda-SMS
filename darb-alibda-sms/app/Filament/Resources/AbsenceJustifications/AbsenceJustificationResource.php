@@ -64,15 +64,18 @@ class AbsenceJustificationResource extends Resource
             ->columns([
                 TextColumn::make('student.user.name')
                     ->label(__('dashboard.labels.student'))
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
 
                 TextColumn::make('parent.name')
                     ->label(__('dashboard.labels.parent_name'))
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
 
                 TextColumn::make('absence_date')
                     ->label(__('dashboard.labels.absence_date'))
-                    ->date(),
+                    ->date()
+                    ->sortable(),
 
                 TextColumn::make('reason')
                     ->label(__('dashboard.labels.reason'))
@@ -81,17 +84,24 @@ class AbsenceJustificationResource extends Resource
                 TextColumn::make('status')
                     ->label(__('dashboard.labels.status'))
                     ->badge()
-                    ->colors([
+                    ->color(fn (string $state): string => match ($state) {
                         'pending' => 'warning',
                         'approved' => 'success',
                         'rejected' => 'danger',
+                        default => 'gray',
+                    })
+                    ->colors([
+                        'warning' => 'pending',
+                        'success' => 'approved',
+                        'danger' => 'rejected',
                     ])
                     ->formatStateUsing(fn ($state) => match ($state) {
                         'pending' => __('dashboard.enums.absence_justification_status.pending'),
                         'approved' => __('dashboard.enums.absence_justification_status.approved'),
                         'rejected' => __('dashboard.enums.absence_justification_status.rejected'),
                         default => $state,
-                    }),
+                    })
+                    ->sortable(),
 
                 TextColumn::make('review_note')
                     ->label(__('dashboard.labels.review_note'))
@@ -100,8 +110,10 @@ class AbsenceJustificationResource extends Resource
 
                 TextColumn::make('created_at')
                     ->label(__('dashboard.labels.created_at'))
-                    ->dateTime(),
+                    ->dateTime()
+                    ->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('status')
                     ->label(__('dashboard.labels.status'))
