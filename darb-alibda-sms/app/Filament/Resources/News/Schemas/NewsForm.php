@@ -7,6 +7,7 @@ use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -37,7 +38,7 @@ class NewsForm
                             ])
                             ->options(AudienceType::options()),
 
-                        RichEditor::make('body')
+                        Textarea::make('body')
                             ->label(__('dashboard.labels.body'))
                             ->required()
                             ->validationMessages([
