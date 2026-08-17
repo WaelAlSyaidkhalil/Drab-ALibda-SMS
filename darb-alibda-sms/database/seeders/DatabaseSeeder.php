@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             // TeacherDashboardSeeder::class,
             TeacherNotificationsSeeder::class,
             ParentNotificationsSeeder::class,
+            AbsenceJustificationSeeder::class,
         ]);
     }
 }

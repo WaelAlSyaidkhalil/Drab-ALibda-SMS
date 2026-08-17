@@ -15,6 +15,7 @@ return [
     ],
 
     'pages' => [
+        'absence_justification' => 'تبرير الغياب',
         'school_info' => 'معلومات المدرسة',
         'attendance_calendar' => 'تقويم الحضور',
         'teacher_timetable' => 'برنامج المعلم الأسبوعي',
@@ -132,6 +133,13 @@ return [
         'official_details' => 'تفاصيل رسمية',
         'parent_name' => 'اسم الوالد',
         'student' => 'الطالب',
+        'parent_name' => 'اسم الوالد',
+        'absence_date' => 'تاريخ الغياب',
+        'review_note' => 'ملاحظة المراجعة',
+        'update_absence_justification_status' => 'تحديث حالة طلب الغياب',
+        'delete_absence_justification' => 'حذف طلب الغياب',
+        'none' => 'لا توجد',
+        'updated' => 'تم التحديث',
         'academic_year' => 'السنة الدراسية',
         'enrollment_date' => 'تاريخ التسجيل',
         'final_result' => 'النتيجة النهائية',
@@ -236,6 +244,7 @@ return [
     'buttons' => [
         'save' => 'حفظ',
         'update' => 'تحديث',
+        'update_status' => 'تحديث الحالة',
         'delete' => 'حذف',
         'generate_timetable' => 'إنشاء برنامج أسبوعي',
         'publish_timetable' => 'نشر البرنامج',
@@ -278,6 +287,12 @@ return [
             'pending' => 'قيد الانتظار',
             'in_progress' => 'قيد المعالجة',
             'resolved' => 'تم الحل',
+        ],
+
+        'absence_justification_status' => [
+            'pending' => 'قيد المراجعة',
+            'approved' => 'مقبول',
+            'rejected' => 'مرفوض',
         ],
 
         'day_of_week' => [

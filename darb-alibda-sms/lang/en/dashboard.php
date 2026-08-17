@@ -14,6 +14,7 @@ return [
     ],
 
     'pages' => [
+        'absence_justification' => 'Absence Justification',
         'school_info' => 'School Info',
         'attendance_calendar' => 'Attendance Calendar',
         'teacher_timetable' => 'Teacher Timetable',
@@ -131,7 +132,15 @@ return [
         'official_details' => 'Official Details',
         'parent_name' => 'Parent name',
         'student' => 'Student',
+        'parent_name' => 'Parent Name',
+        'absence_date' => 'Absence Date',
+        'review_note' => 'Review Note',
+        'update_absence_justification_status' => 'Update Absence Justification Status',
+        'delete_absence_justification' => 'Delete Absence Justification',
+        'none' => 'None',
+        'updated' => 'Updated',
         'academic_year' => 'Academic Year',
+
         'enrollment_date' => 'Enrollment Date',
         'final_result' => 'Final Result',
         'final_average' => 'Final Average',
@@ -236,6 +245,7 @@ return [
     'buttons' => [
         'save' => 'Save',
         'update' => 'Update',
+        'update_status' => 'Update Status',
         'delete' => 'Delete',
         'acknowledge' => 'Acknowledge',
         'publish_timetable' => 'Publish Timetable',
@@ -278,6 +288,12 @@ return [
             'pending' => 'Pending',
             'in_progress' => 'In Progress',
             'resolved' => 'Resolved',
+        ],
+
+        'absence_justification_status' => [
+            'pending' => 'Under Review',
+            'approved' => 'Approved',
+            'rejected' => 'Rejected',
         ],
 
         'day_of_week' => [
