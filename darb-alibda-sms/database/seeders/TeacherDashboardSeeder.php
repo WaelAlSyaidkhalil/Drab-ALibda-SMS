@@ -25,6 +25,7 @@ use App\Models\Schedule\Attendance;
 use App\Models\Schedule\Schedule;
 use App\Models\Schedule\TimeSlot;
 use App\Models\Subjects\Subject;
+use App\Models\Subjects\SubjectComponent;
 use App\Models\Subjects\Term;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
@@ -37,15 +38,40 @@ class TeacherDashboardSeeder extends Seeder
     public function run(): void
     {
         $teacherUser = User::firstWhere('email', 'teacher1@example.com');
-        $teacher = $teacherUser ? Teacher::firstWhere('user_id', $teacherUser->id) : null;
-        $student1 = Student::whereHas('user', fn ($query) => $query->where('email', 'student1@example.com'))->first();
-        $student2 = Student::whereHas('user', fn ($query) => $query->where('email', 'student2@example.com'))->first();
+
+        $teacher = $teacherUser
+            ? Teacher::firstWhere('user_id', $teacherUser->id)
+            : null;
+
+        $student1 = Student::whereHas(
+            'user',
+            fn ($query) => $query->where('email', 'student1@example.com')
+        )->first();
+
+        $student2 = Student::whereHas(
+            'user',
+            fn ($query) => $query->where('email', 'student2@example.com')
+        )->first();
+
         $parent1 = User::firstWhere('email', 'parent1@example.com');
         $parent2 = User::firstWhere('email', 'parent2@example.com');
 
-        if (! $teacherUser || ! $teacher || ! $student1 || ! $student2 || ! $parent1 || ! $parent2) {
+        if (
+            ! $teacherUser ||
+            ! $teacher ||
+            ! $student1 ||
+            ! $student2 ||
+            ! $parent1 ||
+            ! $parent2
+        ) {
             return;
         }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Classes
+        |--------------------------------------------------------------------------
+        */
 
         $primaryFirstClass = SchoolClass::firstOrCreate(
             ['type' => ClassType::PRIMARY_FIRST->value],
@@ -57,26 +83,43 @@ class TeacherDashboardSeeder extends Seeder
             ['type' => ClassType::PRIMARY_SECOND->value]
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | Sections
+        |--------------------------------------------------------------------------
+        */
 
         $section1 = Section::firstOrCreate(
             [
                 'class_id' => $primaryFirstClass->id,
                 'name' => 'أ',
             ],
-            ['capacity' => 30]
+            [
+                'capacity' => 30,
+            ]
         );
-        
+
         $section2 = Section::firstOrCreate(
             [
                 'class_id' => $primarySecondClass->id,
                 'name' => 'أ',
             ],
-            ['capacity' => 30]
+            [
+                'capacity' => 30,
+            ]
         );
-        
+
+        /*
+        |--------------------------------------------------------------------------
+        | Academic Term
+        |--------------------------------------------------------------------------
+        */
 
         $term = Term::firstOrCreate(
-            ['type' => TermType::FIRST_TERM->value, 'academic_year' => '2025-2026'],
+            [
+                'type' => TermType::FIRST_TERM->value,
+                'academic_year' => '2025-2026',
+            ],
             [
                 'type' => TermType::FIRST_TERM->value,
                 'academic_year' => '2025-2026',
@@ -84,6 +127,12 @@ class TeacherDashboardSeeder extends Seeder
                 'end_date' => '2026-01-31',
             ]
         );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Subjects
+        |--------------------------------------------------------------------------
+        */
 
         $subject1 = Subject::firstOrCreate(
             ['code' => 'MAT101'],
@@ -125,14 +174,69 @@ class TeacherDashboardSeeder extends Seeder
             ]
         );
 
-        $subjectComponent = $subject1->components()->firstOrCreate(
-            ['type' => SubjectComponentType::WRITTEN->value],
+        /*
+        |--------------------------------------------------------------------------
+        | Subject Components
+        |--------------------------------------------------------------------------
+        |
+        | توزيع الدرجة:
+        |
+        | Written  = 50
+        | Oral     = 30
+        | Practical/Assignments = 20
+        |
+        | Total = 100
+        |
+        */
+
+        $writtenComponent = $subject1->components()->updateOrCreate(
             [
                 'type' => SubjectComponentType::WRITTEN->value,
-                'out_of' => 70,
+            ],
+            [
+                'type' => SubjectComponentType::WRITTEN->value,
+                'out_of' => 50,
                 'order' => 1,
+                'description' => 'الاختبار الكتابي',
             ]
         );
+
+        $oralComponent = $subject1->components()->updateOrCreate(
+            [
+                'type' => SubjectComponentType::ORAL->value,
+            ],
+            [
+                'type' => SubjectComponentType::ORAL->value,
+                'out_of' => 30,
+                'order' => 2,
+                'description' => 'الاختبار الشفهي',
+            ]
+        );
+
+        /*
+         * نستخدم PRACTICAL حاليًا كمكوّن ثالث
+         * بقيمة 20، ونسميه في الوصف "الوظائف".
+         *
+         * إذا كان لديك HOMEWORK / ASSIGNMENT في Enum
+         * فمن الأفضل استبداله بها.
+         */
+        $homeworkComponent = $subject1->components()->updateOrCreate(
+            [
+                'type' => SubjectComponentType::PRACTICAL->value,
+            ],
+            [
+                'type' => SubjectComponentType::PRACTICAL->value,
+                'out_of' => 20,
+                'order' => 3,
+                'description' => 'الوظائف والواجبات',
+            ]
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Time Slots
+        |--------------------------------------------------------------------------
+        */
 
         $timeSlot1 = TimeSlot::firstOrCreate(
             [
@@ -168,9 +272,14 @@ class TeacherDashboardSeeder extends Seeder
                 'end_time' => '11:45:00',
             ]
         );
-        
 
-        $schedule1 = Schedule::firstOrCreate(
+        /*
+        |--------------------------------------------------------------------------
+        | Schedule
+        |--------------------------------------------------------------------------
+        */
+
+        Schedule::firstOrCreate(
             [
                 'section_id' => $section1->id,
                 'subject_id' => $subject1->id,
@@ -181,7 +290,7 @@ class TeacherDashboardSeeder extends Seeder
             ]
         );
 
-        $schedule2 = Schedule::firstOrCreate(
+        Schedule::firstOrCreate(
             [
                 'section_id' => $section1->id,
                 'subject_id' => $subject2->id,
@@ -192,7 +301,7 @@ class TeacherDashboardSeeder extends Seeder
             ]
         );
 
-        $schedule3 = Schedule::firstOrCreate(
+        Schedule::firstOrCreate(
             [
                 'section_id' => $section1->id,
                 'subject_id' => $subject3->id,
@@ -203,7 +312,7 @@ class TeacherDashboardSeeder extends Seeder
             ]
         );
 
-        $schedule4 = Schedule::firstOrCreate(
+        Schedule::firstOrCreate(
             [
                 'section_id' => $section1->id,
                 'subject_id' => $subject4->id,
@@ -214,8 +323,17 @@ class TeacherDashboardSeeder extends Seeder
             ]
         );
 
-        StudentEnrollment::updateOrCreate(
-            ['student_id' => $student1->id, 'academic_year' => '2025-2026'],
+        /*
+        |--------------------------------------------------------------------------
+        | Student Enrollments
+        |--------------------------------------------------------------------------
+        */
+
+        $enrollment1 = StudentEnrollment::updateOrCreate(
+            [
+                'student_id' => $student1->id,
+                'academic_year' => '2025-2026',
+            ],
             [
                 'section_id' => $section1->id,
                 'enrollment_date' => '2025-09-01',
@@ -224,8 +342,11 @@ class TeacherDashboardSeeder extends Seeder
             ]
         );
 
-        StudentEnrollment::updateOrCreate(
-            ['student_id' => $student2->id, 'academic_year' => '2025-2026'],
+        $enrollment2 = StudentEnrollment::updateOrCreate(
+            [
+                'student_id' => $student2->id,
+                'academic_year' => '2025-2026',
+            ],
             [
                 'section_id' => $section1->id,
                 'enrollment_date' => '2025-09-01',
@@ -234,28 +355,101 @@ class TeacherDashboardSeeder extends Seeder
             ]
         );
 
-        StudentSubjectResult::firstOrCreate(
-            ['subject_id' => $subject1->id, 'enrollment_id' => $student1->enrollments()->first()->id],
-            [
-                'subject_id' => 1,
-                'enrollment_id' => 1,
-                'term1_mark' => 65,
-                'term2_mark' => 70,
-                'result' => MarkResult::PASS->value,
-            ]
-        );
+        /*
+        |--------------------------------------------------------------------------
+        | Student Subject Result
+        |--------------------------------------------------------------------------
+        |
+        | العلامة النهائية للمادة = مجموع المكونات.
+        |
+        | مثال الطالب الأول:
+        |
+        | كتابي  = 40 / 50
+        | شفهي   = 25 / 30
+        | وظائف  = 18 / 20
+        |
+        | المجموع = 83 / 100
+        |
+        */
 
-        StudentMark::firstOrCreate(
+        $writtenMark = 40;
+        $oralMark = 25;
+        $homeworkMark = 18;
+
+        $totalMark = $writtenMark + $oralMark + $homeworkMark;
+
+        StudentSubjectResult::updateOrCreate(
             [
-                'enrollment_id' => 1,
-                'subject_component_id' => $subjectComponent->id,
                 'subject_id' => $subject1->id,
+                'enrollment_id' => $enrollment1->id,
+            ],
+            [
+                'subject_id' => $subject1->id,
+                'enrollment_id' => $enrollment1->id,
+                'term1_mark' => $totalMark,
+                'term2_mark' => null,
+                'result' => $totalMark >= $subject1->pass_mark
+                    ? MarkResult::PASS->value
+                    : MarkResult::FAIL->value,
+            ]
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Student Marks
+        |--------------------------------------------------------------------------
+        |
+        | كل مكوّن له سجل مستقل.
+        |
+        | enrollment_id
+        | subject_id
+        | subject_component_id
+        | term_id
+        | mark
+        |
+        */
+
+        StudentMark::updateOrCreate(
+            [
+                'enrollment_id' => $enrollment1->id,
+                'subject_id' => $subject1->id,
+                'subject_component_id' => $writtenComponent->id,
                 'term_id' => $term->id,
             ],
             [
-                'mark' => 65,
+                'mark' => $writtenMark,
             ]
         );
+
+        StudentMark::updateOrCreate(
+            [
+                'enrollment_id' => $enrollment1->id,
+                'subject_id' => $subject1->id,
+                'subject_component_id' => $oralComponent->id,
+                'term_id' => $term->id,
+            ],
+            [
+                'mark' => $oralMark,
+            ]
+        );
+
+        StudentMark::updateOrCreate(
+            [
+                'enrollment_id' => $enrollment1->id,
+                'subject_id' => $subject1->id,
+                'subject_component_id' => $homeworkComponent->id,
+                'term_id' => $term->id,
+            ],
+            [
+                'mark' => $homeworkMark,
+            ]
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Attendance
+        |--------------------------------------------------------------------------
+        */
 
         Attendance::updateOrCreate(
             [
@@ -263,7 +457,9 @@ class TeacherDashboardSeeder extends Seeder
                 'section_id' => $section1->id,
                 'date' => Carbon::today()->toDateString(),
             ],
-            ['status' => 'present']
+            [
+                'status' => 'present',
+            ]
         );
 
         Attendance::updateOrCreate(
@@ -272,14 +468,24 @@ class TeacherDashboardSeeder extends Seeder
                 'section_id' => $section2->id,
                 'date' => Carbon::today()->toDateString(),
             ],
-            ['status' => 'absent']
+            [
+                'status' => 'absent',
+            ]
         );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Absence Justification
+        |--------------------------------------------------------------------------
+        */
 
         AbsenceJustification::updateOrCreate(
             [
                 'student_id' => $student2->id,
                 'parent_id' => $parent2->id,
-                'absence_date' => Carbon::today()->subDay()->toDateString(),
+                'absence_date' => Carbon::today()
+                    ->subDay()
+                    ->toDateString(),
             ],
             [
                 'reason' => 'تغيب لظروف عائلية',
@@ -287,14 +493,28 @@ class TeacherDashboardSeeder extends Seeder
             ]
         );
 
+        /*
+        |--------------------------------------------------------------------------
+        | News
+        |--------------------------------------------------------------------------
+        */
+
         $news = News::firstOrCreate(
-            ['title' => 'إعلان اليوم للمعلمين'],
+            [
+                'title' => 'إعلان اليوم للمعلمين',
+            ],
             [
                 'body' => 'هذا إعلان تجريبي يظهر اليوم للمعلمين.',
                 'audience' => 'teachers',
                 'created_by' => $teacherUser->id,
             ]
         );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Conversation
+        |--------------------------------------------------------------------------
+        */
 
         $conversation = Conversation::firstOrCreate(
             [
@@ -309,36 +529,65 @@ class TeacherDashboardSeeder extends Seeder
                 'sender_id' => $parent1->id,
                 'message' => 'هل يمكنك مراجعة حالة حضور الطالب؟',
             ],
-            ['is_read' => false]
+            [
+                'is_read' => false,
+            ]
         );
 
-        
-            Complaint::create([
+        /*
+        |--------------------------------------------------------------------------
+        | Complaints
+        |--------------------------------------------------------------------------
+        */
+
+        Complaint::firstOrCreate(
+            [
                 'user_id' => $parent1->id,
                 'title' => 'شكوى تجريبية',
+            ],
+            [
                 'body' => 'هذه شكوى تجريبية تم إنشاؤها بواسطة Seeder.',
                 'status' => 'pending',
-            ]);
+            ]
+        );
 
-            Complaint::create([
+        Complaint::firstOrCreate(
+            [
                 'user_id' => $parent1->id,
                 'title' => 'شكوى أخرى',
+            ],
+            [
                 'body' => 'هذه شكوى أخرى تم إنشاؤها بواسطة Seeder.',
                 'status' => 'in_progress',
-            ]);
+            ]
+        );
 
-            Suggestion::create([
+        /*
+        |--------------------------------------------------------------------------
+        | Suggestions
+        |--------------------------------------------------------------------------
+        */
+
+        Suggestion::firstOrCreate(
+            [
                 'user_id' => $parent2->id,
                 'title' => 'اقتراح تجريبي',
+            ],
+            [
                 'body' => 'هذا اقتراح تجريبي تم إنشاؤه بواسطة Seeder.',
                 'is_acknowledged' => false,
-            ]);
+            ]
+        );
 
-            Suggestion::create([
+        Suggestion::firstOrCreate(
+            [
                 'user_id' => $parent2->id,
                 'title' => 'اقتراح آخر',
+            ],
+            [
                 'body' => 'هذا اقتراح آخر تم إنشاؤه بواسطة Seeder.',
                 'is_acknowledged' => true,
-            ]);
+            ]
+        );
     }
 }

@@ -37,7 +37,7 @@ class WaleedTeacherScenarioSeeder extends Seeder
         $teacherRole = Role::firstWhere('name', 'teacher');
         $studentRole = Role::firstWhere('name', 'student');
         $parentRole = Role::firstWhere('name', 'parent');
-        $adminUser = User::whereHas('role', fn ($query) => $query->where('name', 'admin'))->first();
+        $adminUser = User::whereHas('role', fn($query) => $query->where('name', 'admin'))->first();
 
         if (! $teacherRole || ! $studentRole || ! $parentRole) {
             $this->command->warn('Required roles not found. Skipping WaleedTeacherScenarioSeeder.');
@@ -275,18 +275,86 @@ class WaleedTeacherScenarioSeeder extends Seeder
                     continue;
                 }
 
-                $components = $subject->components()->orderBy('order')->get();
+                $components = $subject->components()
+                    ->orderBy('order')
+                    ->get();
 
                 $term1Total = 0;
                 $term2Total = 0;
 
                 foreach ($components as $componentIndex => $component) {
+                    /*
+    |--------------------------------------------------------------------------
+    | Generate valid marks according to component max
+    |--------------------------------------------------------------------------
+    |
+    | Written   = 50
+    | Oral      = 30
+    | Practical = 20
+    |
+    | The generated mark must NEVER exceed component->out_of.
+    |
+    */
+
                     $base = $index * 3 + $componentIndex + 1;
-                    $term1Mark = min(100, (($base * 5) % 45) + 30);
-                    $term2Mark = min(100, (($base * 7) % 40) + 25);
+
+                    $term1Mark = match ($component->type->value ?? $component->type) {
+                        SubjectComponentType::WRITTEN->value => 30 + (($base * 3) % 21), // 30..50
+                        SubjectComponentType::ORAL->value => 18 + (($base * 2) % 13),    // 18..30
+                        SubjectComponentType::PRACTICAL->value => 10 + (($base * 2) % 11), // 10..20
+                        default => min(
+                            $component->out_of,
+                            max(0, (($base * 3) % ((int) $component->out_of + 1)))
+                        ),
+                    };
+
+                    $term2Mark = match ($component->type->value ?? $component->type) {
+                        SubjectComponentType::WRITTEN->value => 32 + (($base * 4) % 19), // 32..50
+                        SubjectComponentType::ORAL->value => 20 + (($base * 3) % 11),    // 20..30
+                        SubjectComponentType::PRACTICAL->value => 12 + (($base * 3) % 9), // 12..20
+                        default => min(
+                            $component->out_of,
+                            max(0, (($base * 4) % ((int) $component->out_of + 1)))
+                        ),
+                    };
+
+                    /*
+    |--------------------------------------------------------------------------
+    | Safety guard
+    |--------------------------------------------------------------------------
+    |
+    | Never allow generated data to exceed the configured component maximum.
+    |
+    */
+
+                    $term1Mark = min((float) $component->out_of, max(0, $term1Mark));
+                    $term2Mark = min((float) $component->out_of, max(0, $term2Mark));
+
+                    /*
+    |--------------------------------------------------------------------------
+    | Calculate actual term totals
+    |--------------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    | We sum the achieved marks.
+    |
+    | Example:
+    | Written   = 40 / 50
+    | Oral      = 25 / 30
+    | Practical = 18 / 20
+    |
+    | Term total = 83 / 100
+    |
+    */
 
                     $term1Total += $term1Mark;
                     $term2Total += $term2Mark;
+
+                    /*
+    |--------------------------------------------------------------------------
+    | First Term Mark
+    |--------------------------------------------------------------------------
+    */
 
                     StudentMark::updateOrCreate(
                         [
@@ -295,8 +363,16 @@ class WaleedTeacherScenarioSeeder extends Seeder
                             'subject_component_id' => $component->id,
                             'term_id' => $termMap[TermType::FIRST_TERM->value],
                         ],
-                        ['mark' => round($term1Mark, 2)]
+                        [
+                            'mark' => round($term1Mark, 2),
+                        ]
                     );
+
+                    /*
+    |--------------------------------------------------------------------------
+    | Second Term Mark
+    |--------------------------------------------------------------------------
+    */
 
                     StudentMark::updateOrCreate(
                         [
@@ -305,16 +381,52 @@ class WaleedTeacherScenarioSeeder extends Seeder
                             'subject_component_id' => $component->id,
                             'term_id' => $termMap[TermType::SECOND_TERM->value],
                         ],
-                        ['mark' => round($term2Mark, 2)]
+                        [
+                            'mark' => round($term2Mark, 2),
+                        ]
                     );
                 }
 
-                $yearlyAverage = round((($term1Total / 3) + ($term2Total / 3)) / 2, 2);
-                $result = $yearlyAverage >= $subject->pass_mark ? MarkResult::PASS : MarkResult::FAIL;
+                /*
+|--------------------------------------------------------------------------
+| Final Subject Result
+|--------------------------------------------------------------------------
+|
+| Each term is already out of 100:
+|
+| Written   <= 50
+| Oral      <= 30
+| Practical <= 20
+| ----------------
+| Total     <= 100
+|
+*/
+
+                $term1Total = round($term1Total, 2);
+                $term2Total = round($term2Total, 2);
+
+                /*
+|--------------------------------------------------------------------------
+| Yearly Mark
+|--------------------------------------------------------------------------
+|
+| Only when both terms are available:
+| yearly = (term1 + term2) / 2
+|
+*/
+
+                $yearlyAverage = round(
+                    ($term1Total + $term2Total) / 2,
+                    2
+                );
+
+                $result = $yearlyAverage >= $subject->pass_mark
+                    ? MarkResult::PASS
+                    : MarkResult::FAIL;
 
                 $subjectResult->update([
-                    'term1_mark' => round($term1Total / 3, 2),
-                    'term2_mark' => round($term2Total / 3, 2),
+                    'term1_mark' => $term1Total,
+                    'term2_mark' => $term2Total,
                     'yearly_mark' => $yearlyAverage,
                     'result' => $result->value,
                 ]);
@@ -458,7 +570,7 @@ class WaleedTeacherScenarioSeeder extends Seeder
         }
 
         $teacherStudents = Student::query()
-            ->whereHas('enrollments', fn ($query) => $query->where('section_id', $section->id)->where('status', StudentStatus::ACTIVE->value))
+            ->whereHas('enrollments', fn($query) => $query->where('section_id', $section->id)->where('status', StudentStatus::ACTIVE->value))
             ->orderBy('id')
             ->get();
 

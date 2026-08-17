@@ -38,8 +38,8 @@ class TimeSlot extends Model
 
     protected $casts = [
         'period_number' => TimeSlotNumber::class,
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
+        'start_time' => 'datetime:H:i:s',
+        'end_time' => 'datetime:H:i:s',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -79,7 +79,7 @@ class TimeSlot extends Model
     public function scopeAtTime($query, string $time)
     {
         return $query->whereTime('start_time', '<=', $time)
-                    ->whereTime('end_time', '>', $time);
+            ->whereTime('end_time', '>', $time);
     }
 
     // ────── Methods ──────
@@ -93,7 +93,7 @@ class TimeSlot extends Model
     public function conflictsWith(TimeSlot $other): bool
     {
         return $this->start_time < $other->end_time &&
-               $this->end_time > $other->start_time;
+            $this->end_time > $other->start_time;
     }
 
     /**
@@ -148,6 +148,4 @@ class TimeSlot extends Model
 
         return "{$hours}h {$mins}m";
     }
-
-    
 }
