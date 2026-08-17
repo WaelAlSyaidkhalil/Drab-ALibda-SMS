@@ -17,7 +17,7 @@ class NewsCreatedNotification extends Notification
 
     public function via($notifiable): array
     {
-        return ['database'];
+        return ['database', 'fcm'];
     }
 
     public function toDatabase($notifiable): array

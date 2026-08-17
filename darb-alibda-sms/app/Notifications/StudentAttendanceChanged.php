@@ -22,7 +22,7 @@ class StudentAttendanceChanged extends Notification
 
     public function via($notifiable)
     {
-        return ['database'];
+        return ['database', 'fcm'];
     }
 
     public function toDatabase($notifiable)
