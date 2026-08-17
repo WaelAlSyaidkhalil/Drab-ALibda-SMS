@@ -14,16 +14,16 @@ class StudentEnrolledNotification extends Notification
 
     public function title(): string
     {
-        return __('dashboard.notifications.student_enrolled_title');
+        return 'تم تسجيل الطالب';
     }
 
     public function body(): string
     {
-        return __('dashboard.notifications.student_enrolled_body', [
-            'student' => $this->enrollment->student?->full_name ?? 'الطالب',
-            'section' => $this->enrollment->section?->full_name ?? '',
-            'year' => $this->enrollment->academic_year,
-        ]);
+        $student = $this->enrollment->student?->full_name ?? 'الطالب';
+        $section = $this->enrollment->section?->full_name ?? 'الفصل';
+        $year = $this->enrollment->academic_year;
+
+        return $student . ' تم تسجيله في ' . $section . ' للسنة الدراسية ' . $year . '.';
     }
 
     public function via($notifiable): array
@@ -33,13 +33,13 @@ class StudentEnrolledNotification extends Notification
 
     public function toDatabase($notifiable): array
     {
+        $student = $this->enrollment->student?->full_name ?? 'الطالب';
+        $section = $this->enrollment->section?->full_name ?? 'الفصل';
+        $year = $this->enrollment->academic_year;
+
         return [
-            'title' => __('dashboard.notifications.student_enrolled_title'),
-            'body' => __('dashboard.notifications.student_enrolled_body', [
-                'student' => $this->enrollment->student?->full_name ?? 'الطالب',
-                'section' => $this->enrollment->section?->full_name ?? '',
-                'year' => $this->enrollment->academic_year,
-            ]),
+            'title' => 'تم تسجيل الطالب',
+            'body' => $student . ' تم تسجيله في ' . $section . ' للسنة الدراسية ' . $year . '.',
         ];
     }
 }

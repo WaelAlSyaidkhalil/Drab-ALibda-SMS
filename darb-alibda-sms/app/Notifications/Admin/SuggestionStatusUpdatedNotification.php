@@ -14,15 +14,12 @@ class SuggestionStatusUpdatedNotification extends Notification
 
     public function title(): string
     {
-        return __('dashboard.notifications.suggestion_status_updated_title');
+        return 'تم تحديث حالة الاقتراح';
     }
 
     public function body(): string
     {
-        return __('dashboard.notifications.suggestion_status_updated_body', [
-            'title' => $this->suggestion->title,
-            'status' => $this->suggestion->status->label(),
-        ]);
+        return 'حالة اقتراحك "' . $this->suggestion->title . '" أصبحت ' . $this->suggestion->status->label() . '.';
     }
 
     public function via($notifiable): array

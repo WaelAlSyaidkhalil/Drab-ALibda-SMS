@@ -17,21 +17,7 @@ class StudentEnrollmentStatusUpdatedNotification extends Notification
 
     public function title(): string
     {
-        $status = StudentStatus::from($this->statusValue);
-
-        if ($status == StudentStatus::GRADUATED || $status == StudentStatus::PROMOTED) {
-            return __('dashboard.notifications.student_enrollment_status_updated_title_success');
-        }
-
-        if ($status == StudentStatus::REPEATED) {
-            return __('dashboard.notifications.student_enrollment_status_updated_title_failed');
-        }
-
-        if ($status == StudentStatus::WITHDRAWN) {
-            return __('dashboard.notifications.student_enrollment_status_updated_title_withdrawn');
-        }
-
-        return __('dashboard.notifications.student_enrollment_status_updated_title');
+        return 'تم تحديث حالة الطالب';
     }
 
     public function body(): string
@@ -41,38 +27,25 @@ class StudentEnrollmentStatusUpdatedNotification extends Notification
             ? number_format($this->finalAverage, 2)
             : null;
 
+        $base = 'حالة تسجيل الطالب "' . $this->studentName . '" أصبحت ' . $this->statusLabel;
+
         if ($status == StudentStatus::GRADUATED && $average !== null) {
-            return __('dashboard.notifications.student_enrollment_status_updated_body_graduated', [
-                'student' => $this->studentName,
-                'average' => $average,
-            ]);
+            return $base . ' بمعدل نهائي ' . $average . '. تهانينا!';
         }
 
         if ($status == StudentStatus::PROMOTED && $average !== null) {
-            return __('dashboard.notifications.student_enrollment_status_updated_body_promoted', [
-                'student' => $this->studentName,
-                'average' => $average,
-            ]);
+            return $base . ' بمعدل نهائي ' . $average . '.';
         }
 
         if ($status == StudentStatus::REPEATED && $average !== null) {
-            return __('dashboard.notifications.student_enrollment_status_updated_body_repeated', [
-                'student' => $this->studentName,
-                'average' => $average,
-            ]);
+            return $base . ' بمعدل نهائي ' . $average . '.';
         }
 
         if ($status == StudentStatus::WITHDRAWN && $average !== null) {
-            return __('dashboard.notifications.student_enrollment_status_updated_body_withdrawn', [
-                'student' => $this->studentName,
-                'average' => $average,
-            ]);
+            return $base . ' بمعدل نهائي ' . $average . '.';
         }
 
-        return __('dashboard.notifications.student_enrollment_status_updated_body', [
-            'student' => $this->studentName,
-            'status' => $this->statusLabel,
-        ]);
+        return $base . '.';
     }
 
     public function via($notifiable): array

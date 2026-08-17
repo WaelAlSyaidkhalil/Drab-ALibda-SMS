@@ -14,15 +14,15 @@ class TeacherAbsentNotification extends Notification
 
     public function title(): string
     {
-        return __('dashboard.notifications.teacher_absent_title');
+        return 'غياب المعلم';
     }
 
     public function body(): string
     {
-        return __('dashboard.notifications.teacher_absent_body', [
-            'teacher' => $this->attendance->teacher->full_name,
-            'date' => $this->attendance->date?->format('Y-m-d') ?: '',
-        ]);
+        $teacher = $this->attendance->teacher->full_name;
+        $date = $this->attendance->date?->format('Y-m-d') ?: '';
+
+        return 'تم تسجيل غياب المعلم ' . $teacher . ' بتاريخ ' . $date . '.';
     }
 
     public function via($notifiable): array

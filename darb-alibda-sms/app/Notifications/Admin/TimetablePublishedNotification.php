@@ -12,14 +12,14 @@ class TimetablePublishedNotification extends Notification
 
     public function title(): string
     {
-        return __('dashboard.notifications.timetable_published_title');
+        return 'تم نشر البرنامج';
     }
 
     public function body(): string
     {
         return $this->audience === 'teachers'
-            ? __('dashboard.notifications.timetable_published_body_teacher')
-            : __('dashboard.notifications.timetable_published_body_student');
+            ? 'تم نشر برنامج الأسبوع للمعلمين.'
+            : 'تم نشر برنامج الأسبوع للطلاب.';
     }
 
     public function via($notifiable): array

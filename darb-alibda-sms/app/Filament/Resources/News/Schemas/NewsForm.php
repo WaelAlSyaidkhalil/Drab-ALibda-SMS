@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\News\Schemas;
 
 use App\Enums\AudienceType;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;

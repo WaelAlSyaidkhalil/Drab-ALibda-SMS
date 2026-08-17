@@ -14,15 +14,12 @@ class ComplaintStatusUpdatedNotification extends Notification
 
     public function title(): string
     {
-        return __('dashboard.notifications.complaint_status_updated_title');
+        return 'تم تحديث حالة الشكوى';
     }
 
     public function body(): string
     {
-        return __('dashboard.notifications.complaint_status_updated_body', [
-            'title' => $this->complaint->title,
-            'status' => $this->complaint->status->label(),
-        ]);
+        return 'حالة شكواك "' . $this->complaint->title . '" أصبحت ' . $this->complaint->status->label() . '.';
     }
 
     public function via($notifiable): array

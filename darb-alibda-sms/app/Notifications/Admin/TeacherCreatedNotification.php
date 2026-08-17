@@ -14,14 +14,12 @@ class TeacherCreatedNotification extends Notification
 
     public function title(): string
     {
-        return __('dashboard.notifications.teacher_created_title');
+        return 'تم إنشاء حساب المعلم';
     }
 
     public function body(): string
     {
-        return __('dashboard.notifications.teacher_created_body', [
-            'teacher' => $this->teacher->full_name,
-        ]);
+        return 'تم إنشاء حساب المعلم ' . $this->teacher->full_name . ' ويمكنه الآن الوصول إلى النظام.';
     }
 
     public function via($notifiable): array
