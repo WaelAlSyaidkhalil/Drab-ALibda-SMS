@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             SchoolInfoSeeder::class,
             AdminDashboardSeeder::class,
-            // AdminSeeder::class,
+            AdminSeeder::class,
             TeacherSeeder::class,
             ParentSeeder::class,
             StudentSeeder::class,

@@ -86,13 +86,16 @@ class AdminSeeder extends Seeder
         $classTypes = [
             ClassType::PRIMARY_FIRST,
             ClassType::PRIMARY_SECOND,
-
+            ClassType::PRIMARY_THIRD,
+            ClassType::PRIMARY_FOURTH,
+            ClassType::PRIMARY_FIFTH,
+            ClassType::PRIMARY_SIXTH,
         ];
 
         foreach ($classTypes as $classType) {
             SchoolClass::updateOrCreate(
                 ['type' => $classType->value],
-                ['type' => $classType->value]
+                ['type' => $classType->value],
             );
         }
 
